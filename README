@@ -1,0 +1,19 @@
+== About ==
+
+RAW is a high-level interface to Go's unsafe and reflection packages, built around the concept of raw byte buffers.
+Being able to create a byte slice from arbitrary types enables them to be manipulated using many of the standard
+IO interfaces provided by the core package library and greatly eases the sharing of memory buffers with other
+language runtimes.
+
+== Licensing ==
+
+Currently RAW is dual-licensed.
+
+The library can be included in your project as "Random Access Woe" under a standard BSD-style license.
+
+"Read it And Weep" is the closed-source variant of the library. It is in all particulars identical to the open-source
+version but requires a commercial usage license. Further details are available from the author on request.
+
+In both cases RAW does what it says on the tin: namely carve a swath of destruction through Go's type safety mechanisms.
+Because of the nature of the library no warranty is provided as to its suitability or fitness for purpose. MISUSE WILL
+RESULT IN DAMAGE.
