@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=chocaholic/raw
+TARG=raw
 
 CGOFILES=\
 	raw.go
