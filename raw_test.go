@@ -134,9 +134,50 @@ type TaggedPoint struct {
 	tag			string
 }
 
-func TestBufferWithEmbeddedStruct(t *testing.T) {
-//	p := &Point{ 3, 4, 5 }
-//	t := &TaggedPoint{ p, "this is a tag" }
+func TestBufferWithEmbeddedStructValue(t *testing.T) {
+	point := Point{ 3, 4, 5 }
+	tag := &TaggedPoint{ point, "this is a tag" }
+	buf := Buffer(tag)
+
+	size := unsafe.Sizeof(*tag)
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
+	}
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
+	}
+
+	base_address := uintptr(unsafe.Pointer(tag))
+	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	if base_address != bufheader.Data {
+		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
+	}
+}
+
+
+type TaggedPointReference struct {
+	*Point
+	tag			string
+}
+
+func TestBufferWithEmbeddedStructPointer(t *testing.T) {
+	point := Point{ 3, 4, 5 }
+	tag := &TaggedPointReference{ &point, "this is a tag" }
+	buf := Buffer(tag)
+
+	size := unsafe.Sizeof(*tag)
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
+	}
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
+	}
+
+	base_address := uintptr(unsafe.Pointer(tag))
+	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	if base_address != bufheader.Data {
+		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
+	}
 }
 
 func TestBufferWithInt32Slice(t *testing.T) {
@@ -207,3 +248,59 @@ func TestBufferWithFloat64Slice(t *testing.T) {
 	}
 }
 
+func numericBufferTest(t *testing.T, value interface{}) {
+	var size	int
+	var addr	uintptr
+
+	if v, ok := reflect.NewValue(value).(*reflect.PtrValue); ok {
+		if v := v.Elem(); v != nil {
+			size = int(v.Type().Size())
+			addr = v.Addr()
+		}
+	} else {
+		size = int(v.Type().Size())
+		addr = v.Addr()
+	}
+
+	buf := Buffer(value)
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
+	}
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
+	}
+
+	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	if addr != bufheader.Data {
+		t.Fatalf("addresses don't match: %v != %v", addr, bufheader.Data)
+	}
+}
+
+func TestBufferWithNumbers(t *testing.T) {
+	var i8		int8
+	var i16		int16
+	var i32 	int32
+	var i64		int64
+	var u8		uint8
+	var u16		uint16
+	var u32 	uint32
+	var u64		uint64
+	var f32 	float32
+	var f64		float64
+	var c64		complex64
+	var c128	complex64
+
+	numericBufferTest(t, &i8)
+	numericBufferTest(t, &i16)
+	numericBufferTest(t, &i32)
+	numericBufferTest(t, &i64)
+	numericBufferTest(t, &u8)
+	numericBufferTest(t, &u16)
+	numericBufferTest(t, &u32)
+	numericBufferTest(t, &u64)
+	numericBufferTest(t, &f32)
+	numericBufferTest(t, &f64)
+	numericBufferTest(t, &c64)
+	numericBufferTest(t, &c128)
+}

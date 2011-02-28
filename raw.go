@@ -71,7 +71,7 @@ func Buffer(i interface{}) []byte {
 		header = &reflect.SliceHeader{ address, length, bytes }
 	case *reflect.StringValue:
 		s := value.Get()
-		stringheader := *(*reflect.SliceHeader)(unsafe.Pointer(&s))
+		stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
 		header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
 	default:
 		/*
@@ -85,9 +85,13 @@ func Buffer(i interface{}) []byte {
 	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(header)).([]byte)
 }
 
-func Address(i interface{}) unsafe.Pointer {
-	b := Buffer(i)
-	return unsafe.Pointer(&(b[0]))
+func Address(i interface{}) (addr unsafe.Pointer) {
+	switch b := i.(type) {
+	case []byte:					addr = unsafe.Pointer(&(b[0]))
+	case Buffered:					addr = unsafe.Pointer(&(b.Buffer()[0]))
+	default:						addr = unsafe.Pointer(&(Buffer(i)[0]))
+	}
+	return
 }
 
 func Range(i interface{}, increment int, f func(int, unsafe.Pointer)) {
