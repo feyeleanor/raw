@@ -25,6 +25,10 @@ type MemoryBlock interface {
 	ByteSlice() []byte
 }
 
+func makeSlice(h *reflect.SliceHeader) []byte {
+	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(h)).([]byte)
+}
+
 func ByteSlice(i interface{}) []byte {
 	/*
 		A byteslice is by definition its own buffer.
@@ -37,6 +41,7 @@ func ByteSlice(i interface{}) []byte {
 	}
 
 	/*
+		For nil values we return a buffer to a zero-capacity byte slice.
 		There are cerain types which cannot be cast as a buffer and instead raise a panic.
 		In the rare case of the interface itself containing another interface we recursively query.
 		When given a pointer we use its target address and the size of the type it points to construct a SliceHeader.
@@ -48,7 +53,7 @@ func ByteSlice(i interface{}) []byte {
 	value := reflect.NewValue(i)
 	switch value := value.(type) {
 	case nil:
-		panic(i)
+		return make([]byte, 0, 0)
 	case reflect.Type:
 		panic(i)
 	case *reflect.MapValue:
@@ -82,24 +87,17 @@ func ByteSlice(i interface{}) []byte {
 		size := int(value.Type().Size())
 		header = &reflect.SliceHeader{ value.Addr(), size, size }
 	}
-	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(header)).([]byte)
+	return makeSlice(header)
 }
 
-func Address(i interface{}) (addr unsafe.Pointer) {
-	switch b := i.(type) {
-	case []byte:					addr = unsafe.Pointer(&(b[0]))
-	case MemoryBlock:				addr = unsafe.Pointer(&(b.ByteSlice()[0]))
-	default:						addr = unsafe.Pointer(&(ByteSlice(i)[0]))
-	}
-	return
+func dataAddress(b []byte) unsafe.Pointer {
+	return unsafe.Pointer(&(b[0]))
 }
 
-func Range(i interface{}, increment int, f func(int, unsafe.Pointer)) {
+func Range(i interface{}, f func(index int, addr unsafe.Pointer, value interface{})) {
 	b := ByteSlice(i)
-	items := len(b) / increment
-	for i := 0; i < items; i++ {
-		f(i, unsafe.Pointer((&b[:increment][0])))
-		b = b[increment:]
+	for n, v := range b {
+		f(n, dataAddress(b[n:]), v)
 	}
 }
 

@@ -4,6 +4,22 @@ import "reflect"
 import "testing"
 import "unsafe"
 
+func TestByteSliceWithNil(t *testing.T) {
+	b := ByteSlice(nil)
+	buf := ByteSlice(b)
+	if len(buf) != 0 {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), 0)
+	}
+	if cap(buf) != cap(b) {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), 0)
+	}
+
+	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	if sliceheader.Data != bufheader.Data {
+		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
+	}
+}
 
 func TestByteSliceWithByteSlice(t *testing.T) {
 	b := make([]byte, 10, 10)
@@ -315,8 +331,24 @@ func TestByteSliceWithNumbers(t *testing.T) {
 }
 
 func TestByteSliceWithNumbersInSlice(t *testing.T) {
-	values := []interface{}{ int(0), int8(0), int16(0), int32(0), int64(0), uint(0), uint8(0), uint16(0), uint32(0), uint64(0), float32(0.0), float64(0.0) }
-	for _, n := range values {
-		ValidateNumericByteSlice(t, n)
+	values := []interface{}{	int(0), int8(0), int16(0), int32(0), int64(0),
+								uint(0), uint8(0), uint16(0), uint32(0), uint64(0),
+								float32(0.0), float64(0.0),
+								complex64(0), complex128(0) }
+	for i, _ := range values {
+		ValidateNumericByteSlice(t, &values[i])
 	}
+}
+
+func TestByteSliceRange(t *testing.T) {
+	slice := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	address := dataAddress(slice)
+	Range(slice, func(i int, a unsafe.Pointer, v interface{}) {
+		if i != int(v.(byte)) {
+			t.Fatalf("range index %v != range value %v", i, v)
+		}
+		if uintptr(a) != uintptr(address) + uintptr(i) {
+			t.Fatalf("range address %v incorrect for range index %v", a, i)
+		}
+	})
 }

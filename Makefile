@@ -3,6 +3,6 @@ include $(GOROOT)/src/Make.inc
 TARG=raw
 
 CGOFILES=\
-	raw.go
+	byte_slice.go
 
 include $(GOROOT)/src/Make.pkg
