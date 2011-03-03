@@ -21,18 +21,18 @@ func init() {
 	This byteslice can then be manipulated directly to modify the contents of memory.
 	Use with extreme caution.
 */
-type Buffered interface {
-	Buffer() []byte
+type MemoryBlock interface {
+	ByteSlice() []byte
 }
 
-func Buffer(i interface{}) []byte {
+func ByteSlice(i interface{}) []byte {
 	/*
 		A byteslice is by definition its own buffer.
 		Any type which implements the Buffer interface will generate its result using that method.
 	*/
 	switch b := i.(type) {
 	case []byte:					return b
-	case Buffered:					return b.Buffer()
+	case MemoryBlock:				return b.ByteSlice()
 	default:
 	}
 
@@ -63,7 +63,7 @@ func Buffer(i interface{}) []byte {
 			header = &reflect.SliceHeader{ value.Addr(), size, size }
 		}
 	case *reflect.InterfaceValue:
-		return Buffer(value.Elem())
+		return ByteSlice(value.Elem())
 	case *reflect.SliceValue:
 		address := value.Elem(0).Addr()
 		bytes := int(value.Get() - address)
@@ -88,14 +88,14 @@ func Buffer(i interface{}) []byte {
 func Address(i interface{}) (addr unsafe.Pointer) {
 	switch b := i.(type) {
 	case []byte:					addr = unsafe.Pointer(&(b[0]))
-	case Buffered:					addr = unsafe.Pointer(&(b.Buffer()[0]))
-	default:						addr = unsafe.Pointer(&(Buffer(i)[0]))
+	case MemoryBlock:				addr = unsafe.Pointer(&(b.ByteSlice()[0]))
+	default:						addr = unsafe.Pointer(&(ByteSlice(i)[0]))
 	}
 	return
 }
 
 func Range(i interface{}, increment int, f func(int, unsafe.Pointer)) {
-	b := Buffer(i)
+	b := ByteSlice(i)
 	items := len(b) / increment
 	for i := 0; i < items; i++ {
 		f(i, unsafe.Pointer((&b[:increment][0])))
@@ -104,5 +104,5 @@ func Range(i interface{}, increment int, f func(int, unsafe.Pointer)) {
 }
 
 func Overwrite(d interface{}, s interface{}) {
-	copy(Buffer(d), Buffer(s))
+	copy(ByteSlice(d), ByteSlice(s))
 }

@@ -5,9 +5,9 @@ import "testing"
 import "unsafe"
 
 
-func TestBufferWithByteSlice(t *testing.T) {
+func TestByteSliceWithByteSlice(t *testing.T) {
 	b := make([]byte, 10, 10)
-	buf := Buffer(b)
+	buf := ByteSlice(b)
 	if len(buf) != len(b) {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(b))
 	}
@@ -22,7 +22,7 @@ func TestBufferWithByteSlice(t *testing.T) {
 	}
 }
 
-func TestBufferWithMap(t *testing.T) {
+func TestByteSliceWithMap(t *testing.T) {
 	m := make(map[int]int)
 	defer func() {
 		if x := recover(); x != nil {
@@ -33,10 +33,10 @@ func TestBufferWithMap(t *testing.T) {
 			t.Fatalf("should have raised a panic")
 		}
 	}()
-	Buffer(m)
+	ByteSlice(m)
 }
 
-func TestBufferWithChannel(t *testing.T) {
+func TestByteSliceWithChannel(t *testing.T) {
 	c := make(chan int)
 	defer func() {
 		if x := recover(); x != nil {
@@ -47,13 +47,13 @@ func TestBufferWithChannel(t *testing.T) {
 			t.Fatalf("should have raised a panic")
 		}
 	}()
-	Buffer(c)
+	ByteSlice(c)
 }
 
-func TestBufferWithInterface(t *testing.T) {
+func TestByteSliceWithInterface(t *testing.T) {
 	var i interface{} = make([]byte, 16, 16)
 	b := i.([]byte)
-	buf := Buffer(i)
+	buf := ByteSlice(i)
 	if len(buf) != len(b) {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(b))
 	}
@@ -68,9 +68,9 @@ func TestBufferWithInterface(t *testing.T) {
 	}
 }
 
-func TestBufferWithString(t *testing.T) {
+func TestByteSliceWithString(t *testing.T) {
 	s := "hello"
-	buf := Buffer(s)
+	buf := ByteSlice(s)
 	if len(buf) != len(s) {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(s))
 	}
@@ -91,9 +91,9 @@ type Point struct {
 	z			int32
 }
 
-func TestBufferWithStructValue(t *testing.T) {
+func TestByteSliceWithStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
-	buf := Buffer(&point)
+	buf := ByteSlice(&point)
 
 	size := unsafe.Sizeof(point)
 	if len(buf) != size {
@@ -110,9 +110,9 @@ func TestBufferWithStructValue(t *testing.T) {
 	}
 }
 
-func TestBufferWithStructPointer(t *testing.T) {
+func TestByteSliceWithStructPointer(t *testing.T) {
 	point := &Point{ 3, 4, 5 }
-	buf := Buffer(point)
+	buf := ByteSlice(point)
 
 	size := unsafe.Sizeof(*point)
 	if len(buf) != size {
@@ -134,10 +134,10 @@ type TaggedPoint struct {
 	tag			string
 }
 
-func TestBufferWithEmbeddedStructValue(t *testing.T) {
+func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	tag := &TaggedPoint{ point, "this is a tag" }
-	buf := Buffer(tag)
+	buf := ByteSlice(tag)
 
 	size := unsafe.Sizeof(*tag)
 	if len(buf) != size {
@@ -160,10 +160,10 @@ type TaggedPointReference struct {
 	tag			string
 }
 
-func TestBufferWithEmbeddedStructPointer(t *testing.T) {
+func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	tag := &TaggedPointReference{ &point, "this is a tag" }
-	buf := Buffer(tag)
+	buf := ByteSlice(tag)
 
 	size := unsafe.Sizeof(*tag)
 	if len(buf) != size {
@@ -180,9 +180,9 @@ func TestBufferWithEmbeddedStructPointer(t *testing.T) {
 	}
 }
 
-func TestBufferWithInt32Slice(t *testing.T) {
+func TestByteSliceWithInt32Slice(t *testing.T) {
 	i := make([]int32, 10, 10)
-	buf := Buffer(i)
+	buf := ByteSlice(i)
 	if len(buf) != len(i) * 4 {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(i) * 4)
 	}
@@ -197,9 +197,9 @@ func TestBufferWithInt32Slice(t *testing.T) {
 	}
 }
 
-func TestBufferWithInt64Slice(t *testing.T) {
+func TestByteSliceWithInt64Slice(t *testing.T) {
 	i := make([]int64, 10, 10)
-	buf := Buffer(i)
+	buf := ByteSlice(i)
 	if len(buf) != len(i) * 8 {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(i) * 8)
 	}
@@ -214,9 +214,9 @@ func TestBufferWithInt64Slice(t *testing.T) {
 	}
 }
 
-func TestBufferWithFloat32Slice(t *testing.T) {
+func TestByteSliceWithFloat32Slice(t *testing.T) {
 	f := make([]float32, 10, 10)
-	buf := Buffer(f)
+	buf := ByteSlice(f)
 	if len(buf) != len(f) * 4 {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(f) * 4)
 	}
@@ -231,9 +231,9 @@ func TestBufferWithFloat32Slice(t *testing.T) {
 	}
 }
 
-func TestBufferWithFloat64Slice(t *testing.T) {
+func TestByteSliceWithFloat64Slice(t *testing.T) {
 	f := make([]float64, 10, 10)
-	buf := Buffer(f)
+	buf := ByteSlice(f)
 	if len(buf) != len(f) * 8 {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(f) * 8)
 	}
@@ -248,40 +248,47 @@ func TestBufferWithFloat64Slice(t *testing.T) {
 	}
 }
 
-func numericBufferTest(t *testing.T, value interface{}) {
+func ValidateNumericByteSlice(t *testing.T, value interface{}) {
 	var size	int
 	var addr	uintptr
+	var numtype	reflect.Type
 
-	if v, ok := reflect.NewValue(value).(*reflect.PtrValue); ok {
-		if v := v.Elem(); v != nil {
-			size = int(v.Type().Size())
-			addr = v.Addr()
+	v := reflect.NewValue(value)
+	switch v := v.(type) {
+	case *reflect.PtrValue:
+		if e := v.Elem(); e != nil {
+			size = int(e.Type().Size())
+			addr = e.Addr()
+			numtype = e.Type()
 		}
-	} else {
+	default:
 		size = int(v.Type().Size())
 		addr = v.Addr()
+		numtype = v.Type()
 	}
 
-	buf := Buffer(value)
+	buf := ByteSlice(value)
 	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
+		t.Fatalf("%v: byte buffer lengths differ: %v != %v", numtype, len(buf), size)
 	}
 
 	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
+		t.Fatalf("%v: byte buffer capacities differ: %v != %v", numtype, cap(buf), size)
 	}
 
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
 	if addr != bufheader.Data {
-		t.Fatalf("addresses don't match: %v != %v", addr, bufheader.Data)
+		t.Fatalf("%v: addresses don't match: %v != %v", numtype, addr, bufheader.Data)
 	}
 }
 
-func TestBufferWithNumbers(t *testing.T) {
+func TestByteSliceWithNumbers(t *testing.T) {
+	var i		int
 	var i8		int8
 	var i16		int16
 	var i32 	int32
 	var i64		int64
+	var u		uint
 	var u8		uint8
 	var u16		uint16
 	var u32 	uint32
@@ -291,16 +298,25 @@ func TestBufferWithNumbers(t *testing.T) {
 	var c64		complex64
 	var c128	complex64
 
-	numericBufferTest(t, &i8)
-	numericBufferTest(t, &i16)
-	numericBufferTest(t, &i32)
-	numericBufferTest(t, &i64)
-	numericBufferTest(t, &u8)
-	numericBufferTest(t, &u16)
-	numericBufferTest(t, &u32)
-	numericBufferTest(t, &u64)
-	numericBufferTest(t, &f32)
-	numericBufferTest(t, &f64)
-	numericBufferTest(t, &c64)
-	numericBufferTest(t, &c128)
+	ValidateNumericByteSlice(t, &i)
+	ValidateNumericByteSlice(t, &i8)
+	ValidateNumericByteSlice(t, &i16)
+	ValidateNumericByteSlice(t, &i32)
+	ValidateNumericByteSlice(t, &i64)
+	ValidateNumericByteSlice(t, &u)
+	ValidateNumericByteSlice(t, &u8)
+	ValidateNumericByteSlice(t, &u16)
+	ValidateNumericByteSlice(t, &u32)
+	ValidateNumericByteSlice(t, &u64)
+	ValidateNumericByteSlice(t, &f32)
+	ValidateNumericByteSlice(t, &f64)
+	ValidateNumericByteSlice(t, &c64)
+	ValidateNumericByteSlice(t, &c128)
+}
+
+func TestByteSliceWithNumbersInSlice(t *testing.T) {
+	values := []interface{}{ int(0), int8(0), int16(0), int32(0), int64(0), uint(0), uint8(0), uint16(0), uint32(0), uint64(0), float32(0.0), float64(0.0) }
+	for _, n := range values {
+		ValidateNumericByteSlice(t, n)
+	}
 }
