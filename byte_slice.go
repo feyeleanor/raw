@@ -65,12 +65,12 @@ func ByteSlice(i interface{}) []byte {
 			panic(i)
 		} else {
 			size := int(value.Type().Size())
-			header = &reflect.SliceHeader{ value.Addr(), size, size }
+			header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
 		}
 	case *reflect.InterfaceValue:
 		return ByteSlice(value.Elem())
 	case *reflect.SliceValue:
-		address := value.Elem(0).Addr()
+		address := value.Elem(0).UnsafeAddr()
 		bytes := int(value.Get() - address)
 		length := (bytes / value.Cap()) * value.Len()
 		header = &reflect.SliceHeader{ address, length, bytes }
@@ -85,7 +85,7 @@ func ByteSlice(i interface{}) []byte {
 			then create a []byte sliceheader and return a valid slice
 		*/
 		size := int(value.Type().Size())
-		header = &reflect.SliceHeader{ value.Addr(), size, size }
+		header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
 	}
 	return makeSlice(header)
 }
