@@ -4,10 +4,12 @@ import "C"
 import "reflect"
 import "unsafe"
 
-var _SIZE_PTR = unsafe.Sizeof(uintptr(0))
+var _a interface{} = 0
 
-var _SIZE_INTERFACE = unsafe.Sizeof(interface{}(0))
-
+var _SIZE_PTR = unsafe.Sizeof(unsafe.Pointer(&_a))
+var _SIZE_UINTPTR = unsafe.Sizeof(uintptr(0))
+var _SIZE_INTERFACE = unsafe.Sizeof(_a)
+var _SIZE_BOOLEAN = unsafe.Sizeof(true)
 var _SIZE_BYTE = unsafe.Sizeof(byte(0))
 
 var _SIZE_INT = unsafe.Sizeof(int(0))
@@ -28,10 +30,10 @@ var _SIZE_FLOAT64 = unsafe.Sizeof(float64(0.0))
 var _SIZE_COMPLEX64 = unsafe.Sizeof(complex64(0))
 var _SIZE_COMPLEX128 = unsafe.Sizeof(complex128(0))
 
-var _SLICE_PTR = reflect.Typeof([]uintptr{})
-
+var _SLICE_PTR = reflect.Typeof([]unsafe.Pointer{})
+var _SLICE_UINTPTR = reflect.Typeof([]uintptr{})
 var _SLICE_INTERFACE = reflect.Typeof([]interface{}{})
-
+var _SLICE_BOOLEAN = reflect.Typeof([]bool{})
 var _SLICE_BYTE = reflect.Typeof([]byte{})
 
 var _SLICE_INT = reflect.Typeof([]int{})

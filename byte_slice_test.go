@@ -352,3 +352,7 @@ func TestByteSliceRange(t *testing.T) {
 		}
 	})
 }
+
+func TestByteSliceOverwrite(t *testing.T) {
+	t.Fatal("implement test for Overwrite")
+}

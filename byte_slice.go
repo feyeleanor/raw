@@ -25,7 +25,7 @@ type MemoryBlock interface {
 	ByteSlice() []byte
 }
 
-func makeSlice(h *reflect.SliceHeader) []byte {
+func makeByteSlice(h *reflect.SliceHeader) []byte {
 	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(h)).([]byte)
 }
 
@@ -87,7 +87,7 @@ func ByteSlice(i interface{}) []byte {
 		size := int(value.Type().Size())
 		header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
 	}
-	return makeSlice(header)
+	return makeByteSlice(header)
 }
 
 func dataAddress(b []byte) unsafe.Pointer {

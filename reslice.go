@@ -32,12 +32,20 @@ func Reslice(slice, sliceType interface{}, elementSize int) interface{} {
 	return unsafe.Unreflect(sliceType, unsafe.Pointer(h))
 }
 
-func PtrSlice(i interface{}) []uintptr {
-	return Reslice(i, _SLICE_PTR, _SIZE_PTR).([]uintptr)
+func PtrSlice(i interface{}) []unsafe.Pointer {
+	return Reslice(i, _SLICE_PTR, _SIZE_PTR).([]unsafe.Pointer)
+}
+
+func UintptrSlice(i interface{}) []uintptr {
+	return Reslice(i, _SLICE_UINTPTR, _SIZE_UINTPTR).([]uintptr)
 }
 
 func InterfaceSlice(i interface{}) []interface{} {
 	return Reslice(i, _SLICE_INTERFACE, _SIZE_INTERFACE).([]interface{})
+}
+
+func BoolSlice(i interface{}) []bool {
+	return Reslice(i, _SLICE_BOOLEAN, _SIZE_BOOLEAN).([]bool)
 }
 
 func IntSlice(i interface{}) []int {
