@@ -1,6 +1,5 @@
 package raw
 
-import "C"
 import "reflect"
 import "unsafe"
 

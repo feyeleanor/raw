@@ -1,19 +1,30 @@
+== Disclaimer ==
+The RAW package circumvents and subverts Go's type system. As such it should be used with extreme caution and only
+when absolutely necessary. Incautious use can and will lead to memory corruption. As such no warranty can be provided
+as to its suitability or fitness for purpose.
+
+Just to reiterate: MISUSE WILL RESULT IN MEMORY CORRUPTION.
+
+
+== License ==
+
+RAW is dual-licensed.
+
+The library can be included in your project as "Random Access Woe" under a standard BSD license.
+
+"Read it And Weep" is the closed-source variant of the library. It is in all particulars identical to the open-source
+version but requires a commercial usage license and in the process hides your shame for abusing Go in this manner.
+Further details of commercial license costs are available from the author on request.
+
+
 == About ==
 
 RAW is a high-level interface to Go's unsafe and reflection packages, built around the concept of raw byte buffers.
 Being able to create a byte slice from arbitrary types enables them to be manipulated using many of the standard
 IO interfaces provided by the core package library and greatly eases the sharing of memory buffers with other
-language runtimes.
+language runtimes. It also facilitates a number of tricks required when implementing language runtimes such as
+polymorphic registers, mixed-content arrays and binary marshalling.
 
-== Licensing ==
-
-Currently RAW is dual-licensed.
-
-The library can be included in your project as "Random Access Woe" under a standard BSD-style license.
-
-"Read it And Weep" is the closed-source variant of the library. It is in all particulars identical to the open-source
-version but requires a commercial usage license. Further details are available from the author on request.
-
-In both cases RAW does what it says on the tin: namely carve a swath of destruction through Go's type safety mechanisms.
-Because of the nature of the library no warranty is provided as to its suitability or fitness for purpose. MISUSE WILL
-RESULT IN DAMAGE.
+The package began life as a research spike of the GoLightly virtual machine project and was originally to be called
+either "Dangerous" or "Deadly" to reflect the unpleasant consequences of misuse. A friend suggested "Random Access Woe"
+and the name stuck.

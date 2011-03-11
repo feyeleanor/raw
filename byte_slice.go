@@ -4,7 +4,6 @@ package raw
 //	THE PACKAGE SHOULD BE INSTALLABLE VIA GOINSTALL
 //	AND NEEDS EXTENSIVE TESTS!!!!
 
-import "C"
 import "reflect"
 import "unsafe"
 
@@ -25,10 +24,6 @@ type MemoryBlock interface {
 	ByteSlice() []byte
 }
 
-func makeByteSlice(h *reflect.SliceHeader) []byte {
-	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(h)).([]byte)
-}
-
 func ByteSlice(i interface{}) []byte {
 	/*
 		A byteslice is by definition its own buffer.
@@ -37,7 +32,7 @@ func ByteSlice(i interface{}) []byte {
 	switch b := i.(type) {
 	case []byte:					return b
 	case MemoryBlock:				return b.ByteSlice()
-	default:
+	case nil:						return []byte{}
 	}
 
 	/*
@@ -52,55 +47,57 @@ func ByteSlice(i interface{}) []byte {
 
 	value := reflect.NewValue(i)
 	switch value := value.(type) {
-	case nil:
-		return make([]byte, 0, 0)
-	case reflect.Type:
-		panic(i)
-	case *reflect.MapValue:
-		panic(i)
-	case *reflect.ChanValue:
-		panic(i)
-	case *reflect.PtrValue:
-		if value := value.Elem(); value == nil {
-			panic(i)
-		} else {
-			size := int(value.Type().Size())
-			header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
-		}
-	case *reflect.InterfaceValue:
-		return ByteSlice(value.Elem())
-	case *reflect.SliceValue:
-		address := value.Elem(0).UnsafeAddr()
-		bytes := int(value.Get() - address)
-		length := (bytes / value.Cap()) * value.Len()
-		header = &reflect.SliceHeader{ address, length, bytes }
-	case *reflect.StringValue:
-		s := value.Get()
-		stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
-		header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
-	default:
-		/*
-			For every other type the value gives us an address for the data
-			Given this and the size of the underlying allocated memory we can
-			then create a []byte sliceheader and return a valid slice
-		*/
-		size := int(value.Type().Size())
-		header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
+	case nil:						return []byte{}
+	case reflect.Type:				panic(i)
+	case *reflect.MapValue:			panic(i)
+	case *reflect.ChanValue:		panic(i)
+	case *reflect.InterfaceValue:	return ByteSlice(value.Elem())
+
+	case *reflect.PtrValue:			if value := value.Elem(); value == nil {
+										panic(i)
+									} else {
+										size := int(value.Type().Size())
+										header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
+									}
+
+	case *reflect.SliceValue:		h, s, _ := SliceHeader(i)
+									header = Scale(h, s, 1)
+
+	case *reflect.StringValue:		s := value.Get()
+									stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+									header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
+
+	default:						//	For every other type the value gives us an address for the data
+									//	Given this and the size of the underlying allocated memory we can
+									//	then create a []byte sliceheader and return a valid slice
+									size := int(value.Type().Size())
+									header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
 	}
-	return makeByteSlice(header)
+	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(header)).([]byte)
 }
 
-func dataAddress(b []byte) unsafe.Pointer {
+func DataAddress(b []byte) (p unsafe.Pointer) {
+	defer func() {
+		if r := recover(); r != nil {
+			p = unsafe.Pointer((*reflect.SliceHeader)(unsafe.Pointer(&b)).Data)
+		}
+	}()
 	return unsafe.Pointer(&(b[0]))
 }
 
 func Range(i interface{}, f func(index int, addr unsafe.Pointer, value interface{})) {
 	b := ByteSlice(i)
 	for n, v := range b {
-		f(n, dataAddress(b[n:]), v)
+		f(n, DataAddress(b[n:]), v)
 	}
 }
 
-func Overwrite(d interface{}, s interface{}) {
-	copy(ByteSlice(d), ByteSlice(s))
+func Copy(d interface{}, s interface{}) {
+	db := ByteSlice(d)
+	sb := ByteSlice(s)
+	copy(db, sb)
+
+	dh, element_size, _ := SliceHeader(d)
+	dh.Len = len(db) / element_size
+	dh.Cap = cap(db) / element_size
 }

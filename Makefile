@@ -2,7 +2,7 @@ include $(GOROOT)/src/Make.inc
 
 TARG=raw
 
-CGOFILES=\
+GOFILES=\
 	byte_slice.go\
 	reslice.go\
 	runtime.go

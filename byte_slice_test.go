@@ -67,7 +67,7 @@ func TestByteSliceWithChannel(t *testing.T) {
 }
 
 func TestByteSliceWithInterface(t *testing.T) {
-	var i interface{} = make([]byte, 16, 16)
+	var i interface{} = make([]byte, SIZE[INTERFACE], SIZE[INTERFACE])
 	b := i.([]byte)
 	buf := ByteSlice(i)
 	if len(buf) != len(b) {
@@ -115,6 +115,7 @@ func TestByteSliceWithStructValue(t *testing.T) {
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
+
 	if cap(buf) != size {
 		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
@@ -134,6 +135,7 @@ func TestByteSliceWithStructPointer(t *testing.T) {
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
+
 	if cap(buf) != size {
 		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
@@ -159,6 +161,7 @@ func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
+
 	if cap(buf) != size {
 		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
@@ -185,6 +188,7 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
+
 	if cap(buf) != size {
 		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
@@ -199,11 +203,13 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 func TestByteSliceWithInt32Slice(t *testing.T) {
 	i := make([]int32, 10, 10)
 	buf := ByteSlice(i)
-	if len(buf) != len(i) * 4 {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(i) * 4)
+	size := len(i) * SIZE[INT32]
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
-	if cap(buf) != cap(i) * 4 {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(i) * 4)
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
@@ -216,11 +222,13 @@ func TestByteSliceWithInt32Slice(t *testing.T) {
 func TestByteSliceWithInt64Slice(t *testing.T) {
 	i := make([]int64, 10, 10)
 	buf := ByteSlice(i)
-	if len(buf) != len(i) * 8 {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(i) * 8)
+	size := len(i) * SIZE[INT64]
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
-	if cap(buf) != cap(i) * 8 {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(i) * 8)
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
@@ -233,11 +241,13 @@ func TestByteSliceWithInt64Slice(t *testing.T) {
 func TestByteSliceWithFloat32Slice(t *testing.T) {
 	f := make([]float32, 10, 10)
 	buf := ByteSlice(f)
-	if len(buf) != len(f) * 4 {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(f) * 4)
+	size := len(f) * SIZE[FLOAT32]
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
-	if cap(buf) != cap(f) * 4 {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(f) * 4)
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
@@ -250,11 +260,13 @@ func TestByteSliceWithFloat32Slice(t *testing.T) {
 func TestByteSliceWithFloat64Slice(t *testing.T) {
 	f := make([]float64, 10, 10)
 	buf := ByteSlice(f)
-	if len(buf) != len(f) * 8 {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(f) * 8)
+	size := len(f) * SIZE[FLOAT64]
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
-	if cap(buf) != cap(f) * 8 {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(f) * 8)
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
 	}
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
@@ -270,18 +282,12 @@ func ValidateNumericByteSlice(t *testing.T, value interface{}) {
 	var numtype	reflect.Type
 
 	v := reflect.NewValue(value)
-	switch v := v.(type) {
-	case *reflect.PtrValue:
-		if e := v.Elem(); e != nil {
-			size = int(e.Type().Size())
-			addr = e.UnsafeAddr()
-			numtype = e.Type()
-		}
-	default:
-		size = int(v.Type().Size())
-		addr = v.UnsafeAddr()
-		numtype = v.Type()
+	if x, ok := v.(*reflect.PtrValue); ok {
+		v = x.Elem()
 	}
+	size = int(v.Type().Size())
+	addr = v.UnsafeAddr()
+	numtype = v.Type()
 
 	buf := ByteSlice(value)
 	if len(buf) != size {
@@ -340,9 +346,14 @@ func TestByteSliceWithNumbersInSlice(t *testing.T) {
 	}
 }
 
+func TestByteSliceDataAddress(t *testing.T) {
+	DataAddress([]byte{})
+	DataAddress(make([]byte, 0, 0))
+}
+
 func TestByteSliceRange(t *testing.T) {
 	slice := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	address := dataAddress(slice)
+	address := DataAddress(slice)
 	Range(slice, func(i int, a unsafe.Pointer, v interface{}) {
 		if i != int(v.(byte)) {
 			t.Fatalf("range index %v != range value %v", i, v)
@@ -353,6 +364,20 @@ func TestByteSliceRange(t *testing.T) {
 	})
 }
 
-func TestByteSliceOverwrite(t *testing.T) {
-	t.Fatal("implement test for Overwrite")
+func TestByteSliceCopy(t *testing.T) {
+	s := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	for i := 0; i < len(s); i++ {
+		c := cap(s) / 2
+		if c < i {
+			c = i
+		}
+		d := make([]int, i, c)
+		Copy(d, s)
+		if len(d) != i {
+			t.Fatalf("destination buffer length changed: %v != %v", len(d), i)
+		}
+		if !reflect.DeepEqual(d, s[:i]) {
+			t.Fatalf("buffer contents differ: %v != %v", d, s[:i])
+		}
+	}
 }

@@ -186,3 +186,83 @@ func TestSliceHeaderFloat64(t *testing.T) {
 	if h.Len != header.Len { t.Fatalf("slice header lengths should be the same: %v - %v", h.Len, header.Len) }
 	if h.Cap != header.Cap { t.Fatalf("slice header capacities should be the same: %v - %v", h.Cap, header.Cap) }
 }
+
+func TestScale(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestReslice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestPointerSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUintptrSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestInterfaceSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestBoolSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestIntSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestInt8Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestInt16Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestInt32Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestInt64Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUintSlice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUint8Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUint16Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUint32Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestUint64Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestFloat32Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestFloat64Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestComplex64Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
+
+func TestComplex128Slice(t *testing.T) {
+	t.Fatal("implement test")
+}
