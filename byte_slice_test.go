@@ -67,7 +67,8 @@ func TestByteSliceWithChannel(t *testing.T) {
 }
 
 func TestByteSliceWithInterface(t *testing.T) {
-	var i interface{} = make([]byte, SIZE[INTERFACE], SIZE[INTERFACE])
+	t.Fatalf("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
+	var i interface{} = make([]byte, INTERFACE.size, INTERFACE.size)
 	b := i.([]byte)
 	buf := ByteSlice(i)
 	if len(buf) != len(b) {
@@ -203,7 +204,7 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 func TestByteSliceWithInt32Slice(t *testing.T) {
 	i := make([]int32, 10, 10)
 	buf := ByteSlice(i)
-	size := len(i) * SIZE[INT32]
+	size := len(i) * INT32.size
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -222,7 +223,7 @@ func TestByteSliceWithInt32Slice(t *testing.T) {
 func TestByteSliceWithInt64Slice(t *testing.T) {
 	i := make([]int64, 10, 10)
 	buf := ByteSlice(i)
-	size := len(i) * SIZE[INT64]
+	size := len(i) * INT64.size
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -241,7 +242,7 @@ func TestByteSliceWithInt64Slice(t *testing.T) {
 func TestByteSliceWithFloat32Slice(t *testing.T) {
 	f := make([]float32, 10, 10)
 	buf := ByteSlice(f)
-	size := len(f) * SIZE[FLOAT32]
+	size := len(f) * FLOAT32.size
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -260,7 +261,7 @@ func TestByteSliceWithFloat32Slice(t *testing.T) {
 func TestByteSliceWithFloat64Slice(t *testing.T) {
 	f := make([]float64, 10, 10)
 	buf := ByteSlice(f)
-	size := len(f) * SIZE[FLOAT64]
+	size := len(f) * FLOAT64.size
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}

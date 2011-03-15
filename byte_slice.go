@@ -54,7 +54,7 @@ func ByteSlice(i interface{}) []byte {
 	case *reflect.InterfaceValue:	return ByteSlice(value.Elem())
 
 	case *reflect.PtrValue:			if value := value.Elem(); value == nil {
-										panic(i)
+										return ByteSlice(nil)
 									} else {
 										size := int(value.Type().Size())
 										header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }

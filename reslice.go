@@ -36,40 +36,40 @@ func Reslice(slice, sliceType interface{}, elementSize int) interface{} {
 }
 
 func PointerSlice(i interface{}) []unsafe.Pointer {
-	return Reslice(i, SLICE_TYPE[POINTER], SIZE[POINTER]).([]unsafe.Pointer)
+	return Reslice(i, POINTER.slice_type, POINTER.size).([]unsafe.Pointer)
 }
 
 func UintptrSlice(i interface{}) []uintptr {
-	return Reslice(i, SLICE_TYPE[UINTPTR], SIZE[UINTPTR]).([]uintptr)
+	return Reslice(i, UINTPTR.slice_type, UINTPTR.size).([]uintptr)
 }
 
 func InterfaceSlice(i interface{}) []interface{} {
-	return Reslice(i, SLICE_TYPE[INTERFACE], SIZE[INTERFACE]).([]interface{})
+	return Reslice(i, INTERFACE.slice_type, INTERFACE.size).([]interface{})
 }
 
 func BoolSlice(i interface{}) []bool {
-	return Reslice(i, SLICE_TYPE[BOOLEAN], SIZE[BOOLEAN]).([]bool)
+	return Reslice(i, BOOLEAN.slice_type, BOOLEAN.size).([]bool)
 }
 
 func IntSlice(i interface{}) []int {
 	if i, ok := i.([]uint); ok {
 		return *(*[]int)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[INT], SIZE[INT]).([]int)
+	return Reslice(i, INT.slice_type, INT.size).([]int)
 }
 
 func Int8Slice(i interface{}) []int8 {
 	if i, ok := i.([]uint8); ok {
 		return *(*[]int8)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[INT8], SIZE[INT8]).([]int8)
+	return Reslice(i, INT8.slice_type, INT8.size).([]int8)
 }
 
 func Int16Slice(i interface{}) []int16 {
 	if i, ok := i.([]uint16); ok {
 		return *(*[]int16)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[INT16], SIZE[INT16]).([]int16)
+	return Reslice(i, INT16.slice_type, INT16.size).([]int16)
 }
 
 func Int32Slice(i interface{}) []int32 {
@@ -79,28 +79,28 @@ func Int32Slice(i interface{}) []int32 {
 	case []float32:
 		return *(*[]int32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[INT32], SIZE[INT32]).([]int32)
+	return Reslice(i, INT32.slice_type, INT32.size).([]int32)
 }
 
 func UintSlice(i interface{}) []uint {
 	if i, ok := i.([]int); ok {
 		return *(*[]uint)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[UINT], SIZE[UINT]).([]uint)
+	return Reslice(i, UINT.slice_type, UINT.size).([]uint)
 }
 
 func Uint8Slice(i interface{}) []uint8 {
 	if i, ok := i.([]int8); ok {
 		return *(*[]uint8)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[UINT8], SIZE[UINT8]).([]uint8)
+	return Reslice(i, UINT8.slice_type, UINT8.size).([]uint8)
 }
 
 func Uint16Slice(i interface{}) []uint16 {
 	if i, ok := i.([]int16); ok {
 		return *(*[]uint16)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[UINT16], SIZE[UINT16]).([]uint16)
+	return Reslice(i, UINT16.slice_type, UINT16.size).([]uint16)
 }
 
 func Uint32Slice(i interface{}) []uint32 {
@@ -110,7 +110,7 @@ func Uint32Slice(i interface{}) []uint32 {
 	case []float32:
 		return *(*[]uint32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[UINT32], SIZE[UINT32]).([]uint32)
+	return Reslice(i, UINT32.slice_type, UINT32.size).([]uint32)
 }
 
 func Uint64Slice(i interface{}) []uint64 {
@@ -120,7 +120,7 @@ func Uint64Slice(i interface{}) []uint64 {
 	case []float64:
 		return *(*[]uint64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[UINT32], SIZE[UINT32]).([]uint64)
+	return Reslice(i, UINT64.slice_type, UINT64.size).([]uint64)
 }
 
 func Float32Slice(i interface{}) []float32 {
@@ -130,7 +130,7 @@ func Float32Slice(i interface{}) []float32 {
 	case []uint32:
 		return *(*[]float32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[FLOAT32], SIZE[FLOAT32]).([]float32)
+	return Reslice(i, FLOAT32.slice_type, FLOAT32.size).([]float32)
 }
 
 func Float64Slice(i interface{}) []float64 {
@@ -142,7 +142,7 @@ func Float64Slice(i interface{}) []float64 {
 	case []complex64:
 		return *(*[]float64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[FLOAT64], SIZE[FLOAT64]).([]float64)
+	return Reslice(i, FLOAT64.slice_type, FLOAT64.size).([]float64)
 }
 
 func Complex64Slice(i interface{}) []complex64 {
@@ -154,9 +154,9 @@ func Complex64Slice(i interface{}) []complex64 {
 	case []float64:
 		return *(*[]complex64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, SLICE_TYPE[COMPLEX64], SIZE[COMPLEX64]).([]complex64)
+	return Reslice(i, COMPLEX64.slice_type, COMPLEX64.size).([]complex64)
 }
 
 func Complex128Slice(i interface{}) []complex128 {
-	return Reslice(i, SLICE_TYPE[COMPLEX128], SIZE[COMPLEX128]).([]complex128)
+	return Reslice(i, COMPLEX128.slice_type, COMPLEX128.size).([]complex128)
 }
