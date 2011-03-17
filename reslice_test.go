@@ -54,6 +54,9 @@ func TestSliceHeaderUintptr(t *testing.T) {
 }
 
 func TestSliceHeaderInterface(t *testing.T) {
+	var _b interface{} = 0
+	t.Logf("Interface size = %v", unsafe.Sizeof(_b))
+
 	t.Logf("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
 	slice := []interface{}{ 0, 1, 2, 3, 4, 5 }
 	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
@@ -192,7 +195,7 @@ func TestScale(t *testing.T) {
 	}
 }
 
-func TestReslice(t *testing.T) {
+func TestResliceNil(t *testing.T) {
 	var h 	*reflect.SliceHeader
 
 	hs := &reflect.SliceHeader{}
@@ -201,16 +204,34 @@ func TestReslice(t *testing.T) {
 	case h.Len != hs.Len:	t.Fatalf("SliceHeader reslice length should be %v not %v", h.Len, hs.Len)
 	case h.Cap != hs.Cap:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", h.Cap, hs.Cap)
 	}
+}
 
-	t.Fatal("implement test")
+func TestReslice(t *testing.T) {
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	h, _, _ := SliceHeader(b)
+	h, _, _ = SliceHeader(Reslice(h, INT32.slice_type, INT32.size))
+	switch {
+	case h.Len != len(b) / 4:	t.Fatalf("SliceHeader reslice length should be %v not %v", h.Len, len(b) / 4)
+	case h.Cap != cap(b) / 4:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", h.Cap, cap(b) / 4)
+	}
 }
 
 func TestPointerSlice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := PointerSlice(b)
+	switch {
+	case len(p) != len(b) / POINTER.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / POINTER.size)
+	case len(p) != cap(b) / POINTER.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / POINTER.size)
+	}
 }
 
 func TestUintptrSlice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := UintptrSlice(b)
+	switch {
+	case len(p) != len(b) / UINTPTR.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINTPTR.size)
+	case len(p) != cap(b) / UINTPTR.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINTPTR.size)
+	}
 }
 
 func TestInterfaceSlice(t *testing.T) {
@@ -218,61 +239,136 @@ func TestInterfaceSlice(t *testing.T) {
 }
 
 func TestBoolSlice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := BoolSlice(b)
+	switch {
+	case len(p) != len(b) / BOOLEAN.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / BOOLEAN.size)
+	case len(p) != cap(b) / BOOLEAN.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / BOOLEAN.size)
+	}
 }
 
 func TestIntSlice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := IntSlice(b)
+	switch {
+	case len(p) != len(b) / INT.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / INT.size)
+	case len(p) != cap(b) / INT.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / INT.size)
+	}
 }
 
 func TestInt8Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Int8Slice(b)
+	switch {
+	case len(p) != len(b) / INT8.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / INT8.size)
+	case len(p) != cap(b) / INT8.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / INT8.size)
+	}
 }
 
 func TestInt16Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Int16Slice(b)
+	switch {
+	case len(p) != len(b) / INT16.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / INT16.size)
+	case len(p) != cap(b) / INT16.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / INT16.size)
+	}
 }
 
 func TestInt32Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Int32Slice(b)
+	switch {
+	case len(p) != len(b) / INT32.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / INT32.size)
+	case len(p) != cap(b) / INT32.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / INT32.size)
+	}
 }
 
 func TestInt64Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Int64Slice(b)
+	switch {
+	case len(p) != len(b) / INT64.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / INT64.size)
+	case len(p) != cap(b) / INT64.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / INT64.size)
+	}
 }
 
 func TestUintSlice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := UintSlice(b)
+	switch {
+	case len(p) != len(b) / UINT.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINT.size)
+	case len(p) != cap(b) / UINT.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINT.size)
+	}
 }
 
 func TestUint8Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Uint8Slice(b)
+	switch {
+	case len(p) != len(b) / UINT8.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINT8.size)
+	case len(p) != cap(b) / UINT8.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINT8.size)
+	}
 }
 
 func TestUint16Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Uint16Slice(b)
+	switch {
+	case len(p) != len(b) / UINT16.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINT16.size)
+	case len(p) != cap(b) / UINT16.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINT16.size)
+	}
 }
 
 func TestUint32Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Uint32Slice(b)
+	switch {
+	case len(p) != len(b) / UINT32.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINT32.size)
+	case len(p) != cap(b) / UINT32.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINT32.size)
+	}
 }
 
 func TestUint64Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Uint64Slice(b)
+	switch {
+	case len(p) != len(b) / UINT64.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / UINT64.size)
+	case len(p) != cap(b) / UINT64.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / UINT64.size)
+	}
 }
 
 func TestFloat32Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Float32Slice(b)
+	switch {
+	case len(p) != len(b) / FLOAT32.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / FLOAT32.size)
+	case len(p) != cap(b) / FLOAT32.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / FLOAT32.size)
+	}
 }
 
 func TestFloat64Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Float64Slice(b)
+	switch {
+	case len(p) != len(b) / FLOAT64.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / FLOAT64.size)
+	case len(p) != cap(b) / FLOAT64.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / FLOAT64.size)
+	}
 }
 
 func TestComplex64Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Complex64Slice(b)
+	switch {
+	case len(p) != len(b) / COMPLEX64.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / COMPLEX64.size)
+	case len(p) != cap(b) / COMPLEX64.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / COMPLEX64.size)
+	}
 }
 
 func TestComplex128Slice(t *testing.T) {
-	t.Fatal("implement test")
+	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	p := Complex128Slice(b)
+	switch {
+	case len(p) != len(b) / COMPLEX128.size:	t.Fatalf("SliceHeader reslice length should be %v not %v", len(p), len(b) / COMPLEX128.size)
+	case len(p) != cap(b) / COMPLEX128.size:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", cap(p), cap(b) / COMPLEX128.size)
+	}
 }

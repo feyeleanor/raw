@@ -82,6 +82,16 @@ func Int32Slice(i interface{}) []int32 {
 	return Reslice(i, INT32.slice_type, INT32.size).([]int32)
 }
 
+func Int64Slice(i interface{}) []int64 {
+	switch i := i.(type) {
+	case []uint64:
+		return *(*[]int64)(unsafe.Pointer(&i))
+	case []float64:
+		return *(*[]int64)(unsafe.Pointer(&i))
+	}
+	return Reslice(i, INT64.slice_type, INT64.size).([]int64)
+}
+
 func UintSlice(i interface{}) []uint {
 	if i, ok := i.([]int); ok {
 		return *(*[]uint)(unsafe.Pointer(&i))
