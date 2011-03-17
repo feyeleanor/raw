@@ -85,14 +85,7 @@ func DataAddress(b []byte) (p unsafe.Pointer) {
 	return unsafe.Pointer(&(b[0]))
 }
 
-func Range(i interface{}, f func(index int, addr unsafe.Pointer, value interface{})) {
-	b := ByteSlice(i)
-	for n, v := range b {
-		f(n, DataAddress(b[n:]), v)
-	}
-}
-
-func Copy(d interface{}, s interface{}) {
+func ByteCopy(d interface{}, s interface{}) {
 	db := ByteSlice(d)
 	sb := ByteSlice(s)
 	copy(db, sb)

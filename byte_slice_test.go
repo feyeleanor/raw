@@ -361,20 +361,7 @@ func TestByteSliceDataAddress(t *testing.T) {
 	DataAddress(make([]byte, 0, 0))
 }
 
-func TestByteSliceRange(t *testing.T) {
-	slice := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	address := DataAddress(slice)
-	Range(slice, func(i int, a unsafe.Pointer, v interface{}) {
-		if i != int(v.(byte)) {
-			t.Fatalf("range index %v != range value %v", i, v)
-		}
-		if uintptr(a) != uintptr(address) + uintptr(i) {
-			t.Fatalf("range address %v incorrect for range index %v", a, i)
-		}
-	})
-}
-
-func TestByteSliceCopy(t *testing.T) {
+func TestSliceByteCopy(t *testing.T) {
 	s := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	for i := 0; i < len(s); i++ {
 		c := cap(s) / 2
@@ -382,7 +369,7 @@ func TestByteSliceCopy(t *testing.T) {
 			c = i
 		}
 		d := make([]int, i, c)
-		Copy(d, s)
+		ByteCopy(d, s)
 		if len(d) != i {
 			t.Fatalf("destination buffer length changed: %v != %v", len(d), i)
 		}
