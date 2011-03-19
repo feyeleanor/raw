@@ -41,11 +41,11 @@ func TestClear(t *testing.T) {
 	t.Fatal("Implement Test")
 }
 
-func TestReplicate(t *testing.T) {
+func TestRepeat(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	c := 10
-	s = s.Replicate(c)
+	s = s.Repeat(c)
 
 	switch {
 	case s.Len() != len(b) * c:	t.Fatalf("Slice length should be %v not %v", len(b) * c, s.Len())
@@ -122,4 +122,84 @@ func TestOne(t *testing.T) {
 		return i.(int) == 0
 	})
 	if !r { t.Fatal("") }
+}
+
+func TestAt(t *testing.T) {
+	t.Fatal("Implement Test")
+}
+
+func TestSet(t *testing.T) {
+	t.Fatal("Implement Test")
+}
+
+func TestCollect(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	r := s.Collect(func(i interface{}) interface{} {
+		return i.(int) * 2
+	})
+	switch {
+	case r == nil:				t.Fatal("Collect() returned a nil value")
+	case r.Cap() != cap(b):		t.Fatalf("capacity should be %v but is %v", cap(b), r.Cap())
+	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
+	case r.At(0) != 0:			t.Fatalf("r[0] == %v", r.At(0))
+	case r.At(1) != 2:			t.Fatalf("r[1] == %v", r.At(1))
+	case r.At(2) != 4:			t.Fatalf("r[2] == %v", r.At(2))
+	case r.At(3) != 6:			t.Fatalf("r[3] == %v", r.At(3))
+	case r.At(4) != 8:			t.Fatalf("r[4] == %v", r.At(4))
+	case r.At(5) != 10:			t.Fatalf("r[5] == %v", r.At(5))
+	case r.At(6) != 12:			t.Fatalf("r[6] == %v", r.At(6))
+	case r.At(7) != 14:			t.Fatalf("r[7] == %v", r.At(7))
+	case r.At(8) != 16:			t.Fatalf("r[8] == %v", r.At(8))
+	case r.At(9) != 18:			t.Fatalf("r[9] == %v", r.At(9))
+	}
+	t.Fatal("Add further test filters")
+}
+
+func TestInject(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	r := s.Inject(0, func(memo, x interface{}) interface{} {
+		return memo.(int) + x.(int)
+	})
+	switch {
+	case r == nil:				t.Fatal("Inject() returned a nil value")
+	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
+	}
+	t.Fatal("Add further test filters")
+}
+
+func TestCombine(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	r := s.Combine(s, func(x, y interface{}) interface{} {
+		return x.(int) * y.(int)
+	})
+	switch {
+	case r == nil:				t.Fatal("Combine() returned a nil value")
+	case r.Cap() != cap(b):		t.Fatalf("capacity should be %v but is %v", cap(b), r.Cap())
+	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
+	case r.At(0) != 0:			t.Fatalf("r[0] == %v", r.At(0))
+	case r.At(1) != 1:			t.Fatalf("r[1] == %v", r.At(1))
+	case r.At(2) != 4:			t.Fatalf("r[2] == %v", r.At(2))
+	case r.At(3) != 9:			t.Fatalf("r[3] == %v", r.At(3))
+	case r.At(4) != 16:			t.Fatalf("r[4] == %v", r.At(4))
+	case r.At(5) != 25:			t.Fatalf("r[5] == %v", r.At(5))
+	case r.At(6) != 36:			t.Fatalf("r[6] == %v", r.At(6))
+	case r.At(7) != 49:			t.Fatalf("r[7] == %v", r.At(7))
+	case r.At(8) != 64:			t.Fatalf("r[8] == %v", r.At(8))
+	case r.At(9) != 81:			t.Fatalf("r[9] == %v", r.At(9))
+	}
+	t.Fatal("Add further test filters")
+}
+
+func TestCycle(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	r := s.Cycle(5, func(i int, x interface{}) {})
+	switch {
+	case r == nil:				t.Fatal("Cycle() returned a nil value")
+	case r != 5:				t.Fatalf("r should be 5 but is %v", r)
+	}
+	t.Fatal("Add further test filters")
 }

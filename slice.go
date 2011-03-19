@@ -54,7 +54,7 @@ func (s *Slice) Clear(start, end int) {
 	}
 }
 
-func (s *Slice) Replicate(count int) *Slice {
+func (s *Slice) Repeat(count int) *Slice {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
 	source := (*reflect.SliceValue)(s)
 	for ; count > 1; count-- {
@@ -120,6 +120,62 @@ func (s *Slice) One(f func(x interface{}) bool) bool {
 	return c == 1
 }
 
+func (s *Slice) At(i int) interface{} {
+	return (*reflect.SliceValue)(s).Elem(i).Interface()
+}
+
+func (s *Slice) Set(i int, value interface{}) {
+	(*reflect.SliceValue)(s).Elem(i).SetValue(reflect.NewValue(value))
+}
+
+func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
+	destination := (*Slice)(reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()))
+	for i := s.Len() - 1; i > 0; i-- {
+		destination.Set(i, f(s.At(i)))
+	}
+	return destination
+}
+
+func (s *Slice) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
+	end := s.Len()
+	for i := 0; i < end; i++ {
+		seed = f(seed, s.At(i))
+	}
+	return seed
+}
+
+func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
+	l := s.Len()
+	if s.Len() > o.Len() {
+		l = o.Len()
+	}
+	destination := (*Slice)(reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l))
+	for i := 0; i < l; i++ {
+		destination.Set(i, f(s.At(i), o.At(i)))
+	}
+	return destination
+}
+
+func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
+	j := 0
+	l := s.Len()
+	switch count {
+	case 0:		for {
+					for i := 0; i < l; i++ {
+						f(j, s.At(i))
+					}
+					j++
+				}
+	default:	for k := 0; j < count; j++ {
+					for i := 0; i < l; i++ {
+						f(k, s.At(i))
+					}
+					k++
+				}
+	}
+	return j
+}
+
 /*
 func (b *IntBuffer) Resize(length int) {
 	if length > cap(*b) {
@@ -138,51 +194,6 @@ func (b *IntBuffer) Extend(count int) {
 func (b *IntBuffer) Shrink(count int) {
 	b.Resize(len(*b) - count)
 }
-
-func (b IntBuffer) Collect(f func(x int) int) IntBuffer {
-	n := make(IntBuffer, len(b))
-	for i, x := range b {
-		n[i] = f(x)
-	}
-	return n
-}
-
-func (b IntBuffer) Inject(seed int, f func(memo, x int) int) int {
-	for _, x := range b {
-		seed = f(seed, x)
-	}
-	return seed
-}
-
-func (b IntBuffer) Cycle(count int, f func(i, x int)) (j int) {
-	switch count {
-	case 0:		for {
-					for _, x := range b {
-						f(j, x)
-					}
-					j++
-				}
-	default:	for k := 0; j < count; j++ {
-					for _, x := range b {
-						f(k, x)
-					}
-					k++
-				}
-	}
-	return
-}
-
-func (b IntBuffer) Combine(o IntBuffer, f func(x, y int) int) IntBuffer {
-	if len(b) != len(o) {
-		panic(b)
-	}
-	n := make(IntBuffer, len(b))
-	for i, x := range b {
-		n[i] = f(x, o[i])
-	}
-	return n
-}
-
 
 func (b IntBuffer) Feed(c chan<- int, f func(i, x int) int) {
 	d := b.Clone()
