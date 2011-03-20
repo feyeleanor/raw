@@ -2,13 +2,16 @@ package raw
 
 import "reflect"
 
+var StandardSlack float32 = 1.1
+
 type Slice struct {
-	*reflect.SliceValue
+				*reflect.SliceValue
+	Slack		float32					"how much spare capacity to allow on resize attempts"
 }
 
 func MakeSlice(i interface{}) (s *Slice) {
 	switch v := reflect.NewValue(i).(type) {
-	case *reflect.SliceValue:		s = &Slice{v}
+	case *reflect.SliceValue:		s = &Slice{ v, StandardSlack }
 	case nil:						panic(i)
 	case *reflect.InterfaceValue:	s = MakeSlice(v.Elem())
 	case *reflect.PtrValue:			s = MakeSlice(v.Elem())
@@ -52,13 +55,13 @@ func (s *Slice) Repeat(count int) *Slice {
 	for a, l := 0, s.Len(); count > 1; count-- {
 		reflect.Copy(destination.Slice(a, l), s.SliceValue)
 	}
-	return &Slice{ destination }
+	return &Slice{ destination, StandardSlack }
 }
 
 func (s *Slice) Clone() *Slice {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
 	reflect.Copy(destination, s.SliceValue)
-	return &Slice{ destination }
+	return &Slice{ destination, StandardSlack }
 }
 
 func (s *Slice) Count(f func(x interface{}) bool) (c int) {
@@ -117,7 +120,7 @@ func (s *Slice) Set(i int, value interface{}) {
 }
 
 func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
-	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()) }
+	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()), StandardSlack }
 	for i := s.Len() - 1; i > 0; i-- {
 		destination.Set(i, f(s.At(i)))
 	}
@@ -137,7 +140,7 @@ func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
 	if s.Len() > o.Len() {
 		l = o.Len()
 	}
-	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l) }
+	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l), StandardSlack }
 	for i := 0; i < l; i++ {
 		destination.Set(i, f(s.At(i), o.At(i)))
 	}
@@ -166,22 +169,40 @@ func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
 
 
 func (s *Slice) Resize(capacity int) {
-	if capacity != s.Cap() {
-		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), capacity)
+	length := s.Len()
+	switch {
+	case capacity > int(float32(s.Cap()) * s.Slack):
+		fallthrough
+	case capacity < int(float32(s.Cap()) / s.Slack):
+		if capacity < 0 {
+			capacity = 0
+		}
+		if length > capacity {
+			length = capacity
+		}
+		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
 		reflect.Copy(x, s.SliceValue)
 		s.SetValue(x)
 	}
 }
 
+func (s *Slice) Extend(count int) {
+	s.Resize(s.Cap() + count)
+}
+
+func (s *Slice) Shrink(count int) {
+	s.Resize(s.Cap() - count)
+}
+
+func (s *Slice) DoubleCapacity() {
+	s.Resize(s.Cap() * 2)
+}
+
+func (s *Slice) HalveCapacity() {
+	s.Resize(s.Cap() / 2)
+}
+
 /*
-func (b *IntBuffer) Extend(count int) {
-	b.Resize(len(*b) + count)
-}
-
-func (b *IntBuffer) Shrink(count int) {
-	b.Resize(len(*b) - count)
-}
-
 func (b IntBuffer) Feed(c chan<- int, f func(i, x int) int) {
 	d := b.Clone()
 	go func() {
