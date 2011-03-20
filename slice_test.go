@@ -2,7 +2,7 @@ package raw
 
 import "testing"
 
-func TestMakeSlice(t *testing.T) {
+func TestSliceMakeSlice(t *testing.T) {
 	t.Fatal("Implement Test")
 }
 
@@ -37,11 +37,11 @@ func TestSliceSwap(t *testing.T) {
 	}
 }
 
-func TestClear(t *testing.T) {
+func TestSliceClear(t *testing.T) {
 	t.Fatal("Implement Test")
 }
 
-func TestRepeat(t *testing.T) {
+func TestSliceRepeat(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	c := 10
@@ -54,7 +54,7 @@ func TestRepeat(t *testing.T) {
 	}
 }
 
-func TestClone(t *testing.T) {
+func TestSliceClone(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	clone := s.Clone()
@@ -66,7 +66,7 @@ func TestClone(t *testing.T) {
 	}
 }
 
-func TestCount(t *testing.T) {
+func TestSliceCount(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 
@@ -79,7 +79,7 @@ func TestCount(t *testing.T) {
 	}
 }
 
-func TestAny(t *testing.T) {
+func TestSliceAny(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	if !s.Any(func(i interface{}) bool { return i.(int) > 4 }) {
@@ -91,7 +91,7 @@ func TestAny(t *testing.T) {
 	}
 }
 
-func TestAll(t *testing.T) {
+func TestSliceAll(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	if !s.All(func(i interface{}) bool { return i.(int) < 11 }) {
@@ -103,7 +103,7 @@ func TestAll(t *testing.T) {
 	}
 }
 
-func TestNone(t *testing.T) {
+func TestSliceNone(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	if !s.None(func(i interface{}) bool { return i.(int) < 0 }) {
@@ -115,7 +115,7 @@ func TestNone(t *testing.T) {
 	}
 }
 
-func TestOne(t *testing.T) {
+func TestSliceOne(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	r := s.One(func(i interface{}) bool {
@@ -124,15 +124,15 @@ func TestOne(t *testing.T) {
 	if !r { t.Fatal("") }
 }
 
-func TestAt(t *testing.T) {
+func TestSliceAt(t *testing.T) {
 	t.Fatal("Implement Test")
 }
 
-func TestSet(t *testing.T) {
+func TestSliceSet(t *testing.T) {
 	t.Fatal("Implement Test")
 }
 
-func TestCollect(t *testing.T) {
+func TestSliceCollect(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	r := s.Collect(func(i interface{}) interface{} {
@@ -156,7 +156,7 @@ func TestCollect(t *testing.T) {
 	t.Fatal("Add further test filters")
 }
 
-func TestInject(t *testing.T) {
+func TestSliceInject(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	r := s.Inject(0, func(memo, x interface{}) interface{} {
@@ -169,7 +169,7 @@ func TestInject(t *testing.T) {
 	t.Fatal("Add further test filters")
 }
 
-func TestCombine(t *testing.T) {
+func TestSliceCombine(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	r := s.Combine(s, func(x, y interface{}) interface{} {
@@ -193,7 +193,7 @@ func TestCombine(t *testing.T) {
 	t.Fatal("Add further test filters")
 }
 
-func TestCycle(t *testing.T) {
+func TestSliceCycle(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	r := s.Cycle(5, func(i int, x interface{}) {})
@@ -204,7 +204,7 @@ func TestCycle(t *testing.T) {
 	t.Fatal("Add further test filters")
 }
 
-func TestResize(t *testing.T) {
+func TestSliceResize(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	switch s.Resize(20); {
@@ -226,7 +226,7 @@ func TestResize(t *testing.T) {
 	}
 }
 
-func TestExtend(t *testing.T) {
+func TestSliceExtend(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	switch s.Extend(10); {
@@ -248,7 +248,7 @@ func TestExtend(t *testing.T) {
 	}
 }
 
-func TestShrink(t *testing.T) {
+func TestSliceShrink(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	switch s.Shrink(-10); {
@@ -270,7 +270,7 @@ func TestShrink(t *testing.T) {
 	}
 }
 
-func TestDoubleCapacity(t *testing.T) {
+func TestSliceDoubleCapacity(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	switch s.DoubleCapacity(); {
@@ -283,7 +283,7 @@ func TestDoubleCapacity(t *testing.T) {
 	}
 }
 
-func TestHalveCapacity(t *testing.T) {
+func TestSliceHalveCapacity(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
 	switch s.HalveCapacity(); {
@@ -293,5 +293,54 @@ func TestHalveCapacity(t *testing.T) {
 		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 		case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
 		case s.Len() != 5:			t.Fatalf("Slice length should be 5 but is %v", s.Len())
+	}
+}
+
+func TestSliceFeed(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	c := make(chan interface{})
+	s.Feed(c, func(i int, x interface{}) interface{} {
+		return i * x.(int)
+	})
+	n := []int{}
+	for x := range c {
+		n = append(n, x.(int))
+	}
+	switch {
+	case n[0] != b[0] * b[0]:		t.Fatalf("%v: expected %v but got %v", 0, b[0] * b[0], n[0])
+	case n[1] != b[1] * b[1]:		t.Fatalf("%v: expected %v but got %v", 1, b[1] * b[1], n[1])
+	case n[2] != b[2] * b[2]:		t.Fatalf("%v: expected %v but got %v", 2, b[2] * b[2], n[2])
+	case n[3] != b[3] * b[3]:		t.Fatalf("%v: expected %v but got %v", 3, b[3] * b[3], n[3])
+	case n[4] != b[4] * b[4]:		t.Fatalf("%v: expected %v but got %v", 4, b[4] * b[4], n[4])
+	case n[5] != b[5] * b[5]:		t.Fatalf("%v: expected %v but got %v", 5, b[5] * b[5], n[5])
+	case n[6] != b[6] * b[6]:		t.Fatalf("%v: expected %v but got %v", 6, b[6] * b[6], n[6])
+	case n[7] != b[7] * b[7]:		t.Fatalf("%v: expected %v but got %v", 7, b[7] * b[7], n[7])
+	case n[8] != b[8] * b[8]:		t.Fatalf("%v: expected %v but got %v", 8, b[8] * b[8], n[8])
+	case n[9] != b[9] * b[9]:		t.Fatalf("%v: expected %v but got %v", 9, b[9] * b[9], n[9])
+	}
+}
+
+func TestSlicePipe(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	c := s.Pipe(func(i int, x interface{}) interface{} {
+		return i * x.(int)
+	})
+	n := []int{}
+	for x := range c {
+		n = append(n, x.(int))
+	}
+	switch {
+	case n[0] != b[0] * b[0]:		t.Fatalf("%v: expected %v but got %v", 0, b[0] * b[0], n[0])
+	case n[1] != b[1] * b[1]:		t.Fatalf("%v: expected %v but got %v", 1, b[1] * b[1], n[1])
+	case n[2] != b[2] * b[2]:		t.Fatalf("%v: expected %v but got %v", 2, b[2] * b[2], n[2])
+	case n[3] != b[3] * b[3]:		t.Fatalf("%v: expected %v but got %v", 3, b[3] * b[3], n[3])
+	case n[4] != b[4] * b[4]:		t.Fatalf("%v: expected %v but got %v", 4, b[4] * b[4], n[4])
+	case n[5] != b[5] * b[5]:		t.Fatalf("%v: expected %v but got %v", 5, b[5] * b[5], n[5])
+	case n[6] != b[6] * b[6]:		t.Fatalf("%v: expected %v but got %v", 6, b[6] * b[6], n[6])
+	case n[7] != b[7] * b[7]:		t.Fatalf("%v: expected %v but got %v", 7, b[7] * b[7], n[7])
+	case n[8] != b[8] * b[8]:		t.Fatalf("%v: expected %v but got %v", 8, b[8] * b[8], n[8])
+	case n[9] != b[9] * b[9]:		t.Fatalf("%v: expected %v but got %v", 9, b[9] * b[9], n[9])
 	}
 }

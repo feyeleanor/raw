@@ -202,18 +202,17 @@ func (s *Slice) HalveCapacity() {
 	s.Resize(s.Cap() / 2)
 }
 
-/*
-func (b IntBuffer) Feed(c chan<- int, f func(i, x int) int) {
-	d := b.Clone()
+func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interface{}) {
 	go func() {
-		for i, v := range d { c <- f(i, v) }
+		for i, l := 0, s.Len(); i < l; i++ {
+			c <- f(i, s.At(i))
+		}
 		close(c)
 	}()
 }
 
-func (b IntBuffer) Pipe(f func(i, x int) int) <-chan int {
-	c := make(chan int)
-	b.Feed(c, f)
+func (s *Slice) Pipe(f func(i int, x interface{}) interface{}) <-chan interface{} {
+	c := make(chan interface{})
+	s.Clone().Feed(c, f)
 	return c
 }
-*/
