@@ -211,6 +211,8 @@ func TestResize(t *testing.T) {
 	switch {
 	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+	case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
+	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
 	case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
 	}

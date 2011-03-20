@@ -2,11 +2,13 @@ package raw
 
 import "reflect"
 
-type Slice reflect.SliceValue
+type Slice struct {
+	*reflect.SliceValue
+}
 
 func MakeSlice(i interface{}) (s *Slice) {
 	switch v := reflect.NewValue(i).(type) {
-	case *reflect.SliceValue:		s = (*Slice)(v)
+	case *reflect.SliceValue:		s = &Slice{v}
 	case nil:						panic(i)
 	case *reflect.InterfaceValue:	s = MakeSlice(v.Elem())
 	case *reflect.PtrValue:			s = MakeSlice(v.Elem())
@@ -14,30 +16,17 @@ func MakeSlice(i interface{}) (s *Slice) {
 	return
 }
 
-func (s *Slice) Len() int {
-	return (*reflect.SliceValue)(s).Len()
-}
-
-func (s *Slice) Cap() int {
-	return (*reflect.SliceValue)(s).Len()
-}
-
-func (s *Slice) Type() reflect.Type {
-	return (*reflect.SliceValue)(s).Type()
-}
-
 func (s *Slice) ElementType() reflect.Type {
 	return s.Type().(*reflect.SliceType).Elem()
 }
 
 func (s *Slice) Copy(destination, source int) {
-	v := (*reflect.SliceValue)(s)
-	v.Elem(destination).SetValue(v.Elem(source))
+	s.Elem(destination).SetValue(s.Elem(source))
 }
 
 func (s *Slice) Swap(left, right int) {
-	x := (*reflect.SliceValue)(s).Elem(left)
-	y := (*reflect.SliceValue)(s).Elem(right)
+	x := s.Elem(left)
+	y := s.Elem(right)
 	temp := reflect.NewValue(x.Interface())
 	x.SetValue(y)
 	y.SetValue(temp)
@@ -48,9 +37,8 @@ func (s *Slice) Clear(start, end int) {
 		end = s.Len()
 	}
 	blank := reflect.NewValue(s.ElementType())
-	v := (*reflect.SliceValue)(s)
 	for ; start < end; start++ {
-		v.Elem(start).SetValue(blank)
+		s.Elem(start).SetValue(blank)
 	}
 }
 
@@ -61,23 +49,21 @@ func (s *Slice) Repeat(count int) *Slice {
 		capacity = length
 	}
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
-	source := (*reflect.SliceValue)(s)
 	for a, l := 0, s.Len(); count > 1; count-- {
-		reflect.Copy(destination.Slice(a, l), source)
+		reflect.Copy(destination.Slice(a, l), s.SliceValue)
 	}
-	return (*Slice)(destination)
+	return &Slice{ destination }
 }
 
 func (s *Slice) Clone() *Slice {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
-	reflect.Copy(destination, (*reflect.SliceValue)(s))
-	return (*Slice)(destination)
+	reflect.Copy(destination, s.SliceValue)
+	return &Slice{ destination }
 }
 
 func (s *Slice) Count(f func(x interface{}) bool) (c int) {
-	v := (*reflect.SliceValue)(s)
 	for i := s.Len() - 1; i > -1; i-- {
-		if f(v.Elem(i).Interface()) {
+		if f(s.Elem(i).Interface()) {
 			c++
 		}
 	}
@@ -85,9 +71,8 @@ func (s *Slice) Count(f func(x interface{}) bool) (c int) {
 }
 
 func (s *Slice) Any(f func(x interface{}) bool) bool {
-	v := (*reflect.SliceValue)(s)
 	for i := s.Len() - 1; i > -1; i-- {
-		if f(v.Elem(i).Interface()) {
+		if f(s.Elem(i).Interface()) {
 			return true
 		}
 	}
@@ -95,9 +80,8 @@ func (s *Slice) Any(f func(x interface{}) bool) bool {
 }
 
 func (s *Slice) All(f func(x interface{}) bool) bool {
-	v := (*reflect.SliceValue)(s)
 	for i := s.Len() - 1; i > -1; i-- {
-		if !f(v.Elem(i).Interface()) {
+		if !f(s.Elem(i).Interface()) {
 			return false
 		}
 	}
@@ -105,9 +89,8 @@ func (s *Slice) All(f func(x interface{}) bool) bool {
 }
 
 func (s *Slice) None(f func(x interface{}) bool) bool {
-	v := (*reflect.SliceValue)(s)
 	for i := s.Len() - 1; i > -1; i-- {
-		if f(v.Elem(i).Interface()) {
+		if f(s.Elem(i).Interface()) {
 			return false
 		}
 	}
@@ -115,27 +98,26 @@ func (s *Slice) None(f func(x interface{}) bool) bool {
 }
 
 func (s *Slice) One(f func(x interface{}) bool) bool {
-	v := (*reflect.SliceValue)(s)
 	c := 0
 	for i := s.Len() - 1; i > -1; i-- {
 		switch {
 		case c > 1:							return false
-		case f(v.Elem(i).Interface()):		c++
+		case f(s.Elem(i).Interface()):		c++
 		}
 	}
 	return c == 1
 }
 
 func (s *Slice) At(i int) interface{} {
-	return (*reflect.SliceValue)(s).Elem(i).Interface()
+	return s.Elem(i).Interface()
 }
 
 func (s *Slice) Set(i int, value interface{}) {
-	(*reflect.SliceValue)(s).Elem(i).SetValue(reflect.NewValue(value))
+	s.Elem(i).SetValue(reflect.NewValue(value))
 }
 
 func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
-	destination := (*Slice)(reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()))
+	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()) }
 	for i := s.Len() - 1; i > 0; i-- {
 		destination.Set(i, f(s.At(i)))
 	}
@@ -155,7 +137,7 @@ func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
 	if s.Len() > o.Len() {
 		l = o.Len()
 	}
-	destination := (*Slice)(reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l))
+	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l) }
 	for i := 0; i < l; i++ {
 		destination.Set(i, f(s.At(i), o.At(i)))
 	}
@@ -182,18 +164,15 @@ func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
 	return j
 }
 
-/*
-func (s *Slice) Resize(length int) {
-	v := (*reflect.SliceValue)(s)
-	if length > v.Cap() {
-		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), 0, length)
-		reflect.Copy(x, (*reflect.SliceValue)(s))
-		s = (*Slice)(x)
-	} else {
-		v.SetLen(length)
+
+func (s *Slice) Resize(capacity int) {
+	if capacity != s.Cap() {
+		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), capacity)
+		reflect.Copy(x, s.SliceValue)
+		s.SetValue(x)
 	}
 }
-*/
+
 /*
 func (b *IntBuffer) Extend(count int) {
 	b.Resize(len(*b) + count)
