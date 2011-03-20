@@ -55,17 +55,23 @@ func (s *Slice) Clear(start, end int) {
 }
 
 func (s *Slice) Repeat(count int) *Slice {
-	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
+	length := s.Len() * count
+	capacity := s.Cap()
+	if capacity < length {
+		capacity = length
+	}
+	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
 	source := (*reflect.SliceValue)(s)
-	for ; count > 1; count-- {
-		destination = reflect.AppendSlice(destination, source)
+	for a, l := 0, s.Len(); count > 1; count-- {
+		reflect.Copy(destination.Slice(a, l), source)
 	}
 	return (*Slice)(destination)
 }
 
 func (s *Slice) Clone() *Slice {
-	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), 0, 0)
-	return (*Slice)(reflect.AppendSlice(destination, (*reflect.SliceValue)(s)))
+	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
+	reflect.Copy(destination, (*reflect.SliceValue)(s))
+	return (*Slice)(destination)
 }
 
 func (s *Slice) Count(f func(x interface{}) bool) (c int) {
@@ -177,16 +183,18 @@ func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
 }
 
 /*
-func (b *IntBuffer) Resize(length int) {
-	if length > cap(*b) {
-		x := *b
-		*b = make(IntBuffer, length)
-		copy(*b, x)
+func (s *Slice) Resize(length int) {
+	v := (*reflect.SliceValue)(s)
+	if length > v.Cap() {
+		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), 0, length)
+		reflect.Copy(x, (*reflect.SliceValue)(s))
+		s = (*Slice)(x)
 	} else {
-		*b = (*b)[:length]
+		v.SetLen(length)
 	}
 }
-
+*/
+/*
 func (b *IntBuffer) Extend(count int) {
 	b.Resize(len(*b) + count)
 }

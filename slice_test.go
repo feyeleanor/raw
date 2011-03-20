@@ -203,3 +203,15 @@ func TestCycle(t *testing.T) {
 	}
 	t.Fatal("Add further test filters")
 }
+
+func TestResize(t *testing.T) {
+	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s := MakeSlice(b)
+	s.Resize(20)
+	switch {
+	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
+	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+	case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
+	case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
+	}
+}
