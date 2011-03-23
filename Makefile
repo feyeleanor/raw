@@ -5,6 +5,7 @@ TARG=raw
 GOFILES=\
 	byte_slice.go\
 	slice.go\
+	map.go\
 	reslice.go\
 	runtime.go
 

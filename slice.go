@@ -9,22 +9,46 @@ type Slice struct {
 	Slack		float32					"how much spare capacity to allow on resize attempts"
 }
 
+// Creates a Slice from a given object, raising a runtime panic if the object cannot be represented as a *reflect.SliceValue.
 func MakeSlice(i interface{}) (s *Slice) {
 	switch v := reflect.NewValue(i).(type) {
 	case *reflect.SliceValue:		s = &Slice{ v, StandardSlack }
-	case nil:						panic(i)
 	case *reflect.InterfaceValue:	s = MakeSlice(v.Elem())
 	case *reflect.PtrValue:			s = MakeSlice(v.Elem())
+	default:						panic(i)
 	}
 	return
 }
 
+// Create an independent duplicate of the Slice, copy all contents to the new assigned memory
+func (s *Slice) Clone() *Slice {
+	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
+	reflect.Copy(destination, s.SliceValue)
+	return &Slice{ destination, StandardSlack }
+}
+
+// Returns the runtime type of the elements contained within the Slice.
 func (s *Slice) ElementType() reflect.Type {
 	return s.Type().(*reflect.SliceType).Elem()
 }
 
+func (s *Slice) At(i int) interface{} {
+	return s.Elem(i).Interface()
+}
+
+func (s *Slice) Set(i int, value interface{}) {
+	s.Elem(i).SetValue(reflect.NewValue(value))
+}
+
+// Copies a value from one location in the Slice to another.
 func (s *Slice) Copy(destination, source int) {
 	s.Elem(destination).SetValue(s.Elem(source))
+}
+
+// Copies a subslice from one location in the Slice to another.
+func (s *Slice) CopySlice(destination, source, count int) {
+	reflect.Copy(s.Slice(destination, destination + count), s.Slice(source, source + count))
+//	s.Elem(destination).SetValue(s.Elem(source))
 }
 
 func (s *Slice) Swap(left, right int) {
@@ -39,7 +63,8 @@ func (s *Slice) Clear(start, end int) {
 	if end > s.Len() {
 		end = s.Len()
 	}
-	blank := reflect.NewValue(s.ElementType())
+	blank := reflect.MakeZero(s.ElementType())
+	end++
 	for ; start < end; start++ {
 		s.Elem(start).SetValue(blank)
 	}
@@ -52,15 +77,11 @@ func (s *Slice) Repeat(count int) *Slice {
 		capacity = length
 	}
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
-	for a, l := 0, s.Len(); count > 1; count-- {
-		reflect.Copy(destination.Slice(a, l), s.SliceValue)
+	for start, end := 0, s.Len(); count > 0; count-- {
+		reflect.Copy(destination.Slice(start, end), s.SliceValue)
+		start = end
+		end += s.Len()
 	}
-	return &Slice{ destination, StandardSlack }
-}
-
-func (s *Slice) Clone() *Slice {
-	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
-	reflect.Copy(destination, s.SliceValue)
 	return &Slice{ destination, StandardSlack }
 }
 
@@ -111,12 +132,15 @@ func (s *Slice) One(f func(x interface{}) bool) bool {
 	return c == 1
 }
 
-func (s *Slice) At(i int) interface{} {
-	return s.Elem(i).Interface()
-}
-
-func (s *Slice) Set(i int, value interface{}) {
-	s.Elem(i).SetValue(reflect.NewValue(value))
+func (s *Slice) Many(f func(x interface{}) bool) bool {
+	c := 0
+	for i := s.Len() - 1; i > -1; i-- {
+		switch {
+		case c > 1:							return true
+		case f(s.Elem(i).Interface()):		c++
+		}
+	}
+	return c > 1
 }
 
 func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
@@ -167,7 +191,6 @@ func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
 	return j
 }
 
-
 func (s *Slice) Resize(capacity int) {
 	length := s.Len()
 	switch {
@@ -215,4 +238,17 @@ func (s *Slice) Pipe(f func(i int, x interface{}) interface{}) <-chan interface{
 	c := make(chan interface{})
 	s.Clone().Feed(c, f)
 	return c
+}
+
+func (s *Slice) Tee(c chan<- interface{}, f func(i int, x interface{}) interface{}) <-chan interface{} {
+	t := make(chan interface{})
+	go func() {
+		for i, l := 0, s.Len(); i < l; i++ {
+			x := f(i, s.At(i))
+			c <- x
+			t <- x
+		}
+		close(t)
+	}()
+	return t
 }
