@@ -73,7 +73,7 @@ func TestMapCopy(t *testing.T) {
 	switch {
 	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
 	case b[3] != 3:				t.Fatalf("Element b[3] should be %v but is %v", 3, b[3])
-	case m.At(1) != m.At(3):	t.Fatalf("Slice elements s[1] and s[3] should match but are %v and %v", m.At(1), m.At(3))
+	case m.At(1) != m.At(3):	t.Fatalf("Map elements m[1] and m[3] should match but are %v and %v", m.At(1), m.At(3))
 	}
 }
 
@@ -210,7 +210,15 @@ func TestMapCollect(t *testing.T) {
 }
 
 func TestMapInject(t *testing.T) {
-	t.Fatal(NO_TESTS)
+	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m := MakeMap(b)
+	r := m.Inject(0, func(seed, v interface{}) interface{} {
+		return seed.(int) + v.(int)
+	})
+	switch {
+	case r == nil:				t.Fatal("Inject() returned a nil value")
+	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
+	}
 }
 
 func TestMapCombine(t *testing.T) {
@@ -247,7 +255,12 @@ func TestMapCombine(t *testing.T) {
 }
 
 func TestMapCycle(t *testing.T) {
-	t.Fatal(NO_TESTS)
+	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m := MakeMap(b)
+	r := m.Cycle(5, func(x interface{}) {})
+	switch {
+	case r != 5:				t.Fatalf("cycle count should be 5 but is %v", r)
+	}
 }
 
 func TestMapFeed(t *testing.T) {

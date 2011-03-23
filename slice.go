@@ -171,19 +171,19 @@ func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
 	return destination
 }
 
-func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
+func (s *Slice) Cycle(count int, f func(x interface{})) interface{} {
 	j := 0
 	l := s.Len()
 	switch count {
 	case 0:		for {
 					for i := 0; i < l; i++ {
-						f(j, s.At(i))
+						f(s.Elem(i).Interface())
 					}
 					j++
 				}
 	default:	for k := 0; j < count; j++ {
 					for i := 0; i < l; i++ {
-						f(k, s.At(i))
+						f(s.Elem(i).Interface())
 					}
 					k++
 				}

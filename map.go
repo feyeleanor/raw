@@ -46,15 +46,16 @@ func (m *Map) Set(k, value interface{}) {
 
 // Copies a value from one location in the Map to another.
 func (m *Map) Copy(destination, source interface{}) {
-	m.Elem(reflect.NewValue(destination)).SetValue(m.Elem(reflect.NewValue(source)))
+	m.SetElem(reflect.NewValue(destination), reflect.NewValue(source))
 }
 
+// Swap the values stored by a pair of keys.
 func (m *Map) Swap(left, right interface{}) {
-	x := m.Elem(reflect.NewValue(left))
-	y := m.Elem(reflect.NewValue(right))
-	temp := reflect.NewValue(x.Interface())
-	x.SetValue(y)
-	y.SetValue(temp)
+	l := reflect.NewValue(left)
+	r := reflect.NewValue(right)
+	temp := m.Elem(l)
+	m.SetElem(l, m.Elem(r))
+	m.SetElem(r, temp)
 }
 
 func (m *Map) Clear(i interface{}) {
@@ -119,6 +120,7 @@ func (m *Map) Many(f func(x interface{}) bool) bool {
 	return c > 1
 }
 
+//	Create a new Map with identical keys to the existing Map but with values transformed according to a function.
 func (m *Map) Collect(f func(x interface{}) interface{}) *Map {
 	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
 	for _, k := range m.Keys() {
@@ -127,16 +129,16 @@ func (m *Map) Collect(f func(x interface{}) interface{}) *Map {
 	return destination
 }
 
-/*
-func (s *Slice) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
-	end := s.Len()
-	for i := 0; i < end; i++ {
-		seed = f(seed, s.At(i))
+//	Reduce the values contained in the Map to a single value.
+//	This is inherently unstable as Go makes no guarantees about the order in which map keys will be enumerable.
+func (m *Map) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
+	for _, k := range m.Keys() {
+		seed = f(seed, m.Elem(k).Interface())
 	}
 	return seed
 }
-*/
 
+//	Create a new Map whose keys are the union of two existing Maps with their values combined according to a function.
 func (m *Map) Combine(o *Map, f func(x, y interface{}) interface{}) *Map {
 	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
 	for _, k := range m.Keys() {
@@ -150,27 +152,24 @@ func (m *Map) Combine(o *Map, f func(x, y interface{}) interface{}) *Map {
 	return destination
 }
 
-/*
-func (s *Slice) Cycle(count int, f func(i int, x interface{})) interface{} {
-	j := 0
-	l := s.Len()
+func (m *Map) Cycle(count int, f func(v interface{})) (limit int) {
 	switch count {
 	case 0:		for {
-					for i := 0; i < l; i++ {
-						f(j, s.At(i))
+					for _, k := range m.Keys() {
+						f(m.Elem(k).Interface())
 					}
-					j++
+					limit++
 				}
-	default:	for k := 0; j < count; j++ {
-					for i := 0; i < l; i++ {
-						f(k, s.At(i))
+	default:	for ; count > 0; count-- {
+					for _, k := range m.Keys() {
+						f(m.Elem(k).Interface())
 					}
-					k++
+					limit++
 				}
 	}
-	return j
+	return
 }
-
+/*
 func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interface{}) {
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {

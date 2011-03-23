@@ -310,7 +310,7 @@ func TestSliceCombine(t *testing.T) {
 func TestSliceCycle(t *testing.T) {
 	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	s := MakeSlice(b)
-	r := s.Cycle(5, func(i int, x interface{}) {})
+	r := s.Cycle(5, func(x interface{}) {})
 	switch {
 	case r == nil:				t.Fatal("Cycle() returned a nil value")
 	case r != 5:				t.Fatalf("cycle count should be 5 but is %v", r)
