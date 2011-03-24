@@ -169,27 +169,28 @@ func (m *Map) Cycle(count int, f func(v interface{})) (limit int) {
 	}
 	return
 }
-/*
-func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interface{}) {
+
+func (m *Map) Feed(c chan<- interface{}, f func(k, v interface{}) interface{}) {
 	go func() {
-		for i, l := 0, s.Len(); i < l; i++ {
-			c <- f(i, s.At(i))
+		for _, k := range m.Keys() {
+			c <- f(k.Interface(), m.Elem(k).Interface())
 		}
 		close(c)
 	}()
 }
 
-func (s *Slice) Pipe(f func(i int, x interface{}) interface{}) <-chan interface{} {
-	c := make(chan interface{})
-	s.Clone().Feed(c, f)
+func (m *Map) Pipe(f func(k, v interface{}) interface{}) <-chan interface{} {
+	c := make(chan interface{}, StandardChannelBuffer)
+	m.Clone().Feed(c, f)
 	return c
 }
 
-func (s *Slice) Tee(c chan<- interface{}, f func(i int, x interface{}) interface{}) <-chan interface{} {
-	t := make(chan interface{})
+/*
+func (m *Map) Tee(c chan<- interface{}, f func(k, v interface{}) interface{}) <-chan interface{} {
+	t := make(chan interface{}, StandardChannelBuffer)
 	go func() {
-		for i, l := 0, s.Len(); i < l; i++ {
-			x := f(i, s.At(i))
+		for _, k := range m.Keys() {
+			x := f(k.Interface(), m.Elem(k).Interface())
 			c <- x
 			t <- x
 		}

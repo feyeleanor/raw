@@ -2,7 +2,8 @@ package raw
 
 import "reflect"
 
-var StandardSlack float32 = 1.1
+var StandardSlack			float32	= 1.1
+var StandardChannelBuffer	int		= 16
 
 type Slice struct {
 				*reflect.SliceValue
@@ -25,6 +26,18 @@ func (s *Slice) Clone() *Slice {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
 	reflect.Copy(destination, s.SliceValue)
 	return &Slice{ destination, StandardSlack }
+}
+
+// Append a value to the existing Slice
+func (s *Slice) Append(i interface{}) {
+	switch v := i.(type) {
+	case *Slice:		s.SetValue(reflect.AppendSlice(s.SliceValue, v.SliceValue))
+	case Slice:			s.SetValue(reflect.AppendSlice(s.SliceValue, v.SliceValue))
+	default:			switch v := reflect.NewValue(i).(type) {
+						case *reflect.SliceValue:		s.SetValue(reflect.AppendSlice(s.SliceValue, v))
+						default:						s.SetValue(reflect.Append(s.SliceValue, v))
+						}
+	}
 }
 
 // Returns the runtime type of the elements contained within the Slice.
@@ -235,13 +248,13 @@ func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interfac
 }
 
 func (s *Slice) Pipe(f func(i int, x interface{}) interface{}) <-chan interface{} {
-	c := make(chan interface{})
+	c := make(chan interface{}, StandardChannelBuffer)
 	s.Clone().Feed(c, f)
 	return c
 }
 
 func (s *Slice) Tee(c chan<- interface{}, f func(i int, x interface{}) interface{}) <-chan interface{} {
-	t := make(chan interface{})
+	t := make(chan interface{}, StandardChannelBuffer)
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {
 			x := f(i, s.At(i))

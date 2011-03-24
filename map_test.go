@@ -264,13 +264,38 @@ func TestMapCycle(t *testing.T) {
 }
 
 func TestMapFeed(t *testing.T) {
-	t.Fatal(NO_TESTS)
+	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m := MakeMap(b)
+	c := make(chan interface{})
+	m.Feed(c, func(k, v interface{}) (r interface{}) {
+		return k.(int) * v.(int)
+	})
+	n := []int{}
+	for x := range c {
+		n = append(n, x.(int))
+	}
+	switch {
+	case len(n) != len(b):			t.Fatalf("Length of slice should be the same length of map but is %v", len(n))
+	}
 }
 
 func TestMapPipe(t *testing.T) {
-	t.Fatal(NO_TESTS)
+	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m := MakeMap(b)
+	c := m.Pipe(func(k, v interface{}) (r interface{}) {
+		return k.(int) * v.(int)
+	})
+	n := []int{}
+	for x := range c {
+		n = append(n, x.(int))
+	}
+	switch {
+	case len(n) != len(b):			t.Fatalf("Length of slice should be the same length of map but is %v", len(n))
+	}
 }
 
+/*
 func TestMapTee(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
+*/
