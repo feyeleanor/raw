@@ -6,6 +6,7 @@ GOFILES=\
 	byte_slice.go\
 	slice.go\
 	map.go\
+	channel.go\
 	reslice.go\
 	runtime.go
 

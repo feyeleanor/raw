@@ -156,10 +156,43 @@ func (s *Slice) Many(f func(x interface{}) bool) bool {
 	return c > 1
 }
 
+//	First reads a specified number of values into a function, terminating if the end of Slice is reached
+func (s *Slice) First(i int, f func(x interface{})) {
+	for c := 0; c < i && c < s.Len(); c++ {
+		f(s.Elem(c).Interface())
+	}
+}
+
+//	First reads a specified number of values into a function, starting at the end of slice and terminating if the start of Slice is reached
+func (s *Slice) Last(i int, f func(x interface{})) {
+	for e := s.Len() - 1; i > 0 && e > 0; i-- {
+		f(s.Elem(e).Interface())
+		e--
+	}
+}
+
+//	While processes values from a Slice sequentially whilst a condition is true or until the end of Slice is reached
+func (s *Slice) While(f func(x interface{}) bool) {
+	for i := 0; i < s.Len(); i++ {
+		if !f(s.Elem(i).Interface()) {
+			break
+		}
+	}
+}
+
+//	Until processes values from a Slice until a condition is true or the end of Slice is reached
+func (s *Slice) Until(f func(x interface{}) bool) {
+	for i := 0; i < s.Len(); i++ {
+		if f(s.Elem(i).Interface()) {
+			break
+		}
+	}
+}
+
 func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
 	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()), StandardSlack }
 	for i := s.Len() - 1; i > 0; i-- {
-		destination.Set(i, f(s.At(i)))
+		destination.Set(i, f(s.Elem(i).Interface()))
 	}
 	return destination
 }
@@ -167,7 +200,7 @@ func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
 func (s *Slice) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
 	end := s.Len()
 	for i := 0; i < end; i++ {
-		seed = f(seed, s.At(i))
+		seed = f(seed, s.Elem(i).Interface())
 	}
 	return seed
 }
@@ -179,7 +212,7 @@ func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
 	}
 	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l), StandardSlack }
 	for i := 0; i < l; i++ {
-		destination.Set(i, f(s.At(i), o.At(i)))
+		destination.Set(i, f(s.Elem(i).Interface(), o.Elem(i).Interface()))
 	}
 	return destination
 }
@@ -241,7 +274,7 @@ func (s *Slice) HalveCapacity() {
 func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interface{}) {
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {
-			c <- f(i, s.At(i))
+			c <- f(i, s.Elem(i).Interface())
 		}
 		close(c)
 	}()
@@ -257,7 +290,7 @@ func (s *Slice) Tee(c chan<- interface{}, f func(i int, x interface{}) interface
 	t := make(chan interface{}, StandardChannelBuffer)
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {
-			x := f(i, s.At(i))
+			x := f(i, s.Elem(i).Interface())
 			c <- x
 			t <- x
 		}

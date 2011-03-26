@@ -8,13 +8,18 @@ const(
 	FURTHER_TESTS_NEEDED	string = "Add further test filters"
 )
 
+func initSliceTest() (b []int, s *Slice) {
+	b = []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s = MakeSlice(b)
+	return
+}
+
 func TestSliceMakeSlice(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and b[%v] should match but are %v and %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
 
+	b, s := initSliceTest()
 	switch {
-	case s == nil:				
+	case s == nil:				t.Fatal("MakeSlice returned a nil value")
 	case s.Len() != len(b):		t.Fatalf("Slice length should be %v not %v", len(b), s.Len())
 	case s.Cap() != cap(b):		t.Fatalf("Slice capacity should be %v not %v", cap(b), s.Cap())
 	case s.At(0) != b[0]:		t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), b[0])
@@ -32,10 +37,9 @@ func TestSliceMakeSlice(t *testing.T) {
 
 func TestSliceClone(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-	c := s.Clone()
 
+	_, s := initSliceTest()
+	c := s.Clone()
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
@@ -56,10 +60,8 @@ func TestSliceAppend(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 	HAS_VALUE := "s[%v] should be %v rather than %v"
 
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-
 	t.Log("Append b[] to s")
+	b, s := initSliceTest()
 	s.Append(b)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -76,9 +78,8 @@ func TestSliceAppend(t *testing.T) {
 	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
 	}
 
-	s = MakeSlice(b)
-
 	t.Log("Append s to s")
+	b, s = initSliceTest()
 	s.Append(s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -95,9 +96,8 @@ func TestSliceAppend(t *testing.T) {
 	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
 	}
 
-	s = MakeSlice(b)
-
 	t.Log("Append *s to s")
+	b, s = initSliceTest()
 	s.Append(*s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -114,9 +114,8 @@ func TestSliceAppend(t *testing.T) {
 	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
 	}
 
-	s = MakeSlice(b)
-
 	t.Log("Append 100 to s")
+	b, s = initSliceTest()
 	s.Append(100)
 	switch {
 	case s.Cap() == cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
@@ -136,20 +135,16 @@ func TestSliceAppend(t *testing.T) {
 }
 
 func TestSliceElementType(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	e := reflect.Typeof(int(0))
-
 	switch {
 	case e != s.ElementType():	t.Fatalf("Slice claims element type %v when should be %v", s.ElementType(), e)
 	}
 }
 
 func TestSliceCopy(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	s.Copy(1, 3)
-
 	switch {
 	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
 	case b[3] != 3:				t.Fatalf("Element b[3] should be %v but is %v", 3, b[3])
@@ -160,11 +155,10 @@ func TestSliceCopy(t *testing.T) {
 func TestSliceCopySlice(t *testing.T) {
 	SHOULD_MATCH := "Slice elements c[%V] and s[%V] should match but are %v and %v"
 	SHOULD_NOT_MATCH := "Slice elements s[%v] and s[%v] should not match but are both %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+
+	b, s := initSliceTest()
 	c := s.Clone()
 	c.CopySlice(1, 3, 5)
-
 	switch {
 	case b[1] == b[3]:			t.Fatalf("Elements b[1] and b[3] should not match but are %v and %v", b[1], b[3])
 	case s.At(1) == s.At(3):	t.Fatalf(SHOULD_NOT_MATCH, 1, 3, s.At(1))
@@ -183,10 +177,9 @@ func TestSliceCopySlice(t *testing.T) {
 
 func TestSliceSwap(t *testing.T) {
 	HAS_VALUE := "b[%v] should be %v rather than %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-	s.Swap(1, 3)
 
+	b, s := initSliceTest()
+	s.Swap(1, 3)
 	switch {
 	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
 	case b[1] != 3:				t.Fatalf(HAS_VALUE, 1, 3, b[1])
@@ -198,10 +191,9 @@ func TestSliceSwap(t *testing.T) {
 
 func TestSliceClear(t *testing.T) {
 	HAS_VALUE := "b[%v] should be %v rather than %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-	s.Clear(1, 3)
 
+	b, s := initSliceTest()
+	s.Clear(1, 3)
 	switch {
 	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
 	case b[1] != 0:				t.Fatalf(HAS_VALUE, 1, 0, b[1])
@@ -213,11 +205,10 @@ func TestSliceClear(t *testing.T) {
 
 func TestSliceRepeat(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+
+	b, s := initSliceTest()
 	c := 3
 	s = s.Repeat(c)
-
 	switch {
 	case s.Len() != len(b) * c:	t.Fatalf("Slice length should be %v not %v", len(b) * c, s.Len())
 	case s.Cap() != cap(b) * c:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * c, s.Cap())
@@ -231,9 +222,7 @@ func TestSliceRepeat(t *testing.T) {
 }
 
 func TestSliceCount(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-
+	_, s := initSliceTest()
 	if c := s.Count(func(i interface{}) bool { return i.(int) > 4 }); c != 5 {
 		t.Fatalf("Item count should be 5 and not %v", c)
 	}
@@ -244,8 +233,7 @@ func TestSliceCount(t *testing.T) {
 }
 
 func TestSliceAny(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	if !s.Any(func(i interface{}) bool { return i.(int) > 4 }) {
 		t.Fatal("Should have values greater than 4")
 	}
@@ -256,8 +244,7 @@ func TestSliceAny(t *testing.T) {
 }
 
 func TestSliceAll(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	if !s.All(func(i interface{}) bool { return i.(int) < 11 }) {
 		t.Fatal("All values should be below 11")
 	}
@@ -268,8 +255,7 @@ func TestSliceAll(t *testing.T) {
 }
 
 func TestSliceNone(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	if !s.None(func(i interface{}) bool { return i.(int) < 0 }) {
 		t.Fatal("No values should be below 0")
 	}
@@ -280,9 +266,7 @@ func TestSliceNone(t *testing.T) {
 }
 
 func TestSliceOne(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
-
+	_, s := initSliceTest()
 	if !s.One(func(i interface{}) bool { return i.(int) == 0 }) {
 		t.Fatal("Should return true")
 	}
@@ -294,9 +278,8 @@ func TestSliceOne(t *testing.T) {
 
 func TestSliceMany(t *testing.T) {
 	LOGIC_FAILURE := "Should return %v for %v detected"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
 
+	_, s := initSliceTest()
 	if !s.Many(func(i interface{}) bool { return i.(int) > 0 }) {
 		t.Fatal(LOGIC_FAILURE, true, "many values")
 	}
@@ -310,10 +293,70 @@ func TestSliceMany(t *testing.T) {
 	}
 }
 
+func TestSliceFirst(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+
+	_, s := initSliceTest()
+	r := []int{}
+	s.First(5, func(i interface{}) {
+		r = append(r, i.(int))
+	})
+	switch {
+	case len(r) != 5:			t.Fatalf("Slice length should be %v not %v", 5, len(r))
+	case s.At(0) != r[0]:		t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r[0])
+	case s.At(1) != r[1]:		t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), r[1])
+	case s.At(2) != r[2]:		t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), r[2])
+	case s.At(3) != r[3]:		t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), r[3])
+	case s.At(4) != r[4]:		t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), r[4])
+	}
+}
+
+func TestSliceLast(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+
+	_, s := initSliceTest()
+	r := []int{}
+	s.Last(5, func(i interface{}) {
+		r = append(r, i.(int))
+	})
+	switch {
+	case len(r) != 5:			t.Fatalf("Slice length should be %v not %v", 5, len(r))
+	case s.At(9) != r[0]:		t.Fatalf(SHOULD_MATCH, 9, 0, s.At(9), r[0])
+	case s.At(8) != r[1]:		t.Fatalf(SHOULD_MATCH, 8, 1, s.At(8), r[1])
+	case s.At(7) != r[2]:		t.Fatalf(SHOULD_MATCH, 7, 2, s.At(7), r[2])
+	case s.At(6) != r[3]:		t.Fatalf(SHOULD_MATCH, 6, 3, s.At(6), r[3])
+	case s.At(5) != r[4]:		t.Fatalf(SHOULD_MATCH, 5, 4, s.At(5), r[4])
+	}
+}
+
+func TestSliceWhile(t *testing.T) {
+	_, s := initSliceTest()
+	count := 0
+	s.While(func(i interface{}) bool {
+		count++
+		return i.(int) < 6
+	})
+	switch {
+	case count != 7:				t.Fatalf("Count should be %v not %v", 7, count)
+	}
+}
+
+func TestSliceUntil(t *testing.T) {
+	_, s := initSliceTest()
+	count := 0
+	s.Until(func(i interface{}) bool {
+		count++
+		return i.(int) == 6
+	})
+	switch {
+	case count != 7:				t.Fatalf("Count should be %v not %v", 7, count)
+	}
+}
+
 func TestSliceCollect(t *testing.T) {
 	INCORRECT_VALUE := "r[%v] == %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+
+	b, s := initSliceTest()
 	r := s.Collect(func(i interface{}) interface{} {
 		return i.(int) * 2
 	})
@@ -345,8 +388,7 @@ func TestSliceCollect(t *testing.T) {
 }
 
 func TestSliceInject(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	r := s.Inject(0, func(memo, x interface{}) interface{} {
 		return memo.(int) + x.(int)
 	})
@@ -358,8 +400,8 @@ func TestSliceInject(t *testing.T) {
 
 func TestSliceCombine(t *testing.T) {
 	INCORRECT_VALUE := "r[%v] == %v"
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+
+	b, s := initSliceTest()
 	r := s.Combine(s, func(x, y interface{}) interface{} {
 		return x.(int) * y.(int)
 	})
@@ -391,8 +433,7 @@ func TestSliceCombine(t *testing.T) {
 }
 
 func TestSliceCycle(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	_, s := initSliceTest()
 	r := s.Cycle(5, func(x interface{}) {})
 	switch {
 	case r == nil:				t.Fatal("Cycle() returned a nil value")
@@ -401,8 +442,7 @@ func TestSliceCycle(t *testing.T) {
 }
 
 func TestSliceResize(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	switch s.Resize(20); {
 	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
@@ -423,8 +463,7 @@ func TestSliceResize(t *testing.T) {
 }
 
 func TestSliceExtend(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	switch s.Extend(10); {
 		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
@@ -445,8 +484,7 @@ func TestSliceExtend(t *testing.T) {
 }
 
 func TestSliceShrink(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	switch s.Shrink(-10); {
 		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
@@ -467,8 +505,7 @@ func TestSliceShrink(t *testing.T) {
 }
 
 func TestSliceDoubleCapacity(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	switch s.DoubleCapacity(); {
 		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
@@ -480,8 +517,7 @@ func TestSliceDoubleCapacity(t *testing.T) {
 }
 
 func TestSliceHalveCapacity(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	switch s.HalveCapacity(); {
 		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
 		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
@@ -493,8 +529,7 @@ func TestSliceHalveCapacity(t *testing.T) {
 }
 
 func TestSliceFeed(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	c := make(chan interface{})
 	s.Feed(c, func(i int, x interface{}) (r interface{}) {
 		return i * x.(int)
@@ -518,8 +553,7 @@ func TestSliceFeed(t *testing.T) {
 }
 
 func TestSlicePipe(t *testing.T) {
-	b := []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s := MakeSlice(b)
+	b, s := initSliceTest()
 	c := s.Pipe(func(i int, x interface{}) (r interface{}) {
 		return i * x.(int)
 	})

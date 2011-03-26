@@ -3,14 +3,19 @@ package raw
 import "reflect"
 import "testing"
 
+func initMapTest() (b map[int] int, m *Map) {
+	b = map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m = MakeMap(b)
+	return
+}
+
 func TestMapMakeMap(t *testing.T) {
 	SHOULD_MATCH := "Map elements m[%v] and b[%v] should match but are %v and %v"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
 
+	b, m := initMapTest()
 	switch {
-	case m == nil:				
-	case m.Len() != len(b):		t.Fatalf("Slice length should be %v not %v", len(b), m.Len())
+	case m == nil:				t.Fatal("MakeMap returned a nil value")
+	case m.Len() != len(b):		t.Fatalf("Map length should be %v not %v", len(b), m.Len())
 	case m.At(0) != b[0]:		t.Fatalf(SHOULD_MATCH, 0, 0, m.At(0), b[0])
 	case m.At(1) != b[1]:		t.Fatalf(SHOULD_MATCH, 1, 1, m.At(1), b[1])
 	case m.At(2) != b[2]:		t.Fatalf(SHOULD_MATCH, 2, 2, m.At(2), b[2])
@@ -26,10 +31,9 @@ func TestMapMakeMap(t *testing.T) {
 
 func TestMapClone(t *testing.T) {
 	SHOULD_MATCH := "Map elements m[%v] and c[%v] should match but are %v and %v"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-	c := m.Clone()
 
+	_, m := initMapTest()
+	c := m.Clone()
 	switch {
 	case c.Len() != m.Len():	t.Fatalf("Map length should be %v not %v", m.Len(), c.Len())
 	case c.At(0) != m.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, m.At(0), c.At(0))
@@ -46,30 +50,24 @@ func TestMapClone(t *testing.T) {
 }
 
 func TestMapKeyType(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	_, m := initMapTest()
 	e := reflect.Typeof(int(0))
-
 	switch {
 	case e != m.KeyType():		t.Fatalf("Map claims element type %v when should be %v", m.KeyType(), e)
 	}
 }
 
 func TestMapElementType(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	_, m := initMapTest()
 	e := reflect.Typeof(int(0))
-
 	switch {
 	case e != m.ElementType():	t.Fatalf("Map claims element type %v when should be %v", m.ElementType(), e)
 	}
 }
 
 func TestMapCopy(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	b, m := initMapTest()
 	m.Copy(1, 3)
-
 	switch {
 	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
 	case b[3] != 3:				t.Fatalf("Element b[3] should be %v but is %v", 3, b[3])
@@ -79,10 +77,9 @@ func TestMapCopy(t *testing.T) {
 
 func TestMapSwap(t *testing.T) {
 	HAS_VALUE := "b[%v] should be %v rather than %v"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-	m.Swap(1, 3)
 
+	b, m := initMapTest()
+	m.Swap(1, 3)
 	switch {
 	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
 	case b[1] != 3:				t.Fatalf(HAS_VALUE, 1, 3, b[1])
@@ -94,9 +91,7 @@ func TestMapSwap(t *testing.T) {
 
 
 func TestMapCount(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-
+	_, m := initMapTest()
 	if c := m.Count(func(i interface{}) bool { return i.(int) > 4 }); c != 5 {
 		t.Fatalf("Item count should be 5 and not %v", c)
 	}
@@ -107,9 +102,7 @@ func TestMapCount(t *testing.T) {
 }
 
 func TestMapAny(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-
+	_, m := initMapTest()
 	if !m.Any(func(i interface{}) bool { return i.(int) > 4 }) {
 		t.Fatal("Should have values greater than 4")
 	}
@@ -120,9 +113,7 @@ func TestMapAny(t *testing.T) {
 }
 
 func TestMapAll(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-
+	_, m := initMapTest()
 	if !m.All(func(i interface{}) bool { return i.(int) < 11 }) {
 		t.Fatal("All values should be below 11")
 	}
@@ -133,9 +124,7 @@ func TestMapAll(t *testing.T) {
 }
 
 func TestMapNone(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-
+	_, m := initMapTest()
 	if !m.None(func(i interface{}) bool { return i.(int) < 0 }) {
 		t.Fatal("No values should be below 0")
 	}
@@ -146,9 +135,7 @@ func TestMapNone(t *testing.T) {
 }
 
 func TestMapOne(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
-
+	_, m := initMapTest()
 	if !m.One(func(i interface{}) bool { return i.(int) == 0 }) {
 		t.Fatal("Should return true")
 	}
@@ -160,9 +147,8 @@ func TestMapOne(t *testing.T) {
 
 func TestMapMany(t *testing.T) {
 	LOGIC_FAILURE := "Should return %v for %v detected"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
 
+	_, m := initMapTest()
 	if !m.Many(func(i interface{}) bool { return i.(int) > 0 }) {
 		t.Fatal(LOGIC_FAILURE, true, "many values")
 	}
@@ -178,8 +164,8 @@ func TestMapMany(t *testing.T) {
 
 func TestMapCollect(t *testing.T) {
 	INCORRECT_VALUE := "r[%v] == %v"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+
+	b, m := initMapTest()
 	r := m.Collect(func(i interface{}) interface{} {
 		return i.(int) * 2
 	})
@@ -210,8 +196,7 @@ func TestMapCollect(t *testing.T) {
 }
 
 func TestMapInject(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	_, m := initMapTest()
 	r := m.Inject(0, func(seed, v interface{}) interface{} {
 		return seed.(int) + v.(int)
 	})
@@ -223,8 +208,8 @@ func TestMapInject(t *testing.T) {
 
 func TestMapCombine(t *testing.T) {
 	INCORRECT_VALUE := "r[%v] == %v"
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+
+	b, m := initMapTest()
 	r := m.Combine(m, func(x, y interface{}) interface{} {
 		return x.(int) * y.(int)
 	})
@@ -255,8 +240,7 @@ func TestMapCombine(t *testing.T) {
 }
 
 func TestMapCycle(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	_, m := initMapTest()
 	r := m.Cycle(5, func(x interface{}) {})
 	switch {
 	case r != 5:				t.Fatalf("cycle count should be 5 but is %v", r)
@@ -264,8 +248,7 @@ func TestMapCycle(t *testing.T) {
 }
 
 func TestMapFeed(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	b, m := initMapTest()
 	c := make(chan interface{})
 	m.Feed(c, func(k, v interface{}) (r interface{}) {
 		return k.(int) * v.(int)
@@ -280,8 +263,7 @@ func TestMapFeed(t *testing.T) {
 }
 
 func TestMapPipe(t *testing.T) {
-	b := map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m := MakeMap(b)
+	b, m := initMapTest()
 	c := m.Pipe(func(k, v interface{}) (r interface{}) {
 		return k.(int) * v.(int)
 	})
