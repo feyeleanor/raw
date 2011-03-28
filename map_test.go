@@ -75,20 +75,6 @@ func TestMapCopy(t *testing.T) {
 	}
 }
 
-func TestMapSwap(t *testing.T) {
-	HAS_VALUE := "b[%v] should be %v rather than %v"
-
-	b, m := initMapTest()
-	m.Swap(1, 3)
-	switch {
-	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
-	case b[1] != 3:				t.Fatalf(HAS_VALUE, 1, 3, b[1])
-	case b[2] != 2:				t.Fatalf(HAS_VALUE, 2, 2, b[2])
-	case b[3] != 1:				t.Fatalf(HAS_VALUE, 3, 1, b[3])
-	case b[4] != 4:				t.Fatalf(HAS_VALUE, 4, 4, b[4])
-	}
-}
-
 func TestMapEach(t *testing.T) {
 	_, m := initMapTest()
 	c := 0

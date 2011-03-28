@@ -47,10 +47,30 @@ func (c *Channel) Bidirectional() bool {
 	return c.Direction() == reflect.BothDir
 }
 
+func (c *Channel) Recv() (x interface{}, open bool) {
+	v, open := c.ChanValue.Recv()
+	x = v.Interface()
+	return
+}
+
+func (c *Channel) TryRecv() (x interface{}, open bool) {
+	v, open := c.ChanValue.TryRecv()
+	x = v.Interface()
+	return
+}
+
+func (c *Channel) Send(x interface{}) {
+	c.ChanValue.Send(reflect.NewValue(x))
+}
+
+func (c *Channel) TrySend(x interface{}) {
+	c.ChanValue.TrySend(reflect.NewValue(x))
+}
+
 func (c *Channel) Each(f func(x interface{})) (n int) {
 	for {
 		if v, open := c.Recv(); open {
-			f(v.Interface())
+			f(v)
 			n++
 		} else {
 			return
@@ -63,7 +83,7 @@ func (c *Channel) Each(f func(x interface{})) (n int) {
 func (c *Channel) First(i int, f func(x interface{})) {
 	for ; i > 0; i-- {
 		v, open := c.Recv()
-		f(v.Interface())
+		f(v)
 		if !open {
 			break
 		}
@@ -74,7 +94,7 @@ func (c *Channel) Feed(o chan<- interface{}, f func(x interface{}) interface{}) 
 //	go func() {
 		for {
 			if v, open := c.Recv(); open {
-				o <- f(v.Interface())
+				o <- f(v)
 			} else {
 				return
 			}
@@ -93,7 +113,7 @@ func (c *Channel) Tee(o chan<- interface{}, f func(x interface{}) interface{}) (
 	go func() {
 		for  {
 			if v, open := c.Recv(); open {
-				x := f(v.Interface())
+				x := f(v)
 				t <- x
 				o <- x
 			}

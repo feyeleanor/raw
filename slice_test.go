@@ -175,34 +175,6 @@ func TestSliceCopySlice(t *testing.T) {
 	}
 }
 
-func TestSliceSwap(t *testing.T) {
-	HAS_VALUE := "b[%v] should be %v rather than %v"
-
-	b, s := initSliceTest()
-	s.Swap(1, 3)
-	switch {
-	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
-	case b[1] != 3:				t.Fatalf(HAS_VALUE, 1, 3, b[1])
-	case b[2] != 2:				t.Fatalf(HAS_VALUE, 2, 2, b[2])
-	case b[3] != 1:				t.Fatalf(HAS_VALUE, 3, 1, b[3])
-	case b[4] != 4:				t.Fatalf(HAS_VALUE, 4, 4, b[4])
-	}
-}
-
-func TestSliceClear(t *testing.T) {
-	HAS_VALUE := "b[%v] should be %v rather than %v"
-
-	b, s := initSliceTest()
-	s.Clear(1, 3)
-	switch {
-	case b[0] != 0:				t.Fatalf(HAS_VALUE, 0, 0, b[0])
-	case b[1] != 0:				t.Fatalf(HAS_VALUE, 1, 0, b[1])
-	case b[2] != 0:				t.Fatalf(HAS_VALUE, 2, 0, b[2])
-	case b[3] != 0:				t.Fatalf(HAS_VALUE, 3, 0, b[3])
-	case b[4] != 4:				t.Fatalf(HAS_VALUE, 4, 4, b[4])
-	}
-}
-
 func TestSliceRepeat(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 
@@ -218,18 +190,6 @@ func TestSliceRepeat(t *testing.T) {
 	case s.At(0) != s.At(20):	t.Fatalf(SHOULD_MATCH, 0, 20, s.At(0), s.At(20))
 	case s.At(1) != s.At(21):	t.Fatalf(SHOULD_MATCH, 1, 21, s.At(1), s.At(21))
 	case s.At(9) != s.At(29):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(29))
-	}
-}
-
-func TestSliceEach(t *testing.T) {
-	_, s := initSliceTest()
-	c := 0
-	n := s.Each(func(i interface{}) {
-		c += i.(int)
-	})
-	switch {
-	case n != 10:				t.Fatalf("Count should be 10 and not %v", n)
-	case c != 45:				t.Fatalf("Sum should be 45 and not %v", c)
 	}
 }
 
@@ -269,94 +229,6 @@ func TestSliceLast(t *testing.T) {
 	}
 }
 
-func TestSliceCollect(t *testing.T) {
-	INCORRECT_VALUE := "r[%v] == %v"
-
-	b, s := initSliceTest()
-	r := s.Collect(func(i interface{}) interface{} {
-		return i.(int) * 2
-	})
-	switch {
-	case r == nil:				t.Fatal("Collect() returned a nil value")
-	case r.Cap() != cap(b):		t.Fatalf("capacity should be %v but is %v", cap(b), r.Cap())
-	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
-	case s.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, s.At(0))
-	case s.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, s.At(1))
-	case s.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, s.At(2))
-	case s.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, s.At(3))
-	case s.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, s.At(4))
-	case s.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, s.At(5))
-	case s.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, s.At(6))
-	case s.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, s.At(7))
-	case s.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, s.At(8))
-	case s.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, s.At(9))
-	case r.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, r.At(0))
-	case r.At(1) != 2:			t.Fatalf(INCORRECT_VALUE, 1, r.At(1))
-	case r.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, r.At(2))
-	case r.At(3) != 6:			t.Fatalf(INCORRECT_VALUE, 3, r.At(3))
-	case r.At(4) != 8:			t.Fatalf(INCORRECT_VALUE, 4, r.At(4))
-	case r.At(5) != 10:			t.Fatalf(INCORRECT_VALUE, 5, r.At(5))
-	case r.At(6) != 12:			t.Fatalf(INCORRECT_VALUE, 6, r.At(6))
-	case r.At(7) != 14:			t.Fatalf(INCORRECT_VALUE, 7, r.At(7))
-	case r.At(8) != 16:			t.Fatalf(INCORRECT_VALUE, 8, r.At(8))
-	case r.At(9) != 18:			t.Fatalf(INCORRECT_VALUE, 9, r.At(9))
-	}
-}
-
-func TestSliceInject(t *testing.T) {
-	_, s := initSliceTest()
-	r := s.Inject(0, func(memo, x interface{}) interface{} {
-		return memo.(int) + x.(int)
-	})
-	switch {
-	case r == nil:				t.Fatal("Inject() returned a nil value")
-	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
-	}
-}
-
-func TestSliceCombine(t *testing.T) {
-	INCORRECT_VALUE := "r[%v] == %v"
-
-	b, s := initSliceTest()
-	r := s.Combine(s, func(x, y interface{}) interface{} {
-		return x.(int) * y.(int)
-	})
-	switch {
-	case r == nil:				t.Fatal("Combine() returned a nil value")
-	case r.Cap() != cap(b):		t.Fatalf("capacity should be %v but is %v", cap(b), r.Cap())
-	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
-	case s.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, s.At(0))
-	case s.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, s.At(1))
-	case s.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, s.At(2))
-	case s.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, s.At(3))
-	case s.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, s.At(4))
-	case s.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, s.At(5))
-	case s.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, s.At(6))
-	case s.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, s.At(7))
-	case s.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, s.At(8))
-	case s.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, s.At(9))
-	case r.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, r.At(0))
-	case r.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, r.At(1))
-	case r.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, r.At(2))
-	case r.At(3) != 9:			t.Fatalf(INCORRECT_VALUE, 3, r.At(3))
-	case r.At(4) != 16:			t.Fatalf(INCORRECT_VALUE, 4, r.At(4))
-	case r.At(5) != 25:			t.Fatalf(INCORRECT_VALUE, 5, r.At(5))
-	case r.At(6) != 36:			t.Fatalf(INCORRECT_VALUE, 6, r.At(6))
-	case r.At(7) != 49:			t.Fatalf(INCORRECT_VALUE, 7, r.At(7))
-	case r.At(8) != 64:			t.Fatalf(INCORRECT_VALUE, 8, r.At(8))
-	case r.At(9) != 81:			t.Fatalf(INCORRECT_VALUE, 9, r.At(9))
-	}
-}
-
-func TestSliceCycle(t *testing.T) {
-	_, s := initSliceTest()
-	r := s.Cycle(5, func(x interface{}) {})
-	switch {
-	case r == nil:				t.Fatal("Cycle() returned a nil value")
-	case r != 5:				t.Fatalf("cycle count should be 5 but is %v", r)
-	}
-}
-
 func TestSliceResize(t *testing.T) {
 	b, s := initSliceTest()
 	switch s.Resize(20); {
@@ -375,72 +247,6 @@ func TestSliceResize(t *testing.T) {
 	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
 	case s.Len() != 5:			t.Fatalf("Slice length should be 5 but is %v", s.Len())
-	}
-}
-
-func TestSliceExtend(t *testing.T) {
-	b, s := initSliceTest()
-	switch s.Extend(10); {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
-		case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
-	}
-
-	switch s.Extend(-15); {
-	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-	case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-	case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
-	case s.Len() != 5:			t.Fatalf("Slice length should be 5 but is %v", s.Len())
-	}
-}
-
-func TestSliceShrink(t *testing.T) {
-	b, s := initSliceTest()
-	switch s.Shrink(-10); {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
-		case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
-	}
-
-	switch s.Shrink(15); {
-	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-	case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-	case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
-	case s.Len() != 5:			t.Fatalf("Slice length should be 5 but is %v", s.Len())
-	}
-}
-
-func TestSliceDoubleCapacity(t *testing.T) {
-	b, s := initSliceTest()
-	switch s.DoubleCapacity(); {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
-		case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
-	}
-}
-
-func TestSliceHalveCapacity(t *testing.T) {
-	b, s := initSliceTest()
-	switch s.HalveCapacity(); {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
-		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
-		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
-		case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
-		case s.Len() != 5:			t.Fatalf("Slice length should be 5 but is %v", s.Len())
 	}
 }
 

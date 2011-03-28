@@ -41,21 +41,12 @@ func (m *Map) At(k interface{}) interface{} {
 }
 
 func (m *Map) Set(k, value interface{}) {
-	m.Elem(reflect.NewValue(k)).SetValue(reflect.NewValue(value))
+	m.SetElem(reflect.NewValue(k), reflect.NewValue(value))
 }
 
 // Copies a value from one location in the Map to another.
 func (m *Map) Copy(destination, source interface{}) {
 	m.SetElem(reflect.NewValue(destination), reflect.NewValue(source))
-}
-
-// Swap the values stored by a pair of keys.
-func (m *Map) Swap(left, right interface{}) {
-	l := reflect.NewValue(left)
-	r := reflect.NewValue(right)
-	temp := m.Elem(l)
-	m.SetElem(l, m.Elem(r))
-	m.SetElem(r, temp)
 }
 
 func (m *Map) Clear(i interface{}) {

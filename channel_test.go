@@ -26,7 +26,7 @@ func TestChannelMakeChannel(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		switch v, open := c.Recv(); {
 		case !open:					t.Fatalf("%v: channel should be open", i)
-		case v.Interface() != i:	t.Fatalf("Should receive %v but received %v", i, v.Interface())
+		case v != i:				t.Fatalf("Should receive %v but received %v", i, v)
 		}
 	}
 

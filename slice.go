@@ -64,25 +64,6 @@ func (s *Slice) CopySlice(destination, source, count int) {
 //	s.Elem(destination).SetValue(s.Elem(source))
 }
 
-func (s *Slice) Swap(left, right int) {
-	x := s.Elem(left)
-	y := s.Elem(right)
-	temp := reflect.NewValue(x.Interface())
-	x.SetValue(y)
-	y.SetValue(temp)
-}
-
-func (s *Slice) Clear(start, end int) {
-	if end > s.Len() {
-		end = s.Len()
-	}
-	blank := reflect.MakeZero(s.ElementType())
-	end++
-	for ; start < end; start++ {
-		s.Elem(start).SetValue(blank)
-	}
-}
-
 func (s *Slice) Repeat(count int) *Slice {
 	length := s.Len() * count
 	capacity := s.Cap()
@@ -98,13 +79,6 @@ func (s *Slice) Repeat(count int) *Slice {
 	return &Slice{ destination, StandardSlack }
 }
 
-func (s *Slice) Each(f func(x interface{})) (n int) {
-	for i, e := 0, s.Len(); i < e; i++ {
-		f(s.Elem(i).Interface())
-	}
-	return s.Len()
-}
-
 //	First reads a specified number of values into a function, terminating if the end of Slice is reached
 func (s *Slice) First(i int, f func(x interface{})) {
 	for c := 0; c < i && c < s.Len(); c++ {
@@ -118,54 +92,6 @@ func (s *Slice) Last(i int, f func(x interface{})) {
 		f(s.Elem(e).Interface())
 		e--
 	}
-}
-
-func (s *Slice) Collect(f func(x interface{}) interface{}) *Slice {
-	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap()), StandardSlack }
-	for i := s.Len() - 1; i > 0; i-- {
-		destination.Set(i, f(s.Elem(i).Interface()))
-	}
-	return destination
-}
-
-func (s *Slice) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
-	end := s.Len()
-	for i := 0; i < end; i++ {
-		seed = f(seed, s.Elem(i).Interface())
-	}
-	return seed
-}
-
-func (s *Slice) Combine(o *Slice, f func(x, y interface{}) interface{}) *Slice {
-	l := s.Len()
-	if s.Len() > o.Len() {
-		l = o.Len()
-	}
-	destination := &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), l, l), StandardSlack }
-	for i := 0; i < l; i++ {
-		destination.Set(i, f(s.Elem(i).Interface(), o.Elem(i).Interface()))
-	}
-	return destination
-}
-
-func (s *Slice) Cycle(count int, f func(x interface{})) interface{} {
-	j := 0
-	l := s.Len()
-	switch count {
-	case 0:		for {
-					for i := 0; i < l; i++ {
-						f(s.Elem(i).Interface())
-					}
-					j++
-				}
-	default:	for k := 0; j < count; j++ {
-					for i := 0; i < l; i++ {
-						f(s.Elem(i).Interface())
-					}
-					k++
-				}
-	}
-	return j
 }
 
 func (s *Slice) Resize(capacity int) {
@@ -184,22 +110,6 @@ func (s *Slice) Resize(capacity int) {
 		reflect.Copy(x, s.SliceValue)
 		s.SetValue(x)
 	}
-}
-
-func (s *Slice) Extend(count int) {
-	s.Resize(s.Cap() + count)
-}
-
-func (s *Slice) Shrink(count int) {
-	s.Resize(s.Cap() - count)
-}
-
-func (s *Slice) DoubleCapacity() {
-	s.Resize(s.Cap() * 2)
-}
-
-func (s *Slice) HalveCapacity() {
-	s.Resize(s.Cap() / 2)
 }
 
 func (s *Slice) Feed(c chan<- interface{}, f func(x interface{}) interface{}) {

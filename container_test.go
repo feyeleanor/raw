@@ -2,33 +2,83 @@ package raw
 
 import "testing"
 
-func TestCount(t *testing.T) {
-	_, s := initSliceTest()
-	if n := Count(s, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
-		t.Fatalf("Slice count should be 4 and not %v", n)
-	}
+func TestSwap(t *testing.T) {
+	HAS_VALUE := "%v[%v] should be %v rather than %v"
 
-	if n := Count(s, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
-		t.Fatalf("Slice count should be 5 and not %v", n)
+	_, s := initSliceTest()
+	Swap(s, 1, 3)
+	switch {
+	case s.At(0) != 0:			t.Fatalf(HAS_VALUE, "slice", 0, 0, s.At(0))
+	case s.At(1) != 3:			t.Fatalf(HAS_VALUE, "slice", 1, 3, s.At(1))
+	case s.At(2) != 2:			t.Fatalf(HAS_VALUE, "slice", 2, 2, s.At(2))
+	case s.At(3) != 1:			t.Fatalf(HAS_VALUE, "slice", 3, 1, s.At(3))
+	case s.At(4) != 4:			t.Fatalf(HAS_VALUE, "slice", 4, 4, s.At(4))
 	}
 
 	_, m := initMapTest()
-	if n := Count(m, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
-		t.Fatalf("Map count should be 4 and not %v", n)
+	Swap(m, 1, 3)
+	switch {
+	case m.At(0) != 0:			t.Fatalf(HAS_VALUE, "map", 0, 0, m.At(0))
+	case m.At(1) != 3:			t.Fatalf(HAS_VALUE, "map", 1, 3, m.At(1))
+	case m.At(2) != 2:			t.Fatalf(HAS_VALUE, "map", 2, 2, m.At(2))
+	case m.At(3) != 1:			t.Fatalf(HAS_VALUE, "map", 3, 1, m.At(3))
+	case m.At(4) != 4:			t.Fatalf(HAS_VALUE, "map", 4, 4, m.At(4))
 	}
+}
 
-	if n := Count(m, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
-		t.Fatalf("Map count should be 5 and not %v", n)
+func TestEach(t *testing.T) {
+	_, s := initSliceTest()
+	c := 0
+	n := Each(s, func(i interface{}) {
+		c += i.(int)
+	})
+	switch {
+	case n != 10:				t.Fatalf("Count should be 10 and not %v", n)
+	case c != 45:				t.Fatalf("Sum should be 45 and not %v", c)
 	}
+}
 
-	_, c := initChannelTest()
-	if n := Count(c, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
-		t.Fatalf("Channel count should be 4 and not %v", n)
+func TestCollect(t *testing.T) {
+	INCORRECT_VALUE := "r[%v] == %v"
+
+	b, s := initSliceTest()
+	r := Collect(s, func(i interface{}) interface{} {
+		return i.(int) * 2
+	})
+	switch {
+	case r == nil:				t.Fatal("Collect() returned a nil value")
+	case r.Len() != len(b):		t.Fatalf("slice length should be %v but is %v", len(b), r.Len())
+	case s.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, s.At(0))
+	case s.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, s.At(1))
+	case s.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, s.At(2))
+	case s.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, s.At(3))
+	case s.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, s.At(4))
+	case s.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, s.At(5))
+	case s.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, s.At(6))
+	case s.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, s.At(7))
+	case s.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, s.At(8))
+	case s.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, s.At(9))
+	case r.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, r.At(0))
+	case r.At(1) != 2:			t.Fatalf(INCORRECT_VALUE, 1, r.At(1))
+	case r.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, r.At(2))
+	case r.At(3) != 6:			t.Fatalf(INCORRECT_VALUE, 3, r.At(3))
+	case r.At(4) != 8:			t.Fatalf(INCORRECT_VALUE, 4, r.At(4))
+	case r.At(5) != 10:			t.Fatalf(INCORRECT_VALUE, 5, r.At(5))
+	case r.At(6) != 12:			t.Fatalf(INCORRECT_VALUE, 6, r.At(6))
+	case r.At(7) != 14:			t.Fatalf(INCORRECT_VALUE, 7, r.At(7))
+	case r.At(8) != 16:			t.Fatalf(INCORRECT_VALUE, 8, r.At(8))
+	case r.At(9) != 18:			t.Fatalf(INCORRECT_VALUE, 9, r.At(9))
 	}
+}
 
-	_, c = initChannelTest()
-	if n := Count(c, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
-		t.Fatalf("Channel count should be 5 and not %v", n)
+func TestInject(t *testing.T) {
+	_, s := initSliceTest()
+	r := Inject(s, 0, func(memo, x interface{}) interface{} {
+		return memo.(int) + x.(int)
+	})
+	switch {
+	case r == nil:				t.Fatal("Inject() returned a nil value")
+	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
 	}
 }
 
@@ -69,6 +119,36 @@ func TestUntil(t *testing.T) {
 	case count != 6:				t.Fatalf("Channel count should be %v not %v", 6, count)
 	case c.Len() != 3:				t.Fatalf("Channel length should be %v not %v", 3, c.Len())
 	case c.Len() != len(b):			t.Fatalf("Channel length should be %v not %v", len(b), c.Len())
+	}
+}
+
+func TestCount(t *testing.T) {
+	_, s := initSliceTest()
+	if n := Count(s, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
+		t.Fatalf("Slice count should be 4 and not %v", n)
+	}
+
+	if n := Count(s, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
+		t.Fatalf("Slice count should be 5 and not %v", n)
+	}
+
+	_, m := initMapTest()
+	if n := Count(m, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
+		t.Fatalf("Map count should be 4 and not %v", n)
+	}
+
+	if n := Count(m, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
+		t.Fatalf("Map count should be 5 and not %v", n)
+	}
+
+	_, c := initChannelTest()
+	if n := Count(c, func(i interface{}) bool { return i.(int) > 5 }); n != 4 {
+		t.Fatalf("Channel count should be 4 and not %v", n)
+	}
+
+	_, c = initChannelTest()
+	if n := Count(c, func(i interface{}) bool { return i.(int) < 5 }); n != 5 {
+		t.Fatalf("Channel count should be 5 and not %v", n)
 	}
 }
 
@@ -200,10 +280,39 @@ func TestOne(t *testing.T) {
 	}
 }
 
+func TestDense(t *testing.T) {
+	LOGIC_FAILURE := "%v should return %v for %v detected"
+	_, s := initSliceTest()
+	if !Dense(s, 0.5, func(i interface{}) bool { return i.(int) > 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Slice", true, "most values")
+	}
+
+	if Dense(s, 0.5, func(i interface{}) bool { return i.(int) == 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Slice", false, "single value")
+	}
+
+	if Dense(s, 0.5, func(i interface{}) bool { return i.(int) < 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Slice", false, "no values")
+	}
+
+	_, m := initMapTest()
+	if !Dense(m, 0.5, func(i interface{}) bool { return i.(int) > 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Map", true, "most values")
+	}
+
+	if Dense(m, 0.5, func(i interface{}) bool { return i.(int) == 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Map", false, "single value")
+	}
+
+	if Dense(m, 0.5, func(i interface{}) bool { return i.(int) < 0 }) {
+		t.Fatalf(LOGIC_FAILURE, "Map", false, "no values")
+	}
+}
+
 func TestMost(t *testing.T) {
 	LOGIC_FAILURE := "%v should return %v for %v detected"
 	_, s := initSliceTest()
-	if Most(s, func(i interface{}) bool { return i.(int) > 0 }) {
+	if !Most(s, func(i interface{}) bool { return i.(int) > 0 }) {
 		t.Fatalf(LOGIC_FAILURE, "Slice", true, "most values")
 	}
 
@@ -216,7 +325,7 @@ func TestMost(t *testing.T) {
 	}
 
 	_, m := initMapTest()
-	if Most(m, func(i interface{}) bool { return i.(int) > 0 }) {
+	if !Most(m, func(i interface{}) bool { return i.(int) > 0 }) {
 		t.Fatalf(LOGIC_FAILURE, "Map", true, "most values")
 	}
 
