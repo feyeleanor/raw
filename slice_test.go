@@ -221,75 +221,15 @@ func TestSliceRepeat(t *testing.T) {
 	}
 }
 
-func TestSliceCount(t *testing.T) {
+func TestSliceEach(t *testing.T) {
 	_, s := initSliceTest()
-	if c := s.Count(func(i interface{}) bool { return i.(int) > 4 }); c != 5 {
-		t.Fatalf("Item count should be 5 and not %v", c)
-	}
-
-	if c := s.Count(func(i interface{}) bool { return i.(int) < 5 }); c != 5 {
-		t.Fatalf("Item count should be 5 and not %v", c)
-	}
-}
-
-func TestSliceAny(t *testing.T) {
-	_, s := initSliceTest()
-	if !s.Any(func(i interface{}) bool { return i.(int) > 4 }) {
-		t.Fatal("Should have values greater than 4")
-	}
-
-	if !s.Any(func(i interface{}) bool { return i.(int) < 5 }) {
-		t.Fatal("Should have values less than 5")
-	}
-}
-
-func TestSliceAll(t *testing.T) {
-	_, s := initSliceTest()
-	if !s.All(func(i interface{}) bool { return i.(int) < 11 }) {
-		t.Fatal("All values should be below 11")
-	}
-
-	if !s.All(func(i interface{}) bool { return i.(int) > -1 }) {
-		t.Fatal("All values should be above -1")
-	}
-}
-
-func TestSliceNone(t *testing.T) {
-	_, s := initSliceTest()
-	if !s.None(func(i interface{}) bool { return i.(int) < 0 }) {
-		t.Fatal("No values should be below 0")
-	}
-
-	if !s.None(func(i interface{}) bool { return i.(int) > 9 }) {
-		t.Fatal("No values should be above 9")
-	}
-}
-
-func TestSliceOne(t *testing.T) {
-	_, s := initSliceTest()
-	if !s.One(func(i interface{}) bool { return i.(int) == 0 }) {
-		t.Fatal("Should return true")
-	}
-
-	if s.One(func(i interface{}) bool { return i.(int) == -1 }) {
-		t.Fatal("Should return false")
-	}
-}
-
-func TestSliceMany(t *testing.T) {
-	LOGIC_FAILURE := "Should return %v for %v detected"
-
-	_, s := initSliceTest()
-	if !s.Many(func(i interface{}) bool { return i.(int) > 0 }) {
-		t.Fatal(LOGIC_FAILURE, true, "many values")
-	}
-
-	if s.Many(func(i interface{}) bool { return i.(int) == 0 }) {
-		t.Fatal(LOGIC_FAILURE, false, "single value")
-	}
-
-	if s.Many(func(i interface{}) bool { return i.(int) < 0 }) {
-		t.Fatal(LOGIC_FAILURE, false, "no values")
+	c := 0
+	n := s.Each(func(i interface{}) {
+		c += i.(int)
+	})
+	switch {
+	case n != 10:				t.Fatalf("Count should be 10 and not %v", n)
+	case c != 45:				t.Fatalf("Sum should be 45 and not %v", c)
 	}
 }
 
@@ -326,30 +266,6 @@ func TestSliceLast(t *testing.T) {
 	case s.At(7) != r[2]:		t.Fatalf(SHOULD_MATCH, 7, 2, s.At(7), r[2])
 	case s.At(6) != r[3]:		t.Fatalf(SHOULD_MATCH, 6, 3, s.At(6), r[3])
 	case s.At(5) != r[4]:		t.Fatalf(SHOULD_MATCH, 5, 4, s.At(5), r[4])
-	}
-}
-
-func TestSliceWhile(t *testing.T) {
-	_, s := initSliceTest()
-	count := 0
-	s.While(func(i interface{}) bool {
-		count++
-		return i.(int) < 6
-	})
-	switch {
-	case count != 7:				t.Fatalf("Count should be %v not %v", 7, count)
-	}
-}
-
-func TestSliceUntil(t *testing.T) {
-	_, s := initSliceTest()
-	count := 0
-	s.Until(func(i interface{}) bool {
-		count++
-		return i.(int) == 6
-	})
-	switch {
-	case count != 7:				t.Fatalf("Count should be %v not %v", 7, count)
 	}
 }
 
@@ -531,8 +447,11 @@ func TestSliceHalveCapacity(t *testing.T) {
 func TestSliceFeed(t *testing.T) {
 	b, s := initSliceTest()
 	c := make(chan interface{})
-	s.Feed(c, func(i int, x interface{}) (r interface{}) {
-		return i * x.(int)
+	i := 0
+	s.Feed(c, func(x interface{}) (r interface{}) {
+		r = i * x.(int)
+		i++
+		return
 	})
 	n := []int{}
 	for x := range c {
@@ -554,8 +473,11 @@ func TestSliceFeed(t *testing.T) {
 
 func TestSlicePipe(t *testing.T) {
 	b, s := initSliceTest()
-	c := s.Pipe(func(i int, x interface{}) (r interface{}) {
-		return i * x.(int)
+	i := 0
+	c := s.Pipe(func(x interface{}) (r interface{}) {
+		r = i * x.(int)
+		i++
+		return 
 	})
 	n := []int{}
 	for x := range c {

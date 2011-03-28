@@ -3,6 +3,7 @@ include $(GOROOT)/src/Make.inc
 TARG=raw
 
 GOFILES=\
+	enumerable.go\
 	byte_slice.go\
 	slice.go\
 	map.go\

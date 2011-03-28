@@ -89,76 +89,14 @@ func TestMapSwap(t *testing.T) {
 	}
 }
 
-
-func TestMapCount(t *testing.T) {
+func TestMapEach(t *testing.T) {
 	_, m := initMapTest()
-	if c := m.Count(func(i interface{}) bool { return i.(int) > 4 }); c != 5 {
-		t.Fatalf("Item count should be 5 and not %v", c)
-	}
-
-	if c := m.Count(func(i interface{}) bool { return i.(int) < 5 }); c != 5 {
-		t.Fatalf("Item count should be 5 and not %v", c)
-	}
-}
-
-func TestMapAny(t *testing.T) {
-	_, m := initMapTest()
-	if !m.Any(func(i interface{}) bool { return i.(int) > 4 }) {
-		t.Fatal("Should have values greater than 4")
-	}
-
-	if !m.Any(func(i interface{}) bool { return i.(int) < 5 }) {
-		t.Fatal("Should have values less than 5")
-	}
-}
-
-func TestMapAll(t *testing.T) {
-	_, m := initMapTest()
-	if !m.All(func(i interface{}) bool { return i.(int) < 11 }) {
-		t.Fatal("All values should be below 11")
-	}
-
-	if !m.All(func(i interface{}) bool { return i.(int) > -1 }) {
-		t.Fatal("All values should be above -1")
-	}
-}
-
-func TestMapNone(t *testing.T) {
-	_, m := initMapTest()
-	if !m.None(func(i interface{}) bool { return i.(int) < 0 }) {
-		t.Fatal("No values should be below 0")
-	}
-
-	if !m.None(func(i interface{}) bool { return i.(int) > 9 }) {
-		t.Fatal("No values should be above 9")
-	}
-}
-
-func TestMapOne(t *testing.T) {
-	_, m := initMapTest()
-	if !m.One(func(i interface{}) bool { return i.(int) == 0 }) {
-		t.Fatal("Should return true")
-	}
-
-	if m.One(func(i interface{}) bool { return i.(int) == -1 }) {
-		t.Fatal("Should return false")
-	}
-}
-
-func TestMapMany(t *testing.T) {
-	LOGIC_FAILURE := "Should return %v for %v detected"
-
-	_, m := initMapTest()
-	if !m.Many(func(i interface{}) bool { return i.(int) > 0 }) {
-		t.Fatal(LOGIC_FAILURE, true, "many values")
-	}
-
-	if m.Many(func(i interface{}) bool { return i.(int) == 0 }) {
-		t.Fatal(LOGIC_FAILURE, false, "single value")
-	}
-
-	if m.Many(func(i interface{}) bool { return i.(int) < 0 }) {
-		t.Fatal(LOGIC_FAILURE, false, "no values")
+	c := 0
+	m.Each(func(v interface{}) {
+		c += v.(int)
+	})
+	if c != 45 {
+		t.Fatalf("Sum should be 45 and not %v", c)
 	}
 }
 
@@ -276,8 +214,6 @@ func TestMapPipe(t *testing.T) {
 	}
 }
 
-/*
 func TestMapTee(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
-*/

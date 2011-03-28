@@ -98,62 +98,11 @@ func (s *Slice) Repeat(count int) *Slice {
 	return &Slice{ destination, StandardSlack }
 }
 
-func (s *Slice) Count(f func(x interface{}) bool) (c int) {
-	for i := s.Len() - 1; i > -1; i-- {
-		if f(s.Elem(i).Interface()) {
-			c++
-		}
+func (s *Slice) Each(f func(x interface{})) (n int) {
+	for i, e := 0, s.Len(); i < e; i++ {
+		f(s.Elem(i).Interface())
 	}
-	return
-}
-
-func (s *Slice) Any(f func(x interface{}) bool) bool {
-	for i := s.Len() - 1; i > -1; i-- {
-		if f(s.Elem(i).Interface()) {
-			return true
-		}
-	}
-	return false
-}
-
-func (s *Slice) All(f func(x interface{}) bool) bool {
-	for i := s.Len() - 1; i > -1; i-- {
-		if !f(s.Elem(i).Interface()) {
-			return false
-		}
-	}
-	return true
-}
-
-func (s *Slice) None(f func(x interface{}) bool) bool {
-	for i := s.Len() - 1; i > -1; i-- {
-		if f(s.Elem(i).Interface()) {
-			return false
-		}
-	}
-	return true
-}
-
-func (s *Slice) One(f func(x interface{}) bool) bool {
-	c := 0
-	for i := s.Len() - 1; i > -1; i-- {
-		switch {
-		case c > 1:							return false
-		case f(s.Elem(i).Interface()):		c++
-		}
-	}
-	return c == 1
-}
-
-func (s *Slice) Many(f func(x interface{}) bool) bool {
-	c := 0
-	for i := s.Len() - 1; i > -1; i-- {
-		switch {
-		case c > 1:							return true
-		case f(s.Elem(i).Interface()):		c++
-		}
-	}
-	return c > 1
+	return s.Len()
 }
 
 //	First reads a specified number of values into a function, terminating if the end of Slice is reached
@@ -168,24 +117,6 @@ func (s *Slice) Last(i int, f func(x interface{})) {
 	for e := s.Len() - 1; i > 0 && e > 0; i-- {
 		f(s.Elem(e).Interface())
 		e--
-	}
-}
-
-//	While processes values from a Slice sequentially whilst a condition is true or until the end of Slice is reached
-func (s *Slice) While(f func(x interface{}) bool) {
-	for i := 0; i < s.Len(); i++ {
-		if !f(s.Elem(i).Interface()) {
-			break
-		}
-	}
-}
-
-//	Until processes values from a Slice until a condition is true or the end of Slice is reached
-func (s *Slice) Until(f func(x interface{}) bool) {
-	for i := 0; i < s.Len(); i++ {
-		if f(s.Elem(i).Interface()) {
-			break
-		}
 	}
 }
 
@@ -271,30 +202,29 @@ func (s *Slice) HalveCapacity() {
 	s.Resize(s.Cap() / 2)
 }
 
-func (s *Slice) Feed(c chan<- interface{}, f func(i int, x interface{}) interface{}) {
+func (s *Slice) Feed(c chan<- interface{}, f func(x interface{}) interface{}) {
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {
-			c <- f(i, s.Elem(i).Interface())
+			c <- f(s.Elem(i).Interface())
 		}
 		close(c)
 	}()
 }
 
-func (s *Slice) Pipe(f func(i int, x interface{}) interface{}) <-chan interface{} {
-	c := make(chan interface{}, StandardChannelBuffer)
-	s.Clone().Feed(c, f)
-	return c
+func (s *Slice) Pipe(f func(x interface{}) interface{}) (c chan interface{}) {
+	c = make(chan interface{}, StandardChannelBuffer)
+	s.Feed(c, f)
+	return
 }
 
-func (s *Slice) Tee(c chan<- interface{}, f func(i int, x interface{}) interface{}) <-chan interface{} {
-	t := make(chan interface{}, StandardChannelBuffer)
+func (s *Slice) Tee(c chan<- interface{}, f func(x interface{}) interface{}) (t chan interface{}) {
+	t = make(chan interface{}, StandardChannelBuffer)
 	go func() {
 		for i, l := 0, s.Len(); i < l; i++ {
-			x := f(i, s.Elem(i).Interface())
-			c <- x
+			x := f(s.Elem(i).Interface())
 			t <- x
+			c <- x
 		}
-		close(t)
 	}()
-	return t
+	return
 }

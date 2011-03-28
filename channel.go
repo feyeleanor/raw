@@ -2,6 +2,15 @@ package raw
 
 import "reflect"
 
+func WaitFor(f func()) {
+	done := make(chan bool)
+	go func() {
+		f()
+		done <- true
+	}()
+	<-done
+}
+
 type Channel struct {
 	*reflect.ChanValue
 }
@@ -38,6 +47,18 @@ func (c *Channel) Bidirectional() bool {
 	return c.Direction() == reflect.BothDir
 }
 
+func (c *Channel) Each(f func(x interface{})) (n int) {
+	for {
+		if v, open := c.Recv(); open {
+			f(v.Interface())
+			n++
+		} else {
+			return
+		}
+	}
+	return
+}
+
 //	First reads a specified number of values into a function, terminating if the Channel is closed
 func (c *Channel) First(i int, f func(x interface{})) {
 	for ; i > 0; i-- {
@@ -49,26 +70,34 @@ func (c *Channel) First(i int, f func(x interface{})) {
 	}
 }
 
-//	While reads values from a channel into a function whilst a condition is true or until the channel is closed
-func (c *Channel) While(f func(x interface{}) bool) {
-	for {
-		if v, open := c.Recv(); open {
-			if f(v.Interface()) {
-				continue
+func (c *Channel) Feed(o chan<- interface{}, f func(x interface{}) interface{}) {
+//	go func() {
+		for {
+			if v, open := c.Recv(); open {
+				o <- f(v.Interface())
+			} else {
+				return
 			}
 		}
-		break
-	}
+//	}()
 }
 
-//	Until reads values from a channel into a function until a condition is met or the channel is closed
-func (c *Channel) Until(f func(x interface{}) bool) {
-	for {
-		if v, open := c.Recv(); open {
-			if !f(v.Interface()) {
-				continue
+func (c *Channel) Pipe(f func(x interface{}) interface{}) (o chan interface{}) {
+	o = make(chan interface{}, StandardChannelBuffer)
+	c.Feed(o, f)
+	return
+}
+
+func (c *Channel) Tee(o chan<- interface{}, f func(x interface{}) interface{}) (t chan interface{}) {
+	t = make(chan interface{}, StandardChannelBuffer)
+	go func() {
+		for  {
+			if v, open := c.Recv(); open {
+				x := f(v.Interface())
+				t <- x
+				o <- x
 			}
 		}
-		break
-	}
+	}()
+	return
 }

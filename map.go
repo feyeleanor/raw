@@ -62,62 +62,13 @@ func (m *Map) Clear(i interface{}) {
 	m.Elem(reflect.NewValue(i)).SetValue(reflect.MakeZero(m.ElementType()))
 }
 
-func (m *Map) Count(f func(x interface{}) bool) (c int) {
-	for _, k := range m.Keys() {
-		if f(m.Elem(k).Interface()) {
-			c++
-		}
-	}
-	return
-}
 
-func (m *Map) Any(f func(x interface{}) bool) bool {
-	for _, k := range m.Keys() {
-		if f(m.Elem(k).Interface()) {
-			return true
-		}
+func (m *Map) Each(f func(v interface{})) int {
+	keys := m.Keys()
+	for _, k := range keys {
+		f(m.Elem(k).Interface())
 	}
-	return false
-}
-
-func (m *Map) All(f func(x interface{}) bool) bool {
-	for _, k := range m.Keys() {
-		if !f(m.Elem(k).Interface()) {
-			return false
-		}
-	}
-	return true
-}
-
-func (m *Map) None(f func(x interface{}) bool) bool {
-	for _, k := range m.Keys() {
-		if f(m.Elem(k).Interface()) {
-			return false
-		}
-	}
-	return true
-}
-
-func (m *Map) One(f func(x interface{}) bool) bool {
-	c := 0
-	for _, k := range m.Keys() {
-		switch {
-		case c > 1:							return false
-		case f(m.Elem(k).Interface()):		c++
-		}
-	}
-	return c == 1
-}
-
-func (m *Map) Many(f func(x interface{}) bool) bool {
-	c := 0
-	for _, k := range m.Keys() {
-		switch {
-		case c > 1:							return true
-		case f(m.Elem(k).Interface()):		c++
-		}
-	}
-	return c > 1
+	return len(keys)
 }
 
 //	Create a new Map with identical keys to the existing Map but with values transformed according to a function.
