@@ -6,19 +6,8 @@ type Map struct {
 	*reflect.MapValue
 }
 
-// Creates a Slice from a given object, raising a runtime panic if the object cannot be represented as a *reflect.MapValue.
-func MakeMap(i interface{}) (m *Map) {
-	switch v := reflect.NewValue(i).(type) {
-	case *reflect.MapValue:			m = &Map{ v }
-	case *reflect.InterfaceValue:	m = MakeMap(v.Elem())
-	case *reflect.PtrValue:			m = MakeMap(v.Elem())
-	default:						panic(i)
-	}
-	return
-}
-
 // Create an independent duplicate of the Map, copy all contents to the new assigned memory
-func (m *Map) Clone() *Map {
+func (m *Map) Clone() Mapping {
 	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
 	for _, k := range m.Keys() {
 		destination.SetElem(k, m.Elem(k))
@@ -52,7 +41,6 @@ func (m *Map) Copy(destination, source interface{}) {
 func (m *Map) Clear(i interface{}) {
 	m.Elem(reflect.NewValue(i)).SetValue(reflect.MakeZero(m.ElementType()))
 }
-
 
 func (m *Map) Each(f func(v interface{})) int {
 	keys := m.Keys()
@@ -123,7 +111,7 @@ func (m *Map) Feed(c chan<- interface{}, f func(k, v interface{}) interface{}) {
 
 func (m *Map) Pipe(f func(k, v interface{}) interface{}) <-chan interface{} {
 	c := make(chan interface{}, StandardChannelBuffer)
-	m.Clone().Feed(c, f)
+	m.Clone().(*Map).Feed(c, f)
 	return c
 }
 

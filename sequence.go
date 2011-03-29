@@ -6,6 +6,7 @@ type Sequence interface {
 	Container
 	At(i int) interface{}
 	Set(i int, x interface{})
+	Clone() Sequence
 }
 
 func Clear(s Sequence, start, end int) {

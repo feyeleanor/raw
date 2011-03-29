@@ -15,17 +15,6 @@ type Channel struct {
 	*reflect.ChanValue
 }
 
-// Creates a Channel from a given object, raising a runtime panic if the object cannot be represented as a *reflect.ChanValue.
-func MakeChannel(i interface{}) (c *Channel) {
-	switch v := reflect.NewValue(i).(type) {
-	case *reflect.ChanValue:		c = &Channel{ v }
-	case *reflect.InterfaceValue:	c = MakeChannel(v.Elem())
-	case *reflect.PtrValue:			c = MakeChannel(v.Elem())
-	default:						panic(i)
-	}
-	return
-}
-
 // Returns the runtime type of the elements travelling along the Channel.
 func (c *Channel) ElementType() reflect.Type {
 	return c.Type().(*reflect.ChanType).Elem()

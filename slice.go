@@ -10,19 +10,8 @@ type Slice struct {
 	Slack		float32					"how much spare capacity to allow on resize attempts"
 }
 
-// Creates a Slice from a given object, raising a runtime panic if the object cannot be represented as a *reflect.SliceValue.
-func MakeSlice(i interface{}) (s *Slice) {
-	switch v := reflect.NewValue(i).(type) {
-	case *reflect.SliceValue:		s = &Slice{ v, StandardSlack }
-	case *reflect.InterfaceValue:	s = MakeSlice(v.Elem())
-	case *reflect.PtrValue:			s = MakeSlice(v.Elem())
-	default:						panic(i)
-	}
-	return
-}
-
 // Create an independent duplicate of the Slice, copy all contents to the new assigned memory
-func (s *Slice) Clone() *Slice {
+func (s *Slice) Clone() Sequence {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
 	reflect.Copy(destination, s.SliceValue)
 	return &Slice{ destination, StandardSlack }

@@ -13,6 +13,18 @@ type Enumerable interface {
 	Each(func(x interface{})) int
 }
 
+func Wrap(i interface{}) (c Container) {
+	switch v := reflect.NewValue(i).(type) {
+	case *reflect.SliceValue:		c = &Slice{ v, StandardSlack }
+	case *reflect.MapValue:			c = &Map{ v }
+	case *reflect.ChanValue:		c = &Channel{ v }
+	case *reflect.InterfaceValue:	c = Wrap(v.Elem())
+	case *reflect.PtrValue:			c = Wrap(v.Elem())
+	default:						panic(i)
+	}
+	return
+}
+
 func MakeBlank(c Container) interface{} {
 	return reflect.MakeZero(c.ElementType()).Interface()
 }

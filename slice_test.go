@@ -10,36 +10,15 @@ const(
 
 func initSliceTest() (b []int, s *Slice) {
 	b = []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s = MakeSlice(b)
+	s = Wrap(b).(*Slice)
 	return
-}
-
-func TestSliceMakeSlice(t *testing.T) {
-	SHOULD_MATCH := "Slice elements s[%v] and b[%v] should match but are %v and %v"
-
-	b, s := initSliceTest()
-	switch {
-	case s == nil:				t.Fatal("MakeSlice returned a nil value")
-	case s.Len() != len(b):		t.Fatalf("Slice length should be %v not %v", len(b), s.Len())
-	case s.Cap() != cap(b):		t.Fatalf("Slice capacity should be %v not %v", cap(b), s.Cap())
-	case s.At(0) != b[0]:		t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), b[0])
-	case s.At(1) != b[1]:		t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), b[1])
-	case s.At(2) != b[2]:		t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), b[2])
-	case s.At(3) != b[3]:		t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), b[3])
-	case s.At(4) != b[4]:		t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), b[4])
-	case s.At(5) != b[5]:		t.Fatalf(SHOULD_MATCH, 5, 5, s.At(5), b[5])
-	case s.At(6) != b[6]:		t.Fatalf(SHOULD_MATCH, 6, 6, s.At(6), b[6])
-	case s.At(7) != b[7]:		t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), b[7])
-	case s.At(8) != b[8]:		t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), b[8])
-	case s.At(9) != b[9]:		t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), b[9])
-	}
 }
 
 func TestSliceClone(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 
 	_, s := initSliceTest()
-	c := s.Clone()
+	c := s.Clone().(*Slice)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
@@ -118,7 +97,7 @@ func TestSliceAppend(t *testing.T) {
 	b, s = initSliceTest()
 	s.Append(100)
 	switch {
-	case s.Cap() == cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
+	case s.Cap() <= cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
 	case s.Len() != len(b) + 1:	t.Fatalf("Slice length should be %v not %v", len(b) + 1, s.Len())
 	case s.At(0) != 0:			t.Fatalf(HAS_VALUE, 0, 0, s.At(0))
 	case s.At(1) != 1:			t.Fatalf(HAS_VALUE, 1, 1, s.At(1))
@@ -157,7 +136,7 @@ func TestSliceCopySlice(t *testing.T) {
 	SHOULD_NOT_MATCH := "Slice elements s[%v] and s[%v] should not match but are both %v"
 
 	b, s := initSliceTest()
-	c := s.Clone()
+	c := s.Clone().(*Slice)
 	c.CopySlice(1, 3, 5)
 	switch {
 	case b[1] == b[3]:			t.Fatalf("Elements b[1] and b[3] should not match but are %v and %v", b[1], b[3])

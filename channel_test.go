@@ -11,28 +11,8 @@ func initChannelTest() (b chan int, c *Channel) {
 		}
 		close(b)
 	}()
-	c = MakeChannel(b)
+	c = Wrap(b).(*Channel)
 	return
-}
-
-func TestChannelMakeChannel(t *testing.T) {
-	b, c := initChannelTest()
-	switch {
-	case c == nil:					t.Fatal("MakeChannel returned a nil value")
-	case c.Len() != len(b):			t.Fatalf("Channel length should be %v not %v", len(b), c.Len())
-	case c.Cap() != cap(b):			t.Fatalf("Channel capacity should be %v not %v", cap(b), c.Cap())
-	}
-
-	for i := 0; i < 10; i++ {
-		switch v, open := c.Recv(); {
-		case !open:					t.Fatalf("%v: channel should be open", i)
-		case v != i:				t.Fatalf("Should receive %v but received %v", i, v)
-		}
-	}
-
-	if _, open := c.TryRecv(); open {
-		t.Fatal("Channel should be closed")
-	}
 }
 
 func TestChannelElementType(t *testing.T) {

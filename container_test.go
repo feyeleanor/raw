@@ -2,6 +2,69 @@ package raw
 
 import "testing"
 
+func TestWrap(t *testing.T) {
+	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
+
+	s := Wrap([]int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }).(Sequence)
+	switch {
+	case s == nil:				t.Fatal("Make slice returned a nil value")
+	case s.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, s.Len())
+	case s.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, "slice", 0, s.At(0))
+	case s.At(1) != 1:			t.Fatalf(SHOULD_CONTAIN, "slice", 1, s.At(1))
+	case s.At(2) != 2:			t.Fatalf(SHOULD_CONTAIN, "slice", 2, s.At(2))
+	case s.At(3) != 3:			t.Fatalf(SHOULD_CONTAIN, "slice", 3, s.At(3))
+	case s.At(4) != 4:			t.Fatalf(SHOULD_CONTAIN, "slice", 4, s.At(4))
+	case s.At(5) != 5:			t.Fatalf(SHOULD_CONTAIN, "slice", 5, s.At(5))
+	case s.At(6) != 6:			t.Fatalf(SHOULD_CONTAIN, "slice", 6, s.At(6))
+	case s.At(7) != 7:			t.Fatalf(SHOULD_CONTAIN, "slice", 7, s.At(7))
+	case s.At(8) != 8:			t.Fatalf(SHOULD_CONTAIN, "slice", 8, s.At(8))
+	case s.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, "slice", 9, s.At(9))
+	}
+
+	m := Wrap(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }).(Mapping)
+	switch {
+	case m == nil:				t.Fatal("Make map returned a nil value")
+	case m.Len() != 10:			t.Fatalf("Map length should be %v not %v", 10, m.Len())
+	case m.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, "map", 0, m.At(0))
+	case m.At(1) != 1:			t.Fatalf(SHOULD_CONTAIN, "map", 1, m.At(1))
+	case m.At(2) != 2:			t.Fatalf(SHOULD_CONTAIN, "map", 2, m.At(2))
+	case m.At(3) != 3:			t.Fatalf(SHOULD_CONTAIN, "map", 3, m.At(3))
+	case m.At(4) != 4:			t.Fatalf(SHOULD_CONTAIN, "map", 4, m.At(4))
+	case m.At(5) != 5:			t.Fatalf(SHOULD_CONTAIN, "map", 5, m.At(5))
+	case m.At(6) != 6:			t.Fatalf(SHOULD_CONTAIN, "map", 6, m.At(6))
+	case m.At(7) != 7:			t.Fatalf(SHOULD_CONTAIN, "map", 7, m.At(7))
+	case m.At(8) != 8:			t.Fatalf(SHOULD_CONTAIN, "map", 8, m.At(8))
+	case m.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, "map", 9, m.At(9))
+	}
+
+	b := make(chan int, 16)
+	go func() {
+		for _, v := range []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } {
+			b <- v
+		}
+		close(b)
+	}()
+	c := Wrap(b).(*Channel)
+
+	switch {
+	case c == nil:					t.Fatal("MakeChannel returned a nil value")
+	case c.Len() != len(b):			t.Fatalf("Channel length should be %v not %v", len(b), c.Len())
+	case c.Cap() != cap(b):			t.Fatalf("Channel capacity should be %v not %v", cap(b), c.Cap())
+	}
+
+	for i := 0; i < 10; i++ {
+		switch v, open := c.Recv(); {
+		case !open:					t.Fatalf("%v: channel should be open", i)
+		case v != i:				t.Fatalf("Should receive %v but received %v", i, v)
+		}
+	}
+
+	if _, open := c.TryRecv(); open {
+		t.Fatal("Channel should be closed")
+	}
+}
+
+
 func TestSwap(t *testing.T) {
 	HAS_VALUE := "%v[%v] should be %v rather than %v"
 
