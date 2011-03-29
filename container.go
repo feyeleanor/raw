@@ -13,13 +13,13 @@ type Enumerable interface {
 	Each(func(x interface{})) int
 }
 
-func Wrap(i interface{}) (c Container) {
+func NewContainer(i interface{}) (c Container) {
 	switch v := reflect.NewValue(i).(type) {
-	case *reflect.SliceValue:		c = &Slice{ v, StandardSlack }
+	case *reflect.SliceValue:		c = &Slice{ SliceValue: v }
 	case *reflect.MapValue:			c = &Map{ v }
 	case *reflect.ChanValue:		c = &Channel{ v }
-	case *reflect.InterfaceValue:	c = Wrap(v.Elem())
-	case *reflect.PtrValue:			c = Wrap(v.Elem())
+	case *reflect.InterfaceValue:	c = NewContainer(v.Elem())
+	case *reflect.PtrValue:			c = NewContainer(v.Elem())
 	default:						panic(i)
 	}
 	return
@@ -57,7 +57,7 @@ func Each(c Container, f func(x interface{})) (i int) {
 }
 
 func Collect(c Container, f func(x interface{}) interface{}) (s Sequence) {
-	s = &Slice{ reflect.MakeSlice(c.Type().(*reflect.SliceType), c.Len(), int(float32(c.Len()) * StandardSlack)), StandardSlack }
+	s = &Slice{ reflect.MakeSlice(c.Type().(*reflect.SliceType), c.Len(), c.Len()) }
 	i := 0
 	Each(c, func(x interface{}) {
 		s.Set(i, f(x))

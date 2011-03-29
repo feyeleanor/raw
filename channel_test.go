@@ -11,7 +11,7 @@ func initChannelTest() (b chan int, c *Channel) {
 		}
 		close(b)
 	}()
-	c = Wrap(b).(*Channel)
+	c = NewChannel(b)
 	return
 }
 

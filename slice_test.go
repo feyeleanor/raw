@@ -10,7 +10,7 @@ const(
 
 func initSliceTest() (b []int, s *Slice) {
 	b = []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s = Wrap(b).(*Slice)
+	s = NewSlice(b)
 	return
 }
 

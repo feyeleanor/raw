@@ -9,6 +9,10 @@ type Sequence interface {
 	Clone() Sequence
 }
 
+func NewSequence(i interface{}) Sequence {
+	return NewContainer(i).(Sequence)
+}
+
 func Clear(s Sequence, start, end int) {
 	blank := MakeBlank(s)
 	if end > s.Len() {
@@ -44,13 +48,13 @@ func Combine(left, right Sequence, f func(x, y interface{}) interface{}) (s Sequ
 	if t := left.Type(); t == right.Type() {
 		switch l, r := left.Len(), right.Len(); {
 		case l == r:
-			s = &Slice{ SliceValue: reflect.MakeSlice(t.(*reflect.SliceType), l, l), Slack: 1.0 }
+			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), l, l) }
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
 
 		case l > r:
-			s = &Slice{ SliceValue: reflect.MakeSlice(t.(*reflect.SliceType), l, l), Slack: 1.0 }
+			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), l, l) }
 			for i := 0; i < r; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
@@ -60,7 +64,7 @@ func Combine(left, right Sequence, f func(x, y interface{}) interface{}) (s Sequ
 			}
 
 		case l < r:
-			s = &Slice{ SliceValue: reflect.MakeSlice(t.(*reflect.SliceType), r, r), Slack: 1.0 }
+			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), r, r) }
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}

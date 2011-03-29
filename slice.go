@@ -2,19 +2,21 @@ package raw
 
 import "reflect"
 
-var StandardSlack			float32	= 1.1
 var StandardChannelBuffer	int		= 16
 
 type Slice struct {
-				*reflect.SliceValue
-	Slack		float32					"how much spare capacity to allow on resize attempts"
+	*reflect.SliceValue
+}
+
+func NewSlice(i interface{}) *Slice {
+	return NewContainer(i).(*Slice)
 }
 
 // Create an independent duplicate of the Slice, copy all contents to the new assigned memory
 func (s *Slice) Clone() Sequence {
 	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
 	reflect.Copy(destination, s.SliceValue)
-	return &Slice{ destination, StandardSlack }
+	return &Slice{ destination }
 }
 
 // Append a value to the existing Slice
@@ -65,7 +67,7 @@ func (s *Slice) Repeat(count int) *Slice {
 		start = end
 		end += s.Len()
 	}
-	return &Slice{ destination, StandardSlack }
+	return &Slice{ destination }
 }
 
 //	First reads a specified number of values into a function, terminating if the end of Slice is reached
@@ -86,9 +88,7 @@ func (s *Slice) Last(i int, f func(x interface{})) {
 func (s *Slice) Resize(capacity int) {
 	length := s.Len()
 	switch {
-	case capacity > int(float32(s.Cap()) * s.Slack):
-		fallthrough
-	case capacity < int(float32(s.Cap()) / s.Slack):
+	case capacity != s.Cap():
 		if capacity < 0 {
 			capacity = 0
 		}

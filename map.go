@@ -6,6 +6,10 @@ type Map struct {
 	*reflect.MapValue
 }
 
+func NewMap(i interface{}) *Map {
+	return NewContainer(i).(*Map)
+}
+
 // Create an independent duplicate of the Map, copy all contents to the new assigned memory
 func (m *Map) Clone() Mapping {
 	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }

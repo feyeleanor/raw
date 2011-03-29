@@ -2,10 +2,10 @@ package raw
 
 import "testing"
 
-func TestWrap(t *testing.T) {
+func TestNewContainer(t *testing.T) {
 	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
 
-	s := Wrap([]int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }).(Sequence)
+	s := NewContainer([]int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }).(Sequence)
 	switch {
 	case s == nil:				t.Fatal("Make slice returned a nil value")
 	case s.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, s.Len())
@@ -21,7 +21,7 @@ func TestWrap(t *testing.T) {
 	case s.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, "slice", 9, s.At(9))
 	}
 
-	m := Wrap(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }).(Mapping)
+	m := NewContainer(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }).(Mapping)
 	switch {
 	case m == nil:				t.Fatal("Make map returned a nil value")
 	case m.Len() != 10:			t.Fatalf("Map length should be %v not %v", 10, m.Len())
@@ -44,7 +44,7 @@ func TestWrap(t *testing.T) {
 		}
 		close(b)
 	}()
-	c := Wrap(b).(*Channel)
+	c := NewContainer(b).(*Channel)
 
 	switch {
 	case c == nil:					t.Fatal("MakeChannel returned a nil value")

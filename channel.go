@@ -15,6 +15,10 @@ type Channel struct {
 	*reflect.ChanValue
 }
 
+func NewChannel(i interface{}) *Channel {
+	return NewContainer(i).(*Channel)
+}
+
 // Returns the runtime type of the elements travelling along the Channel.
 func (c *Channel) ElementType() reflect.Type {
 	return c.Type().(*reflect.ChanType).Elem()

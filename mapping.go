@@ -9,3 +9,7 @@ type Mapping interface {
 	Set(key, value interface{})
 	Clone() Mapping
 }
+
+func NewMapping(i interface{}) Mapping {
+	return NewContainer(i).(Mapping)
+}
