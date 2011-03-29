@@ -19,12 +19,27 @@ Further details of commercial license costs are available from the author on req
 
 == About ==
 
-RAW is a high-level interface to Go's unsafe and reflection packages, built around the concept of raw byte buffers.
-Being able to create a byte slice from arbitrary types enables them to be manipulated using many of the standard
-IO interfaces provided by the core package library and greatly eases the sharing of memory buffers with other
-language runtimes. It also facilitates a number of tricks required when implementing language runtimes such as
-polymorphic registers, mixed-content arrays and binary marshalling.
+RAW is a high-level interface to Go's unsafe and reflection packages, designed to ease both generic programming and
+low-level memory access.
 
-The package began life as a research spike of the GoLightly virtual machine project and was originally to be called
+RAW allows any type with identifiable contiguous memory allocation can be converted to a byte slice which can then
+be manipulated using many of the standard IO interfaces provided by the core library. This is very unsafe but for
+certain system programming tasks can be desirable. In particular is facilitates the sharing of memory buffers with
+language runtimes and any number of related tricks such as polymorphic variables, mixed-content arrays and binary
+data marshalling.
+
+RAW also includes wrappers for the reflected aggregation types representing Slices, Maps and Channels. By defining a
+series of interfaces which abstract their component behaviours along with concrete implementations based upon the
+reflection values it becomes possible to interchange user defined and reflected types in code without needing the
+usual boilerplate.
+
+Documentation is currently sparse but will improve over time. I have tried to keep nomenclature clear to assist with
+figuring our how the library should be used and there are also extensive tests which demonstrate all of the library
+types and their methods in use.
+
+
+== History ==
+
+The RAW package began life as a research spike of the GoLightly virtual machine project and was originally to be called
 either "Dangerous" or "Deadly" to reflect the unpleasant consequences of misuse. A friend suggested "Random Access Woe"
 and the name stuck.
