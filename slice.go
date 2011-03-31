@@ -44,17 +44,6 @@ func (s *Slice) Set(i int, value interface{}) {
 	s.Elem(i).SetValue(reflect.NewValue(value))
 }
 
-// Copies a value from one location in the Slice to another.
-func (s *Slice) Copy(destination, source int) {
-	s.Elem(destination).SetValue(s.Elem(source))
-}
-
-// Copies a subslice from one location in the Slice to another.
-func (s *Slice) CopySlice(destination, source, count int) {
-	reflect.Copy(s.Slice(destination, destination + count), s.Slice(source, source + count))
-//	s.Elem(destination).SetValue(s.Elem(source))
-}
-
 func (s *Slice) Repeat(count int) *Slice {
 	length := s.Len() * count
 	capacity := s.Cap()
@@ -70,19 +59,8 @@ func (s *Slice) Repeat(count int) *Slice {
 	return &Slice{ destination }
 }
 
-//	First reads a specified number of values into a function, terminating if the end of Slice is reached
-func (s *Slice) First(i int, f func(x interface{})) {
-	for c := 0; c < i && c < s.Len(); c++ {
-		f(s.Elem(c).Interface())
-	}
-}
-
-//	First reads a specified number of values into a function, starting at the end of slice and terminating if the start of Slice is reached
-func (s *Slice) Last(i int, f func(x interface{})) {
-	for e := s.Len() - 1; i > 0 && e > 0; i-- {
-		f(s.Elem(e).Interface())
-		e--
-	}
+func (s *Slice) Section(start, end int) Sequence {
+	return &Slice{ s.SliceValue.Slice(start, end) }
 }
 
 func (s *Slice) Resize(capacity int) {

@@ -6,11 +6,33 @@ type Sequence interface {
 	Container
 	At(i int) interface{}
 	Set(i int, x interface{})
+	Section(start, end int) Sequence
 	Clone() Sequence
+}
+
+type Queue interface {
+	Container
+	Push(interface{})
+	Pull() interface{}
+}
+
+type Stack interface {
+	Container
+	Push(interface{})
+	Pop(interface{})
 }
 
 func NewSequence(i interface{}) Sequence {
 	return NewContainer(i).(Sequence)
+}
+
+func First(s Sequence, i int) Sequence {
+	return s.Section(0, i)
+}
+
+func Last(s Sequence, i int) Sequence {
+	length := s.Len()
+	return s.Section(length - i, length)
 }
 
 func Clear(s Sequence, start, end int) {
@@ -22,6 +44,24 @@ func Clear(s Sequence, start, end int) {
 	for ; start < end; start++ {
 		s.Set(start, blank)
 	}
+}
+
+func CopyElements(s Sequence, destination, source, count int) {
+	switch {
+	case count == 0:
+	case destination > source:
+		count--
+		destination = destination + count
+		for end := source + count; end >= source; end-- {
+			s.Set(destination, s.At(end))
+			destination--
+		}
+	case destination < source:
+		for end := source + count; source < end; source++ {
+			s.Set(destination, s.At(source))
+			destination++
+		}
+	}	
 }
 
 func Cycle(s Sequence, count int, f func(x interface{})) interface{} {

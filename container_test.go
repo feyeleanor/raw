@@ -65,11 +65,11 @@ func TestNewContainer(t *testing.T) {
 }
 
 
-func TestSwap(t *testing.T) {
+func TestSwapElements(t *testing.T) {
 	HAS_VALUE := "%v[%v] should be %v rather than %v"
 
 	_, s := initSliceTest()
-	Swap(s, 1, 3)
+	SwapElements(s, 1, 3)
 	switch {
 	case s.At(0) != 0:			t.Fatalf(HAS_VALUE, "slice", 0, 0, s.At(0))
 	case s.At(1) != 3:			t.Fatalf(HAS_VALUE, "slice", 1, 3, s.At(1))
@@ -79,7 +79,7 @@ func TestSwap(t *testing.T) {
 	}
 
 	_, m := initMapTest()
-	Swap(m, 1, 3)
+	SwapElements(m, 1, 3)
 	switch {
 	case m.At(0) != 0:			t.Fatalf(HAS_VALUE, "map", 0, 0, m.At(0))
 	case m.At(1) != 3:			t.Fatalf(HAS_VALUE, "map", 1, 3, m.At(1))

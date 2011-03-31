@@ -29,7 +29,7 @@ func MakeBlank(c Container) interface{} {
 	return reflect.MakeZero(c.ElementType()).Interface()
 }
 
-func Swap(c interface{}, left, right interface{}) {
+func SwapElements(c Container, left, right interface{}) {
 	switch c := c.(type) {
 	case Sequence:
 		l := left.(int)

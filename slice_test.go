@@ -121,39 +121,6 @@ func TestSliceElementType(t *testing.T) {
 	}
 }
 
-func TestSliceCopy(t *testing.T) {
-	b, s := initSliceTest()
-	s.Copy(1, 3)
-	switch {
-	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
-	case b[3] != 3:				t.Fatalf("Element b[3] should be %v but is %v", 3, b[3])
-	case s.At(1) != s.At(3):	t.Fatalf("Slice elements s[1] and s[3] should match but are %v and %v", s.At(1), s.At(3))
-	}
-}
-
-func TestSliceCopySlice(t *testing.T) {
-	SHOULD_MATCH := "Slice elements c[%V] and s[%V] should match but are %v and %v"
-	SHOULD_NOT_MATCH := "Slice elements s[%v] and s[%v] should not match but are both %v"
-
-	b, s := initSliceTest()
-	c := s.Clone().(*Slice)
-	c.CopySlice(1, 3, 5)
-	switch {
-	case b[1] == b[3]:			t.Fatalf("Elements b[1] and b[3] should not match but are %v and %v", b[1], b[3])
-	case s.At(1) == s.At(3):	t.Fatalf(SHOULD_NOT_MATCH, 1, 3, s.At(1))
-	case s.At(2) == s.At(4):	t.Fatalf(SHOULD_NOT_MATCH, 2, 4, s.At(2))
-	case s.At(3) == s.At(5):	t.Fatalf(SHOULD_NOT_MATCH, 3, 5, s.At(3))
-	case s.At(4) == s.At(6):	t.Fatalf(SHOULD_NOT_MATCH, 4, 6, s.At(4))
-	case s.At(5) == s.At(7):	t.Fatalf(SHOULD_NOT_MATCH, 5, 7, s.At(5))
-	case c.At(1) != s.At(3):	t.Fatalf(SHOULD_MATCH, 1, 3, c.At(1), s.At(3))
-	case c.At(2) != s.At(4):	t.Fatalf(SHOULD_MATCH, 2, 4, c.At(2), s.At(4))
-	case c.At(3) != s.At(5):	t.Fatalf(SHOULD_MATCH, 3, 5, c.At(3), s.At(5))
-	case c.At(4) != s.At(6):	t.Fatalf(SHOULD_MATCH, 4, 6, c.At(4), s.At(6))
-	case c.At(5) != s.At(7):	t.Fatalf(SHOULD_MATCH, 5, 7, c.At(5), s.At(7))
-	case c.At(6) != s.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, c.At(6), s.At(6))
-	}
-}
-
 func TestSliceRepeat(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 
@@ -172,39 +139,26 @@ func TestSliceRepeat(t *testing.T) {
 	}
 }
 
-func TestSliceFirst(t *testing.T) {
+func TestSliceSection(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+	HAS_VALUE := "s[%v] should be %v rather than %v"
 
 	_, s := initSliceTest()
-	r := []int{}
-	s.First(5, func(i interface{}) {
-		r = append(r, i.(int))
-	})
+	r := s.Section(0, 10)
+	r.Set(9, -1)
 	switch {
-	case len(r) != 5:			t.Fatalf("Slice length should be %v not %v", 5, len(r))
-	case s.At(0) != r[0]:		t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r[0])
-	case s.At(1) != r[1]:		t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), r[1])
-	case s.At(2) != r[2]:		t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), r[2])
-	case s.At(3) != r[3]:		t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), r[3])
-	case s.At(4) != r[4]:		t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), r[4])
-	}
-}
-
-func TestSliceLast(t *testing.T) {
-	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
-
-	_, s := initSliceTest()
-	r := []int{}
-	s.Last(5, func(i interface{}) {
-		r = append(r, i.(int))
-	})
-	switch {
-	case len(r) != 5:			t.Fatalf("Slice length should be %v not %v", 5, len(r))
-	case s.At(9) != r[0]:		t.Fatalf(SHOULD_MATCH, 9, 0, s.At(9), r[0])
-	case s.At(8) != r[1]:		t.Fatalf(SHOULD_MATCH, 8, 1, s.At(8), r[1])
-	case s.At(7) != r[2]:		t.Fatalf(SHOULD_MATCH, 7, 2, s.At(7), r[2])
-	case s.At(6) != r[3]:		t.Fatalf(SHOULD_MATCH, 6, 3, s.At(6), r[3])
-	case s.At(5) != r[4]:		t.Fatalf(SHOULD_MATCH, 5, 4, s.At(5), r[4])
+	case r.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case s.At(1) != r.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), r.At(1))
+	case s.At(2) != r.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), r.At(2))
+	case s.At(3) != r.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), r.At(3))
+	case s.At(4) != r.At(4):	t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), r.At(4))
+	case s.At(5) != r.At(5):	t.Fatalf(SHOULD_MATCH, 5, 5, s.At(5), r.At(5))
+	case s.At(6) != r.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, s.At(6), r.At(6))
+	case s.At(7) != r.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), r.At(7))
+	case s.At(8) != r.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), r.At(8))
+	case s.At(9) != r.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), r.At(9))
+	case s.At(9) != -1:			t.Fatalf(HAS_VALUE, 9, -1, s.At(9))
 	}
 }
 
