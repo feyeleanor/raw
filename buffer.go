@@ -2,8 +2,8 @@ package raw
 
 type Buffer interface {
 	Resize(int)
-	Len() int
 	Cap() int
+	New(capacity int) Buffer
 }
 
 func Extend(b Buffer, count int) {

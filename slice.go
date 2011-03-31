@@ -12,11 +12,17 @@ func NewSlice(i interface{}) *Slice {
 	return NewContainer(i).(*Slice)
 }
 
+func (s *Slice) New(capacity int) Buffer {
+	x := reflect.MakeSlice(s.Type().(*reflect.SliceType), 0, capacity)
+	return &Slice{ x }
+}
+
 // Create an independent duplicate of the Slice, copy all contents to the new assigned memory
 func (s *Slice) Clone() Sequence {
-	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), s.Len(), s.Cap())
-	reflect.Copy(destination, s.SliceValue)
-	return &Slice{ destination }
+	destination := s.New(s.Cap()).(*Slice)
+	destination.SetLen(s.Len())
+	reflect.Copy(destination.SliceValue, s.SliceValue)
+	return destination
 }
 
 // Append a value to the existing Slice
@@ -50,13 +56,14 @@ func (s *Slice) Repeat(count int) *Slice {
 	if capacity < length {
 		capacity = length
 	}
-	destination := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
+	destination := s.New(capacity).(*Slice)
+	destination.SetLen(length)
 	for start, end := 0, s.Len(); count > 0; count-- {
 		reflect.Copy(destination.Slice(start, end), s.SliceValue)
 		start = end
 		end += s.Len()
 	}
-	return &Slice{ destination }
+	return destination
 }
 
 func (s *Slice) Section(start, end int) Sequence {
@@ -73,9 +80,10 @@ func (s *Slice) Resize(capacity int) {
 		if length > capacity {
 			length = capacity
 		}
-		x := reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity)
-		reflect.Copy(x, s.SliceValue)
-		s.SetValue(x)
+		x := s.New(capacity).(*Slice)
+		x.SetLen(length)
+		reflect.Copy(x.SliceValue, s.SliceValue)
+		s.SliceValue = x.SliceValue
 	}
 }
 

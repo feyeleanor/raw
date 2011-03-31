@@ -1,9 +1,9 @@
 package raw
 
-import "reflect"
-
 type Sequence interface {
 	Container
+	Buffer
+	SetLen(l int)
 	At(i int) interface{}
 	Set(i int, x interface{})
 	Section(start, end int) Sequence
@@ -12,12 +12,14 @@ type Sequence interface {
 
 type Queue interface {
 	Container
+	Buffer
 	Push(interface{})
 	Pull() interface{}
 }
 
 type Stack interface {
 	Container
+	Buffer
 	Push(interface{})
 	Pop(interface{})
 }
@@ -88,29 +90,30 @@ func Combine(left, right Sequence, f func(x, y interface{}) interface{}) (s Sequ
 	if t := left.Type(); t == right.Type() {
 		switch l, r := left.Len(), right.Len(); {
 		case l == r:
-			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), l, l) }
+			s = left.New(l).(Sequence)
+			s.SetLen(l)
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
 
 		case l > r:
-			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), l, l) }
+			s = left.New(l).(Sequence)
+			s.SetLen(l)
 			for i := 0; i < r; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
-			v := reflect.MakeZero(t)
 			for i := r; i < l; i++ {
-				s.Set(i, f(left.At(i), v))
+				s.Set(i, f(left.At(i), s.At(i)))
 			}
 
 		case l < r:
-			s = &Slice{ reflect.MakeSlice(t.(*reflect.SliceType), r, r) }
+			s = left.New(r).(Sequence)
+			s.SetLen(r)
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
-			v := reflect.MakeZero(t)
 			for i := l; i < r; i++ {
-				s.Set(i, f(v, right.At(i)))
+				s.Set(i, f(s.At(i), right.At(i)))
 			}
 		}
 	}
