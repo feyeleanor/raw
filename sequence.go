@@ -7,7 +7,7 @@ type Sequence interface {
 	At(i int) interface{}
 	Set(i int, x interface{})
 	Section(start, end int) Sequence
-	Clone() Sequence
+	Copy(source Sequence)
 }
 
 type Queue interface {
@@ -26,6 +26,13 @@ type Stack interface {
 
 func NewSequence(i interface{}) Sequence {
 	return NewContainer(i).(Sequence)
+}
+
+func CopySequence(s Sequence) (n Sequence) {
+	n = s.New(s.Cap()).(Sequence)
+	n.SetLen(s.Len())
+	n.Copy(s)
+	return
 }
 
 func First(s Sequence, i int) Sequence {
@@ -64,58 +71,4 @@ func CopyElements(s Sequence, destination, source, count int) {
 			destination++
 		}
 	}	
-}
-
-func Cycle(s Sequence, count int, f func(x interface{})) interface{} {
-	j := 0
-	l := s.Len()
-	switch count {
-	case 0:		for {
-					for i := 0; i < l; i++ {
-						f(s.At(i))
-					}
-					j++
-				}
-	default:	for k := 0; j < count; j++ {
-					for i := 0; i < l; i++ {
-						f(s.At(i))
-					}
-					k++
-				}
-	}
-	return j
-}
-
-func Combine(left, right Sequence, f func(x, y interface{}) interface{}) (s Sequence) {
-	if t := left.Type(); t == right.Type() {
-		switch l, r := left.Len(), right.Len(); {
-		case l == r:
-			s = left.New(l).(Sequence)
-			s.SetLen(l)
-			for i := 0; i < l; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
-			}
-
-		case l > r:
-			s = left.New(l).(Sequence)
-			s.SetLen(l)
-			for i := 0; i < r; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
-			}
-			for i := r; i < l; i++ {
-				s.Set(i, f(left.At(i), s.At(i)))
-			}
-
-		case l < r:
-			s = left.New(r).(Sequence)
-			s.SetLen(r)
-			for i := 0; i < l; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
-			}
-			for i := l; i < r; i++ {
-				s.Set(i, f(s.At(i), right.At(i)))
-			}
-		}
-	}
-	return
 }

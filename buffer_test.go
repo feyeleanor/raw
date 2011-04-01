@@ -6,8 +6,8 @@ func TestExtend(t *testing.T) {
 	b, s := initSliceTest()
 	Extend(s, 10)
 	switch {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+		case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+		case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
@@ -16,8 +16,8 @@ func TestExtend(t *testing.T) {
 
 	Extend(s, -15)
 	switch {
-	case b == nil:					t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:					t.Fatal("Resize() created a nil value for Slice")
+	case b == nil:					t.Fatal("Reallocate() created a nil value for original slice")
+	case s == nil:					t.Fatal("Reallocate() created a nil value for Slice")
 	case cap(b) != 10:				t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 	case len(b) != 10:				t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 5:				t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
@@ -29,8 +29,8 @@ func TestShrink(t *testing.T) {
 	b, s := initSliceTest()
 	Shrink(s, -10)
 	switch {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+		case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+		case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
@@ -39,8 +39,8 @@ func TestShrink(t *testing.T) {
 
 	Shrink(s, 15)
 	switch {
-	case b == nil:					t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:					t.Fatal("Resize() created a nil value for Slice")
+	case b == nil:					t.Fatal("Reallocate() created a nil value for original slice")
+	case s == nil:					t.Fatal("Reallocate() created a nil value for Slice")
 	case cap(b) != 10:				t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 	case len(b) != 10:				t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 5:				t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())
@@ -52,8 +52,8 @@ func TestDoubleCapacity(t *testing.T) {
 	b, s := initSliceTest()
 	DoubleCapacity(s)
 	switch {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+		case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+		case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 		case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
@@ -61,12 +61,12 @@ func TestDoubleCapacity(t *testing.T) {
 	}
 }
 
-func TestSliceHalveCapacity(t *testing.T) {
+func TestHalveCapacity(t *testing.T) {
 	b, s := initSliceTest()
 	HalveCapacity(s)
 	switch {
-		case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-		case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+		case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+		case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 		case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 		case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 		case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())

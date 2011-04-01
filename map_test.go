@@ -9,6 +9,10 @@ func initMapTest() (b map[int] int, m *Map) {
 	return
 }
 
+func TestMapNew(t *testing.T) {
+	t.Fatal(NO_TESTS)
+}
+
 func TestMapClone(t *testing.T) {
 	SHOULD_MATCH := "Map elements m[%v] and c[%v] should match but are %v and %v"
 
@@ -107,47 +111,6 @@ func TestMapInject(t *testing.T) {
 	switch {
 	case r == nil:				t.Fatal("Inject() returned a nil value")
 	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
-	}
-}
-
-func TestMapCombine(t *testing.T) {
-	INCORRECT_VALUE := "r[%v] == %v"
-
-	b, m := initMapTest()
-	r := m.Combine(m, func(x, y interface{}) interface{} {
-		return x.(int) * y.(int)
-	})
-	switch {
-	case r == nil:				t.Fatal("Combine() returned a nil value")
-	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
-	case m.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, m.At(0))
-	case m.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, m.At(1))
-	case m.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, m.At(2))
-	case m.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, m.At(3))
-	case m.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, m.At(4))
-	case m.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, m.At(5))
-	case m.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, m.At(6))
-	case m.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, m.At(7))
-	case m.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, m.At(8))
-	case m.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, m.At(9))
-	case r.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, r.At(0))
-	case r.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, r.At(1))
-	case r.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, r.At(2))
-	case r.At(3) != 9:			t.Fatalf(INCORRECT_VALUE, 3, r.At(3))
-	case r.At(4) != 16:			t.Fatalf(INCORRECT_VALUE, 4, r.At(4))
-	case r.At(5) != 25:			t.Fatalf(INCORRECT_VALUE, 5, r.At(5))
-	case r.At(6) != 36:			t.Fatalf(INCORRECT_VALUE, 6, r.At(6))
-	case r.At(7) != 49:			t.Fatalf(INCORRECT_VALUE, 7, r.At(7))
-	case r.At(8) != 64:			t.Fatalf(INCORRECT_VALUE, 8, r.At(8))
-	case r.At(9) != 81:			t.Fatalf(INCORRECT_VALUE, 9, r.At(9))
-	}
-}
-
-func TestMapCycle(t *testing.T) {
-	_, m := initMapTest()
-	r := m.Cycle(5, func(x interface{}) {})
-	switch {
-	case r != 5:				t.Fatalf("cycle count should be 5 but is %v", r)
 	}
 }
 

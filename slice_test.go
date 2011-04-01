@@ -18,11 +18,12 @@ func TestSliceNew(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
 
-func TestSliceClone(t *testing.T) {
+func TestSliceCopy(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 
 	_, s := initSliceTest()
-	c := s.Clone().(*Slice)
+	c := NewSlice(make([]int, 10, 10))
+	c.Copy(s)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
@@ -166,20 +167,20 @@ func TestSliceSection(t *testing.T) {
 	}
 }
 
-func TestSliceResize(t *testing.T) {
+func TestSliceReallocate(t *testing.T) {
 	b, s := initSliceTest()
-	switch s.Resize(20); {
-	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+	switch s.Reallocate(20); {
+	case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+	case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 	case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 20:			t.Fatalf("Slice capacity should be 20 but is %v", s.Cap())
 	case s.Len() != 10:			t.Fatalf("Slice length should be 10 but is %v", s.Len())
 	}
 
-	switch s.Resize(5); {
-	case b == nil:				t.Fatal("Resize() created a nil value for original slice")
-	case s == nil:				t.Fatal("Resize() created a nil value for Slice")
+	switch s.Reallocate(5); {
+	case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
+	case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
 	case cap(b) != 10:			t.Fatalf("original slice capacity should be 10 but is %v", cap(b))
 	case len(b) != 10:			t.Fatalf("original slice length should be 10 but is %v", len(b))
 	case s.Cap() != 5:			t.Fatalf("Slice capacity should be 5 but is %v", s.Cap())

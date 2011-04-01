@@ -10,12 +10,16 @@ func NewMap(i interface{}) *Map {
 	return NewContainer(i).(*Map)
 }
 
+func (m *Map) New() Mapping {
+	return &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
+}
+
 // Create an independent duplicate of the Map, copy all contents to the new assigned memory
 func (m *Map) Clone() Mapping {
 	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
-	for _, k := range m.Keys() {
-		destination.SetElem(k, m.Elem(k))
-	}
+	Each(m.Keys(), func(k interface{}) {
+		destination.Set(k, m.At(k))
+	})
 	return destination
 }
 
@@ -29,12 +33,19 @@ func (m *Map) ElementType() reflect.Type {
 	return m.Type().(*reflect.MapType).Elem()
 }
 
-func (m *Map) At(k interface{}) interface{} {
-	return m.Elem(reflect.NewValue(k)).Interface()
+func (m *Map) At(k interface{}) (v interface{}) {
+	switch k := k.(type) {
+	case reflect.Value:		v = m.Elem(k).Interface()
+	default:				v = m.Elem(reflect.NewValue(k)).Interface()
+	}
+	return 
 }
 
 func (m *Map) Set(k, value interface{}) {
-	m.SetElem(reflect.NewValue(k), reflect.NewValue(value))
+	switch k := k.(type) {
+	case reflect.Value:		m.SetElem(k, reflect.NewValue(value))
+	default:				m.SetElem(reflect.NewValue(k), reflect.NewValue(value))
+	}
 }
 
 // Copies a value from one location in the Map to another.
@@ -43,72 +54,49 @@ func (m *Map) Copy(destination, source interface{}) {
 }
 
 func (m *Map) Clear(i interface{}) {
-	m.Elem(reflect.NewValue(i)).SetValue(reflect.MakeZero(m.ElementType()))
+	m.SetElem(reflect.NewValue(i), reflect.MakeZero(m.ElementType()))
+}
+
+func (m *Map) Keys() Sequence {
+	return NewSequence(m.MapValue.Keys())
 }
 
 func (m *Map) Each(f func(v interface{})) int {
 	keys := m.Keys()
-	for _, k := range keys {
-		f(m.Elem(k).Interface())
-	}
-	return len(keys)
+	Each(keys, func(k interface{}) {
+		f(m.At(k))
+	})
+	return keys.Len()
 }
 
 //	Create a new Map with identical keys to the existing Map but with values transformed according to a function.
-func (m *Map) Collect(f func(x interface{}) interface{}) *Map {
-	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
-	for _, k := range m.Keys() {
-		destination.SetElem(k, reflect.NewValue(f(m.Elem(k).Interface())))
-	}
-	return destination
+func (m *Map) Collect(f func(x interface{}) interface{}) (r *Map) {
+	r = m.New().(*Map)
+	Each(m.Keys(), func(k interface{}) {
+		r.Set(k, f(m.At(k)))
+	})
+	return
 }
 
 //	Reduce the values contained in the Map to a single value.
 //	This is inherently unstable as Go makes no guarantees about the order in which map keys will be enumerable.
 func (m *Map) Inject(seed interface{}, f func(memo, x interface{}) interface{}) interface{} {
-	for _, k := range m.Keys() {
-		seed = f(seed, m.Elem(k).Interface())
-	}
+	Each(m.Keys(), func(k interface{}) {
+		seed = f(seed, m.At(k))
+	})
 	return seed
-}
-
-//	Create a new Map whose keys are the union of two existing Maps with their values combined according to a function.
-func (m *Map) Combine(o *Map, f func(x, y interface{}) interface{}) *Map {
-	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
-	for _, k := range m.Keys() {
-		destination.SetElem(k, reflect.NewValue(f(m.Elem(k).Interface(), o.Elem(k).Interface())))
-	}
-	for _, k := range o.Keys() {
-		if destination.Elem(k) == nil {
-			destination.SetElem(k, reflect.NewValue(f(m.Elem(k).Interface(), o.Elem(k).Interface())))
-		}
-	}
-	return destination
-}
-
-func (m *Map) Cycle(count int, f func(v interface{})) (limit int) {
-	switch count {
-	case 0:		for {
-					for _, k := range m.Keys() {
-						f(m.Elem(k).Interface())
-					}
-					limit++
-				}
-	default:	for ; count > 0; count-- {
-					for _, k := range m.Keys() {
-						f(m.Elem(k).Interface())
-					}
-					limit++
-				}
-	}
-	return
 }
 
 func (m *Map) Feed(c chan<- interface{}, f func(k, v interface{}) interface{}) {
 	go func() {
-		for _, k := range m.Keys() {
-			c <- f(k.Interface(), m.Elem(k).Interface())
-		}
+		Each(m.Keys(), func(k interface{}) {
+			switch k := k.(type) {
+			case reflect.Value:
+				c <- f(k.Interface(), m.At(k))
+			default:
+				c <- f(k, m.At(k))
+			}
+		})
 		close(c)
 	}()
 }
@@ -123,11 +111,11 @@ func (m *Map) Pipe(f func(k, v interface{}) interface{}) <-chan interface{} {
 func (m *Map) Tee(c chan<- interface{}, f func(k, v interface{}) interface{}) <-chan interface{} {
 	t := make(chan interface{}, StandardChannelBuffer)
 	go func() {
-		for _, k := range m.Keys() {
-			x := f(k.Interface(), m.Elem(k).Interface())
+		Each(m.Keys(), func(k interface{}) {
+			x := f(k, m.At(k))
 			c <- x
 			t <- x
-		}
+		})
 		close(t)
 	}()
 	return t

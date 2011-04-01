@@ -84,15 +84,13 @@ func (c *Channel) First(i int, f func(x interface{})) {
 }
 
 func (c *Channel) Feed(o chan<- interface{}, f func(x interface{}) interface{}) {
-//	go func() {
-		for {
-			if v, open := c.Recv(); open {
-				o <- f(v)
-			} else {
-				return
-			}
+	for {
+		if v, open := c.Recv(); open {
+			o <- f(v)
+		} else {
+			return
 		}
-//	}()
+	}
 }
 
 func (c *Channel) Pipe(f func(x interface{}) interface{}) (o chan interface{}) {

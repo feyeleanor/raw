@@ -64,6 +64,28 @@ func TestNewContainer(t *testing.T) {
 	}
 }
 
+func TestCopy(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
+
+	_, s := initSliceTest()
+	c := Copy(s).(Sequence)
+	c.Set(0, 1000)
+	switch {
+	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
+	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
+	case s.At(0) != 0:			t.Fatalf("Slice element s[%v] should be %v and not", 0, 0, s.At(0))
+	case c.At(0) != 1000:		t.Fatalf("Slice element c[%v] should be %v and not", 0, 1000, c.At(0))
+	case c.At(1) != s.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), c.At(1))
+	case c.At(2) != s.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), c.At(2))
+	case c.At(3) != s.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), c.At(3))
+	case c.At(4) != s.At(4):	t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), c.At(4))
+	case c.At(5) != s.At(5):	t.Fatalf(SHOULD_MATCH, 5, 5, s.At(5), c.At(5))
+	case c.At(6) != s.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, s.At(6), c.At(6))
+	case c.At(7) != s.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), c.At(7))
+	case c.At(8) != s.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), c.At(8))
+	case c.At(9) != s.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), c.At(9))
+	}
+}
 
 func TestSwapElements(t *testing.T) {
 	HAS_VALUE := "%v[%v] should be %v rather than %v"
@@ -98,6 +120,21 @@ func TestEach(t *testing.T) {
 	switch {
 	case n != 10:				t.Fatalf("Count should be 10 and not %v", n)
 	case c != 45:				t.Fatalf("Sum should be 45 and not %v", c)
+	}
+}
+
+func TestCycle(t *testing.T) {
+	COUNT_INCORRECT := "%v cycle count should be %v but is %v"
+	_, s := initSliceTest()
+	r := Cycle(s, 5, func(x interface{}) {})
+	switch {
+	case r != 5:				t.Fatalf(COUNT_INCORRECT, "Slice", 5, r)
+	}
+
+	_, m := initMapTest()
+	r = Cycle(m, 5, func(x interface{}) {})
+	switch {
+	case r != 5:				t.Fatalf(COUNT_INCORRECT, "Map", 5, r)
 	}
 }
 
@@ -398,5 +435,65 @@ func TestMost(t *testing.T) {
 
 	if Most(m, func(i interface{}) bool { return i.(int) < 0 }) {
 		t.Fatalf(LOGIC_FAILURE, "Map", false, "no values")
+	}
+}
+
+func TestCombine(t *testing.T) {
+	INCORRECT_VALUE := "r[%v] == %v"
+
+	_, s := initSliceTest()
+	r := Combine(s, s, func(x, y interface{}) interface{} {
+		return x.(int) * y.(int)
+	}).(Sequence)
+	switch {
+	case r == nil:				t.Fatal("Combine() slice returned a nil value")
+	case s.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, s.At(0))
+	case s.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, s.At(1))
+	case s.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, s.At(2))
+	case s.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, s.At(3))
+	case s.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, s.At(4))
+	case s.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, s.At(5))
+	case s.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, s.At(6))
+	case s.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, s.At(7))
+	case s.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, s.At(8))
+	case s.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, s.At(9))
+	case r.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, r.At(0))
+	case r.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, r.At(1))
+	case r.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, r.At(2))
+	case r.At(3) != 9:			t.Fatalf(INCORRECT_VALUE, 3, r.At(3))
+	case r.At(4) != 16:			t.Fatalf(INCORRECT_VALUE, 4, r.At(4))
+	case r.At(5) != 25:			t.Fatalf(INCORRECT_VALUE, 5, r.At(5))
+	case r.At(6) != 36:			t.Fatalf(INCORRECT_VALUE, 6, r.At(6))
+	case r.At(7) != 49:			t.Fatalf(INCORRECT_VALUE, 7, r.At(7))
+	case r.At(8) != 64:			t.Fatalf(INCORRECT_VALUE, 8, r.At(8))
+	case r.At(9) != 81:			t.Fatalf(INCORRECT_VALUE, 9, r.At(9))
+	}
+
+	_, m := initMapTest()
+	x := Combine(m, m, func(x, y interface{}) interface{} {
+		return x.(int) * y.(int)
+	}).(Mapping)
+	switch {
+	case r == nil:				t.Fatal("Combine() map returned a nil value")
+	case m.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, m.At(0))
+	case m.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, m.At(1))
+	case m.At(2) != 2:			t.Fatalf(INCORRECT_VALUE, 2, m.At(2))
+	case m.At(3) != 3:			t.Fatalf(INCORRECT_VALUE, 3, m.At(3))
+	case m.At(4) != 4:			t.Fatalf(INCORRECT_VALUE, 4, m.At(4))
+	case m.At(5) != 5:			t.Fatalf(INCORRECT_VALUE, 5, m.At(5))
+	case m.At(6) != 6:			t.Fatalf(INCORRECT_VALUE, 6, m.At(6))
+	case m.At(7) != 7:			t.Fatalf(INCORRECT_VALUE, 7, m.At(7))
+	case m.At(8) != 8:			t.Fatalf(INCORRECT_VALUE, 8, m.At(8))
+	case m.At(9) != 9:			t.Fatalf(INCORRECT_VALUE, 9, m.At(9))
+	case x.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, x.At(0))
+	case x.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, x.At(1))
+	case x.At(2) != 4:			t.Fatalf(INCORRECT_VALUE, 2, x.At(2))
+	case x.At(3) != 9:			t.Fatalf(INCORRECT_VALUE, 3, x.At(3))
+	case x.At(4) != 16:			t.Fatalf(INCORRECT_VALUE, 4, x.At(4))
+	case x.At(5) != 25:			t.Fatalf(INCORRECT_VALUE, 5, x.At(5))
+	case x.At(6) != 36:			t.Fatalf(INCORRECT_VALUE, 6, x.At(6))
+	case x.At(7) != 49:			t.Fatalf(INCORRECT_VALUE, 7, x.At(7))
+	case x.At(8) != 64:			t.Fatalf(INCORRECT_VALUE, 8, x.At(8))
+	case x.At(9) != 81:			t.Fatalf(INCORRECT_VALUE, 9, x.At(9))
 	}
 }

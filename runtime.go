@@ -4,6 +4,16 @@ import "fmt"
 import "reflect"
 import "unsafe"
 
+func Throw() {
+	panic(nil)
+}
+
+func Catch() {
+	if x := recover(); x != nil {
+		panic(x)
+	}
+}
+
 type BasicType struct {
 	name			string
 	size			int
