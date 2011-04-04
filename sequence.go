@@ -2,12 +2,12 @@ package raw
 
 type Sequence interface {
 	Container
-	Buffer
+	New(length, capacity int) Sequence
+	Cap() int
 	SetLen(l int)
 	At(i int) interface{}
 	Set(i int, x interface{})
 	Section(start, end int) Sequence
-	Copy(source Sequence)
 }
 
 type Deque interface {
@@ -17,13 +17,6 @@ type Deque interface {
 
 func NewSequence(i interface{}) Sequence {
 	return NewContainer(i).(Sequence)
-}
-
-func CopySequence(s Sequence) (n Sequence) {
-	n = s.New(s.Cap()).(Sequence)
-	n.SetLen(s.Len())
-	n.Copy(s)
-	return
 }
 
 func First(s Sequence, i int) Sequence {

@@ -44,7 +44,7 @@ func (m *Map) Set(k, value interface{}) {
 }
 
 // Copies a value from one location in the Map to another.
-func (m *Map) Copy(destination, source interface{}) {
+func (m *Map) CopyElement(destination, source interface{}) {
 	m.SetElem(reflect.NewValue(destination), reflect.NewValue(source))
 }
 

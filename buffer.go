@@ -3,7 +3,6 @@ package raw
 type Buffer interface {
 	Reallocate(capacity int)
 	Cap() int
-	New(capacity int) Buffer
 }
 
 func Reallocate(b Buffer, capacity int) {

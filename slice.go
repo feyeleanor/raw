@@ -12,14 +12,22 @@ func NewSlice(i interface{}) *Slice {
 	return NewContainer(i).(*Slice)
 }
 
-func (s *Slice) New(capacity int) Buffer {
-	return &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), 0, capacity) }
+func (s *Slice) New(length, capacity int) Sequence {
+	return &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity) }
 }
 
-func (s *Slice) Copy(source Sequence) {
+func (s *Slice) Overwrite(offset int, source interface{}) {
 	switch source := source.(type) {
-	case *Slice:		reflect.Copy(s.SliceValue, source.SliceValue)
-	default:			s.Copy(NewSlice(source))
+	case *Slice:		s.Overwrite(offset, *source)
+	case Slice:			if offset == 0 {
+							reflect.Copy(s.SliceValue, source.SliceValue)
+						} else {
+							reflect.Copy(s.SliceValue.Slice(offset, s.Len()), source.SliceValue)
+						}
+	default:			switch v := reflect.NewValue(source).(type) {
+						case *reflect.SliceValue:		s.Overwrite(offset, NewSlice(source))
+						default:						s.Set(offset, v.Interface())
+						}
 	}
 }
 
@@ -37,20 +45,20 @@ func (s *Slice) Append(i interface{}) {
 func (s *Slice) Prepend(i interface{}) {
 	switch v := i.(type) {
 	case *Slice:		s.Prepend(*v)
-	case Slice:			n := s.New(s.Len() + v.Len()).(*Slice)
-						n.Append(v)
-						n.Append(s)
+	case Slice:			n := s.New(s.Len() + v.Len(), s.Len() + v.Len()).(*Slice)
+						n.Overwrite(0, v)
+						n.Overwrite(v.Len(), s)
 						s.SetValue(n.SliceValue)
 	default:			switch v := reflect.NewValue(i).(type) {
 						case *reflect.SliceValue:
-							n := s.New(v.Len() + s.Len()).(*Slice)
-							n.Append(i)
-							n.Append(s)
+							n := s.New(s.Len() + v.Len(), v.Len() + s.Len()).(*Slice)
+							n.Overwrite(0, NewSlice(i))
+							n.Overwrite(v.Len(), s)
 							s.SetValue(n.SliceValue)
 						default:
-							n := s.New(s.Len() + 1).(*Slice)
-							n.Append(i)
-							n.Append(s)
+							n := s.New(s.Len() + 1, s.Len() + 1).(*Slice)
+							n.Overwrite(0, i)
+							n.Overwrite(1, s)
 							s.SetValue(n.SliceValue)
 						}
 	}
@@ -75,8 +83,7 @@ func (s *Slice) Repeat(count int) *Slice {
 	if capacity < length {
 		capacity = length
 	}
-	destination := s.New(capacity).(*Slice)
-	destination.SetLen(length)
+	destination := s.New(length, capacity).(*Slice)
 	for start, end := 0, s.Len(); count > 0; count-- {
 		reflect.Copy(destination.Slice(start, end), s.SliceValue)
 		start = end
@@ -94,8 +101,7 @@ func (s *Slice) Reallocate(capacity int) {
 	if length > capacity {
 		length = capacity
 	}
-	x := s.New(capacity).(*Slice)
-	x.SetLen(length)
+	x := s.New(length, capacity).(*Slice)
 	reflect.Copy(x.SliceValue, s.SliceValue)
 	s.SliceValue = x.SliceValue
 }

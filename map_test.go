@@ -29,9 +29,9 @@ func TestMapElementType(t *testing.T) {
 	}
 }
 
-func TestMapCopy(t *testing.T) {
+func TestMapCopyElement(t *testing.T) {
 	b, m := initMapTest()
-	m.Copy(1, 3)
+	m.CopyElement(1, 3)
 	switch {
 	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
 	case b[3] != 3:				t.Fatalf("Element b[3] should be %v but is %v", 3, b[3])

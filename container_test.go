@@ -69,7 +69,7 @@ func TestCompatible(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
+	SHOULD_MATCH := "Slice elements s[%v] and copy[%v] should match but are %v and %v"
 
 	_, s := initSliceTest()
 	c := Copy(s).(Sequence)
@@ -78,7 +78,7 @@ func TestCopy(t *testing.T) {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
 	case s.At(0) != 0:			t.Fatalf("Slice element s[%v] should be %v and not", 0, 0, s.At(0))
-	case c.At(0) != 1000:		t.Fatalf("Slice element c[%v] should be %v and not", 0, 1000, c.At(0))
+	case c.At(0) != 1000:		t.Fatalf("Slice element copy[%v] should be %v and not", 0, 1000, c.At(0))
 	case c.At(1) != s.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), c.At(1))
 	case c.At(2) != s.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), c.At(2))
 	case c.At(3) != s.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), c.At(3))
@@ -88,6 +88,24 @@ func TestCopy(t *testing.T) {
 	case c.At(7) != s.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), c.At(7))
 	case c.At(8) != s.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), c.At(8))
 	case c.At(9) != s.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), c.At(9))
+	}
+
+	_, m := initMapTest()
+	n := Copy(m).(Mapping)
+	n.Set(0, 1000)
+	switch {
+	case n.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
+	case s.At(0) != 0:			t.Fatalf("Slice element s[%v] should be %v and not", 0, 0, s.At(0))
+	case n.At(0) != 1000:		t.Fatalf("Slice element copy[%v] should be %v and not", 0, 1000, c.At(0))
+	case n.At(1) != s.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), c.At(1))
+	case n.At(2) != s.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), c.At(2))
+	case n.At(3) != s.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), c.At(3))
+	case n.At(4) != s.At(4):	t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), c.At(4))
+	case n.At(5) != s.At(5):	t.Fatalf(SHOULD_MATCH, 5, 5, s.At(5), c.At(5))
+	case n.At(6) != s.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, s.At(6), c.At(6))
+	case n.At(7) != s.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), c.At(7))
+	case n.At(8) != s.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), c.At(8))
+	case n.At(9) != s.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), c.At(9))
 	}
 }
 

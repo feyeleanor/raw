@@ -2,29 +2,6 @@ package raw
 
 import "testing"
 
-func TestCopySequence(t *testing.T) {
-	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
-
-	_, s := initSliceTest()
-	c := CopySequence(s)
-	c.Set(0, 1000)
-	switch {
-	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
-	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
-	case s.At(0) != 0:			t.Fatalf("Slice element s[%v] should be %v and not", 0, 0, s.At(0))
-	case c.At(0) != 1000:		t.Fatalf("Slice element c[%v] should be %v and not", 0, 1000, c.At(0))
-	case c.At(1) != s.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), c.At(1))
-	case c.At(2) != s.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, s.At(2), c.At(2))
-	case c.At(3) != s.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, s.At(3), c.At(3))
-	case c.At(4) != s.At(4):	t.Fatalf(SHOULD_MATCH, 4, 4, s.At(4), c.At(4))
-	case c.At(5) != s.At(5):	t.Fatalf(SHOULD_MATCH, 5, 5, s.At(5), c.At(5))
-	case c.At(6) != s.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, s.At(6), c.At(6))
-	case c.At(7) != s.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), c.At(7))
-	case c.At(8) != s.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), c.At(8))
-	case c.At(9) != s.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, s.At(9), c.At(9))
-	}
-}
-
 func TestFirst(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
 
@@ -177,7 +154,7 @@ func TestCopyElements(t *testing.T) {
 	SHOULD_CONTAIN := "Test %v: Slice element c[%v] should contain %v but contains %v"
 
 	_, s := initSliceTest()
-	c := CopySequence(s)
+	c := Copy(s).(Sequence)
 	CopyElements(c, 1, 3, 5)
 	switch {
 	case c.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, 1, 0, 0, c.At(0))
@@ -192,7 +169,7 @@ func TestCopyElements(t *testing.T) {
 	case c.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, 1, 9, 9, c.At(9))
 	}
 
-	c = CopySequence(s)
+	c = Copy(s).(Sequence)
 	CopyElements(c, 3, 1, 5)
 	switch {
 	case c.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, 2, 0, 0, c.At(0))

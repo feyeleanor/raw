@@ -18,12 +18,12 @@ func TestSliceNew(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
 
-func TestSliceCopy(t *testing.T) {
+func TestSliceOverwrite(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 
 	_, s := initSliceTest()
 	c := NewSlice(make([]int, 10, 10))
-	c.Copy(s)
+	c.Overwrite(0, s)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())

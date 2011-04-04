@@ -39,11 +39,22 @@ func Compatible(l, r Container) (b bool) {
 	return
 }
 
-func Copy(c Container) (n Container) {
+func Copy(c Container) Container {
 	switch c := c.(type) {
-	case Sequence:					n = CopySequence(c)
+	case Sequence:
+		n := c.New(c.Len(), c.Cap())
+		for i := 0; i < c.Len(); i++ {
+			n.Set(i, c.At(i))
+		}
+		return n
+	case Mapping:
+		n := c.New()
+		Each(c.Keys(), func(k interface{}) {
+			n.Set(k, c.At(k))
+		})
+		return n
 	}
-	return
+	return nil
 }
 
 func MakeBlank(c Container) interface{} {
@@ -193,15 +204,13 @@ func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Con
 		var s Sequence
 		switch {
 		case l == r:
-			s = left.New(l).(Sequence)
-			s.SetLen(l)
+			s = left.New(l, l)
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
 
 		case l > r:
-			s = left.New(l).(Sequence)
-			s.SetLen(l)
+			s = left.New(l, l)
 			for i := 0; i < r; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
@@ -210,8 +219,7 @@ func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Con
 			}
 
 		case l < r:
-			s = left.New(r).(Sequence)
-			s.SetLen(r)
+			s = left.New(r, r)
 			for i := 0; i < l; i++ {
 				s.Set(i, f(left.At(i), right.At(i)))
 			}
