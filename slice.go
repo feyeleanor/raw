@@ -23,7 +23,6 @@ func (s *Slice) Copy(source Sequence) {
 	}
 }
 
-// Append a value to the existing Slice
 func (s *Slice) Append(i interface{}) {
 	switch v := i.(type) {
 	case *Slice:		s.SetValue(reflect.AppendSlice(s.SliceValue, v.SliceValue))
@@ -31,6 +30,28 @@ func (s *Slice) Append(i interface{}) {
 	default:			switch v := reflect.NewValue(i).(type) {
 						case *reflect.SliceValue:		s.SetValue(reflect.AppendSlice(s.SliceValue, v))
 						default:						s.SetValue(reflect.Append(s.SliceValue, v))
+						}
+	}
+}
+
+func (s *Slice) Prepend(i interface{}) {
+	switch v := i.(type) {
+	case *Slice:		s.Prepend(*v)
+	case Slice:			n := s.New(s.Len() + v.Len()).(*Slice)
+						n.Append(v)
+						n.Append(s)
+						s.SetValue(n.SliceValue)
+	default:			switch v := reflect.NewValue(i).(type) {
+						case *reflect.SliceValue:
+							n := s.New(v.Len() + s.Len()).(*Slice)
+							n.Append(i)
+							n.Append(s)
+							s.SetValue(n.SliceValue)
+						default:
+							n := s.New(s.Len() + 1).(*Slice)
+							n.Append(i)
+							n.Append(s)
+							s.SetValue(n.SliceValue)
 						}
 	}
 }
@@ -91,17 +112,5 @@ func (s *Slice) Feed(c chan<- interface{}, f func(x interface{}) interface{}) {
 func (s *Slice) Pipe(f func(x interface{}) interface{}) (c chan interface{}) {
 	c = make(chan interface{}, StandardChannelBuffer)
 	s.Feed(c, f)
-	return
-}
-
-func (s *Slice) Tee(c chan<- interface{}, f func(x interface{}) interface{}) (t chan interface{}) {
-	t = make(chan interface{}, StandardChannelBuffer)
-	go func() {
-		for i, l := 0, s.Len(); i < l; i++ {
-			x := f(s.Elem(i).Interface())
-			t <- x
-			c <- x
-		}
-	}()
 	return
 }

@@ -24,6 +24,20 @@ func NewContainer(i interface{}) (c Container) {
 	return
 }
 
+func Compatible(l, r Container) (b bool) {
+	switch l := l.(type) {
+	case Sequence:
+		if r, ok := r.(Sequence); ok {
+			b = l.ElementType() == r.ElementType()
+		}
+
+	case Mapping:
+		if r, ok := r.(Mapping); ok {
+			b = l.KeyType() == r.KeyType() && l.ElementType() == r.ElementType()
+		}
+	}
+	return
+}
 
 func Copy(c Container) (n Container) {
 	switch c := c.(type) {
@@ -170,9 +184,8 @@ func Most(c Container, f func(x interface{}) bool) bool {
 
 func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Container) {
 	defer Catch()
-	t := left.Type()
-	if t != right.Type() { Throw() }
 
+	if !Compatible(left, right) { Throw() }
 	switch left := left.(type) {
 	case Sequence:
 		right := right.(Sequence)

@@ -98,17 +98,3 @@ func (c *Channel) Pipe(f func(x interface{}) interface{}) (o chan interface{}) {
 	c.Feed(o, f)
 	return
 }
-
-func (c *Channel) Tee(o chan<- interface{}, f func(x interface{}) interface{}) (t chan interface{}) {
-	t = make(chan interface{}, StandardChannelBuffer)
-	go func() {
-		for  {
-			if v, open := c.Recv(); open {
-				x := f(v)
-				t <- x
-				o <- x
-			}
-		}
-	}()
-	return
-}

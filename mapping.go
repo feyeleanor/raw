@@ -9,9 +9,16 @@ type Mapping interface {
 	At(key interface{}) interface{}
 	Set(key, value interface{})
 	Keys() Sequence
-	Clone() Mapping
 }
 
 func NewMapping(i interface{}) Mapping {
 	return NewContainer(i).(Mapping)
+}
+
+func Merge(d, s Mapping) {
+	if d.KeyType() == s.KeyType() && d.ElementType() == s.ElementType() {
+		Each(s.Keys(), func(k interface{}) {
+			d.Set(k, s.At(k))
+		})
+	}
 }

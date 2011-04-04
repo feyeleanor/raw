@@ -64,6 +64,10 @@ func TestNewContainer(t *testing.T) {
 	}
 }
 
+func TestCompatible(t *testing.T) {
+	t.Fatal(NO_TESTS)
+}
+
 func TestCopy(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 

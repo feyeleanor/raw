@@ -118,6 +118,84 @@ func TestSliceAppend(t *testing.T) {
 	}
 }
 
+func TestSlicePrepend(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
+	HAS_VALUE := "s[%v] should be %v rather than %v"
+
+	t.Log("Prepend b[] to s")
+	b, s := initSliceTest()
+	s.Prepend(b)
+	switch {
+	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
+	case s.Cap() != cap(b) * 2:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * 2, s.Cap())
+	case s.At(0) != s.At(10):	t.Fatalf(SHOULD_MATCH, 0, 10, s.At(0), s.At(10))
+	case s.At(1) != s.At(11):	t.Fatalf(SHOULD_MATCH, 1, 11, s.At(1), s.At(11))
+	case s.At(2) != s.At(12):	t.Fatalf(SHOULD_MATCH, 2, 12, s.At(2), s.At(12))
+	case s.At(3) != s.At(13):	t.Fatalf(SHOULD_MATCH, 3, 13, s.At(3), s.At(13))
+	case s.At(4) != s.At(14):	t.Fatalf(SHOULD_MATCH, 4, 14, s.At(4), s.At(14))
+	case s.At(5) != s.At(15):	t.Fatalf(SHOULD_MATCH, 5, 15, s.At(5), s.At(15))
+	case s.At(6) != s.At(16):	t.Fatalf(SHOULD_MATCH, 6, 16, s.At(6), s.At(16))
+	case s.At(7) != s.At(17):	t.Fatalf(SHOULD_MATCH, 7, 17, s.At(7), s.At(17))
+	case s.At(8) != s.At(18):	t.Fatalf(SHOULD_MATCH, 8, 18, s.At(8), s.At(18))
+	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
+	}
+
+	t.Log("Prepend s to s")
+	b, s = initSliceTest()
+	s.Prepend(s)
+	switch {
+	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
+	case s.Cap() != cap(b) * 2:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * 2, s.Cap())
+	case s.At(0) != s.At(10):	t.Fatalf(SHOULD_MATCH, 0, 10, s.At(0), s.At(10))
+	case s.At(1) != s.At(11):	t.Fatalf(SHOULD_MATCH, 1, 11, s.At(1), s.At(11))
+	case s.At(2) != s.At(12):	t.Fatalf(SHOULD_MATCH, 2, 12, s.At(2), s.At(12))
+	case s.At(3) != s.At(13):	t.Fatalf(SHOULD_MATCH, 3, 13, s.At(3), s.At(13))
+	case s.At(4) != s.At(14):	t.Fatalf(SHOULD_MATCH, 4, 14, s.At(4), s.At(14))
+	case s.At(5) != s.At(15):	t.Fatalf(SHOULD_MATCH, 5, 15, s.At(5), s.At(15))
+	case s.At(6) != s.At(16):	t.Fatalf(SHOULD_MATCH, 6, 16, s.At(6), s.At(16))
+	case s.At(7) != s.At(17):	t.Fatalf(SHOULD_MATCH, 7, 17, s.At(7), s.At(17))
+	case s.At(8) != s.At(18):	t.Fatalf(SHOULD_MATCH, 8, 18, s.At(8), s.At(18))
+	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
+	}
+
+	t.Log("Prepend *s to s")
+	b, s = initSliceTest()
+	s.Prepend(*s)
+	switch {
+	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
+	case s.Cap() != cap(b) * 2:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * 2, s.Cap())
+	case s.At(0) != s.At(10):	t.Fatalf(SHOULD_MATCH, 0, 10, s.At(0), s.At(10))
+	case s.At(1) != s.At(11):	t.Fatalf(SHOULD_MATCH, 1, 11, s.At(1), s.At(11))
+	case s.At(2) != s.At(12):	t.Fatalf(SHOULD_MATCH, 2, 12, s.At(2), s.At(12))
+	case s.At(3) != s.At(13):	t.Fatalf(SHOULD_MATCH, 3, 13, s.At(3), s.At(13))
+	case s.At(4) != s.At(14):	t.Fatalf(SHOULD_MATCH, 4, 14, s.At(4), s.At(14))
+	case s.At(5) != s.At(15):	t.Fatalf(SHOULD_MATCH, 5, 15, s.At(5), s.At(15))
+	case s.At(6) != s.At(16):	t.Fatalf(SHOULD_MATCH, 6, 16, s.At(6), s.At(16))
+	case s.At(7) != s.At(17):	t.Fatalf(SHOULD_MATCH, 7, 17, s.At(7), s.At(17))
+	case s.At(8) != s.At(18):	t.Fatalf(SHOULD_MATCH, 8, 18, s.At(8), s.At(18))
+	case s.At(9) != s.At(19):	t.Fatalf(SHOULD_MATCH, 9, 19, s.At(9), s.At(19))
+	}
+
+	t.Log("Prepend 100 to s")
+	b, s = initSliceTest()
+	s.Prepend(100)
+	switch {
+	case s.Cap() <= cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
+	case s.Len() != len(b) + 1:	t.Fatalf("Slice length should be %v not %v", len(b) + 1, s.Len())
+	case s.At(0) != 100:		t.Fatalf(HAS_VALUE, 0, 100, s.At(0))
+	case s.At(1) != 0:			t.Fatalf(HAS_VALUE, 1, 0, s.At(1))
+	case s.At(2) != 1:			t.Fatalf(HAS_VALUE, 2, 1, s.At(2))
+	case s.At(3) != 2:			t.Fatalf(HAS_VALUE, 3, 2, s.At(3))
+	case s.At(4) != 3:			t.Fatalf(HAS_VALUE, 4, 3, s.At(4))
+	case s.At(5) != 4:			t.Fatalf(HAS_VALUE, 5, 4, s.At(5))
+	case s.At(6) != 5:			t.Fatalf(HAS_VALUE, 6, 5, s.At(6))
+	case s.At(7) != 6:			t.Fatalf(HAS_VALUE, 7, 6, s.At(7))
+	case s.At(8) != 7:			t.Fatalf(HAS_VALUE, 8, 7, s.At(8))
+	case s.At(9) != 8:			t.Fatalf(HAS_VALUE, 9, 8, s.At(9))
+	case s.At(10) != 9:			t.Fatalf(HAS_VALUE, 10, 9, s.At(10))
+	}
+}
+
 func TestSliceElementType(t *testing.T) {
 	_, s := initSliceTest()
 	e := reflect.Typeof(int(0))
@@ -239,8 +317,4 @@ func TestSlicePipe(t *testing.T) {
 	case n[8] != b[8] * b[8]:		t.Fatalf("%v: expected %v but got %v", 8, b[8] * b[8], n[8])
 	case n[9] != b[9] * b[9]:		t.Fatalf("%v: expected %v but got %v", 9, b[9] * b[9], n[9])
 	}
-}
-
-func TestSliceTee(t *testing.T) {
-	t.Fatal(NO_TESTS)
 }

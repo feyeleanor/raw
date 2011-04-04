@@ -112,8 +112,4 @@ func TestChannelPipe(t *testing.T) {
 	case n[9] != 81:				t.Fatalf("%v: expected %v but got %v", 9, 81, n[9])
 	}
 }
-
-func TestChannelTee(t *testing.T) {
-	t.Fatal(NO_TESTS)
-}
 */

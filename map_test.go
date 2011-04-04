@@ -13,26 +13,6 @@ func TestMapNew(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
 
-func TestMapClone(t *testing.T) {
-	SHOULD_MATCH := "Map elements m[%v] and c[%v] should match but are %v and %v"
-
-	_, m := initMapTest()
-	c := m.Clone()
-	switch {
-	case c.Len() != m.Len():	t.Fatalf("Map length should be %v not %v", m.Len(), c.Len())
-	case c.At(0) != m.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, m.At(0), c.At(0))
-	case c.At(1) != m.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, m.At(1), c.At(1))
-	case c.At(2) != m.At(2):	t.Fatalf(SHOULD_MATCH, 2, 2, m.At(2), c.At(2))
-	case c.At(3) != m.At(3):	t.Fatalf(SHOULD_MATCH, 3, 3, m.At(3), c.At(3))
-	case c.At(4) != m.At(4):	t.Fatalf(SHOULD_MATCH, 4, 4, m.At(4), c.At(4))
-	case c.At(5) != m.At(5):	t.Fatalf(SHOULD_MATCH, 5, 5, m.At(5), c.At(5))
-	case c.At(6) != m.At(6):	t.Fatalf(SHOULD_MATCH, 6, 6, m.At(6), c.At(6))
-	case c.At(7) != m.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, m.At(7), c.At(7))
-	case c.At(8) != m.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, m.At(8), c.At(8))
-	case c.At(9) != m.At(9):	t.Fatalf(SHOULD_MATCH, 9, 9, m.At(9), c.At(9))
-	}
-}
-
 func TestMapKeyType(t *testing.T) {
 	_, m := initMapTest()
 	e := reflect.Typeof(int(0))
@@ -141,8 +121,4 @@ func TestMapPipe(t *testing.T) {
 	switch {
 	case len(n) != len(b):			t.Fatalf("Length of slice should be the same length of map but is %v", len(n))
 	}
-}
-
-func TestMapTee(t *testing.T) {
-	t.Fatal(NO_TESTS)
 }

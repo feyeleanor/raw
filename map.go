@@ -14,15 +14,6 @@ func (m *Map) New() Mapping {
 	return &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
 }
 
-// Create an independent duplicate of the Map, copy all contents to the new assigned memory
-func (m *Map) Clone() Mapping {
-	destination := &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
-	Each(m.Keys(), func(k interface{}) {
-		destination.Set(k, m.At(k))
-	})
-	return destination
-}
-
 // Returns the runtime type of the keys referencing values in the Map.
 func (m *Map) KeyType() reflect.Type {
 	return m.Type().(*reflect.MapType).Key()
@@ -35,8 +26,12 @@ func (m *Map) ElementType() reflect.Type {
 
 func (m *Map) At(k interface{}) (v interface{}) {
 	switch k := k.(type) {
-	case reflect.Value:		v = m.Elem(k).Interface()
-	default:				v = m.Elem(reflect.NewValue(k)).Interface()
+	case reflect.Value:
+		if x := m.Elem(k); x != nil {
+			v = x.Interface()
+		}
+	default:
+		v = m.At(reflect.NewValue(k))
 	}
 	return 
 }
@@ -103,21 +98,6 @@ func (m *Map) Feed(c chan<- interface{}, f func(k, v interface{}) interface{}) {
 
 func (m *Map) Pipe(f func(k, v interface{}) interface{}) <-chan interface{} {
 	c := make(chan interface{}, StandardChannelBuffer)
-	m.Clone().(*Map).Feed(c, f)
+	m.Feed(c, f)
 	return c
 }
-
-/*
-func (m *Map) Tee(c chan<- interface{}, f func(k, v interface{}) interface{}) <-chan interface{} {
-	t := make(chan interface{}, StandardChannelBuffer)
-	go func() {
-		Each(m.Keys(), func(k interface{}) {
-			x := f(k, m.At(k))
-			c <- x
-			t <- x
-		})
-		close(t)
-	}()
-	return t
-}
-*/

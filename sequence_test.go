@@ -40,6 +40,110 @@ func TestFirst(t *testing.T) {
 	}
 }
 
+func TestQueue(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+	HAS_VALUE := "Value should be %v but is %v"
+	SHOULD_HAVE_LENGTH := "Slice length should be %v not %v"
+
+	_, s := initSliceTest()
+	x, r := PopFirst(s)
+	switch {
+	case x != 0:				t.Fatalf(HAS_VALUE, 0, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(1) != r.At(0):	t.Fatalf(SHOULD_MATCH, 1, 0, s.At(1), r.At(0))
+	case s.At(8) != r.At(7):	t.Fatalf(SHOULD_MATCH, 8, 7, s.At(8), r.At(7))
+	}
+	r.(Deque).Append(20)
+	switch {
+	case r.Len() != 10:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(1) != r.At(0):	t.Fatalf(SHOULD_MATCH, 1, 0, s.At(1), r.At(0))
+	case r.At(9) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(9))
+	}
+	x, r = PopFirst(r)
+	switch {
+	case x != 1:				t.Fatalf(HAS_VALUE, 1, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 8, r.Len())
+	case s.At(2) != r.At(0):	t.Fatalf(SHOULD_MATCH, 2, 0, s.At(2), r.At(0))
+	case r.At(8) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(8))
+	}
+}
+
+func TestStack(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+	HAS_VALUE := "Value should be %v but is %v"
+	SHOULD_HAVE_LENGTH := "Slice length should be %v not %v"
+
+	_, s := initSliceTest()
+	x, r := PopLast(s)
+	switch {
+	case x != 9:				t.Fatalf(HAS_VALUE, 9, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case s.At(8) != r.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), r.At(8))
+	}
+	x, r = PopLast(r)
+	switch {
+	case x != 8:				t.Fatalf(HAS_VALUE, 8, x)
+	case r.Len() != 8:			t.Fatalf(SHOULD_HAVE_LENGTH, 8, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case s.At(7) != r.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), r.At(7))
+	}
+	r.(Deque).Append(20)
+	switch {
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case r.At(8) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(8))
+	}
+	x, r = PopLast(r)
+	switch {
+	case x != 20:				t.Fatalf(HAS_VALUE, 20, x)
+	case r.Len() != 8:			t.Fatalf(SHOULD_HAVE_LENGTH, 8, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case s.At(7) != r.At(7):	t.Fatalf(SHOULD_MATCH, 7, 7, s.At(7), r.At(7))
+	}
+}
+
+func TestDeque(t *testing.T) {
+	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
+	HAS_VALUE := "Value should be %v but is %v"
+	SHOULD_HAVE_LENGTH := "Slice length should be %v not %v"
+
+	_, s := initSliceTest()
+	x, r := PopLast(s)
+	switch {
+	case x != 9:				t.Fatalf(HAS_VALUE, 9, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))
+	case s.At(8) != r.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), r.At(8))
+	}
+	r.(Deque).Append(10)
+	switch {
+	case r.Len() != 10:			t.Fatalf(SHOULD_HAVE_LENGTH, 10, r.Len())
+	case s.At(8) != r.At(8):	t.Fatalf(SHOULD_MATCH, 8, 8, s.At(8), r.At(8))
+	case r.At(9) != 10:			t.Fatalf(HAS_VALUE, 10, r.At(9))
+	}
+	x, r = PopFirst(r)
+	switch {
+	case x != 0:				t.Fatalf(HAS_VALUE, 0, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(1) != r.At(0):	t.Fatalf(SHOULD_MATCH, 1, 0, s.At(1), r.At(0))
+	case s.At(8) != r.At(7):	t.Fatalf(SHOULD_MATCH, 8, 7, s.At(8), r.At(7))
+	}
+	r.(Deque).Prepend(20)
+	switch {
+	case r.Len() != 10:			t.Fatalf(SHOULD_HAVE_LENGTH, 10, r.Len())
+	case r.At(0) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(0))
+	case s.At(1) != r.At(1):	t.Fatalf(SHOULD_MATCH, 1, 1, s.At(1), r.At(1))
+	}
+	x, r = PopFirst(r)
+	switch {
+	case x != 20:				t.Fatalf(HAS_VALUE, 20, x)
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case s.At(1) != r.At(0):	t.Fatalf(SHOULD_MATCH, 1, 0, s.At(1), r.At(0))
+	case s.At(8) != r.At(7):	t.Fatalf(SHOULD_MATCH, 8, 7, s.At(8), r.At(7))
+	}
+}
+
 func TestLast(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
 

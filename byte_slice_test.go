@@ -66,17 +66,8 @@ func TestByteSliceWithChannel(t *testing.T) {
 	ByteSlice(c)
 }
 
-var _b interface{}
-var _i *BasicType
-
-func init() {
-	_i = &BasicType{ "interface{}", unsafe.Sizeof(_b), unsafe.Alignof(_b), reflect.Typeof([]interface{}{}) }
-}
-
 func TestByteSliceWithInterface(t *testing.T) {
-	t.Logf("_b size = %v, align = %v", unsafe.Sizeof(_b), unsafe.Alignof(_b))
-	t.Logf("_i.size = %v, align = %v", _i.size, _i.alignment)
-	t.Fatalf("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
+	t.Fatal("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
 	var i interface{} = make([]byte, INTERFACE.size, INTERFACE.size)
 	b := i.([]byte)
 	buf := ByteSlice(i)

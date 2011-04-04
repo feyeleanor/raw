@@ -10,18 +10,9 @@ type Sequence interface {
 	Copy(source Sequence)
 }
 
-type Queue interface {
-	Container
-	Buffer
-	Push(interface{})
-	Pull() interface{}
-}
-
-type Stack interface {
-	Container
-	Buffer
-	Push(interface{})
-	Pop(interface{})
+type Deque interface {
+	Append(i interface{})
+	Prepend(i interface{})
 }
 
 func NewSequence(i interface{}) Sequence {
@@ -39,9 +30,18 @@ func First(s Sequence, i int) Sequence {
 	return s.Section(0, i)
 }
 
+func PopFirst(s Sequence) (i interface{}, x Sequence) {
+	return s.At(0), s.Section(1, s.Len())
+}
+
 func Last(s Sequence, i int) Sequence {
-	length := s.Len()
-	return s.Section(length - i, length)
+	l := s.Len()
+	return s.Section(l - i, l)
+}
+
+func PopLast(s Sequence) (i interface{}, x Sequence) {
+	l := s.Len() - 1
+	return s.At(l), s.Section(0, l)
 }
 
 func Clear(s Sequence, start, end int) {
