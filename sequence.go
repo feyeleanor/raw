@@ -10,6 +10,10 @@ type Sequence interface {
 	Section(start, end int) Sequence
 }
 
+type Blitter interface {
+	Blit(destination, source, count int)
+}
+
 type Deque interface {
 	Append(i interface{})
 	Prepend(i interface{})
@@ -38,30 +42,36 @@ func PopLast(s Sequence) (i interface{}, x Sequence) {
 }
 
 func Clear(s Sequence, start, end int) {
-	blank := MakeBlank(s)
-	if end > s.Len() {
-		end = s.Len()
+	switch {
+	case end < start:		return
+	case end > s.Len():		end = s.Len()
 	}
-	end++
-	for ; start < end; start++ {
+	blank := MakeBlank(s)
+	for ; start <= end; start++ {
 		s.Set(start, blank)
 	}
 }
 
-func CopyElements(s Sequence, destination, source, count int) {
-	switch {
-	case count == 0:
-	case destination > source:
-		count--
-		destination = destination + count
-		for end := source + count; end >= source; end-- {
-			s.Set(destination, s.At(end))
-			destination--
-		}
-	case destination < source:
-		for end := source + count; source < end; source++ {
-			s.Set(destination, s.At(source))
-			destination++
-		}
-	}	
+func CopyElements(c Container, destination, source, count int) {
+	if count == 0 {
+		return
+	}
+	switch c := c.(type) {
+	case Blitter:			c.Blit(destination, source, count)
+	case Sequence:			switch {
+							case count == 0:
+							case destination > source:
+								count--
+								destination = destination + count
+								for end := source + count; end >= source; end-- {
+									c.Set(destination, c.At(end))
+									destination--
+								}
+							case destination < source:
+								for end := source + count; source < end; source++ {
+									c.Set(destination, c.At(source))
+									destination++
+								}
+							}
+	}
 }

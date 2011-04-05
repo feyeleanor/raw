@@ -156,6 +156,9 @@ func TestCopyElements(t *testing.T) {
 	_, s := initSliceTest()
 	c := Copy(s).(Sequence)
 	CopyElements(c, 1, 3, 5)
+	if _, ok := c.(Blitter); !ok {
+		t.Fatalf("c should be a Blitter")
+	}
 	switch {
 	case c.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, 1, 0, 0, c.At(0))
 	case c.At(1) != 3:			t.Fatalf(SHOULD_CONTAIN, 1, 1, 3, c.At(1))

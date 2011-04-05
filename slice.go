@@ -16,6 +16,10 @@ func (s *Slice) New(length, capacity int) Sequence {
 	return &Slice{ reflect.MakeSlice(s.Type().(*reflect.SliceType), length, capacity) }
 }
 
+func (s *Slice) Blit(destination, source, count int) {
+	reflect.Copy(s.Slice(destination, destination + count), s.Slice(source, source + count))
+}
+
 func (s *Slice) Overwrite(offset int, source interface{}) {
 	switch source := source.(type) {
 	case *Slice:		s.Overwrite(offset, *source)
