@@ -36,7 +36,7 @@ func (m *Map) At(k interface{}) (v interface{}) {
 	return 
 }
 
-func (m *Map) Set(k, value interface{}) {
+func (m *Map) Store(k, value interface{}) {
 	switch k := k.(type) {
 	case reflect.Value:		m.SetMapIndex(k, reflect.NewValue(value))
 	default:				m.SetMapIndex(reflect.NewValue(k), reflect.NewValue(value))
@@ -68,7 +68,7 @@ func (m *Map) Each(f func(v interface{})) int {
 func (m *Map) Collect(f func(x interface{}) interface{}) (r *Map) {
 	r = m.New().(*Map)
 	Each(m.Keys(), func(k interface{}) {
-		r.Set(k, f(m.At(k)))
+		r.Store(k, f(m.At(k)))
 	})
 	return
 }

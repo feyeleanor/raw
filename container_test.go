@@ -73,7 +73,7 @@ func TestCopy(t *testing.T) {
 
 	_, s := initSliceTest()
 	c := Copy(s).(Sequence)
-	c.Set(0, 1000)
+	c.Store(0, 1000)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case c.Cap() != s.Cap():	t.Fatalf("Slice capacity should be %v not %v", s.Cap(), c.Cap())
@@ -92,7 +92,7 @@ func TestCopy(t *testing.T) {
 
 	_, m := initMapTest()
 	n := Copy(m).(Mapping)
-	n.Set(0, 1000)
+	n.Store(0, 1000)
 	switch {
 	case n.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
 	case s.At(0) != 0:			t.Fatalf("Slice element s[%v] should be %v and not", 0, 0, s.At(0))

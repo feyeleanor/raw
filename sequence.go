@@ -6,7 +6,7 @@ type Sequence interface {
 	Cap() int
 	SetLen(l int)
 	At(i int) interface{}
-	Set(i int, x interface{})
+	Store(i int, x interface{})
 	Section(start, end int) Sequence
 }
 
@@ -48,7 +48,7 @@ func Clear(s Sequence, start, end int) {
 	}
 	blank := MakeBlank(s)
 	for ; start <= end; start++ {
-		s.Set(start, blank)
+		s.Store(start, blank)
 	}
 }
 
@@ -64,12 +64,12 @@ func CopyElements(c Container, destination, source, count int) {
 								count--
 								destination = destination + count
 								for end := source + count; end >= source; end-- {
-									c.Set(destination, c.At(end))
+									c.Store(destination, c.At(end))
 									destination--
 								}
 							case destination < source:
 								for end := source + count; source < end; source++ {
-									c.Set(destination, c.At(source))
+									c.Store(destination, c.At(source))
 									destination++
 								}
 							}

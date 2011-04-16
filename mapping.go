@@ -7,7 +7,7 @@ type Mapping interface {
 	New() Mapping
 	KeyType() reflect.Type
 	At(key interface{}) interface{}
-	Set(key, value interface{})
+	Store(key, value interface{})
 	Keys() Sequence
 }
 
@@ -18,7 +18,7 @@ func NewMapping(i interface{}) Mapping {
 func Merge(d, s Mapping) {
 	if d.KeyType() == s.KeyType() && d.ElementType() == s.ElementType() {
 		Each(s.Keys(), func(k interface{}) {
-			d.Set(k, s.At(k))
+			d.Store(k, s.At(k))
 		})
 	}
 }

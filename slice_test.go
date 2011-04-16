@@ -250,7 +250,7 @@ func TestSliceSection(t *testing.T) {
 
 	_, s := initSliceTest()
 	r := s.Section(0, 10)
-	r.Set(9, -1)
+	r.Store(9, -1)
 	switch {
 	case r.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, r.Len())
 	case s.At(0) != r.At(0):	t.Fatalf(SHOULD_MATCH, 0, 0, s.At(0), r.At(0))

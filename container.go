@@ -44,13 +44,13 @@ func Copy(c Container) Container {
 	case Sequence:
 		n := c.New(c.Len(), c.Cap())
 		for i := 0; i < c.Len(); i++ {
-			n.Set(i, c.At(i))
+			n.Store(i, c.At(i))
 		}
 		return n
 	case Mapping:
 		n := c.New()
 		Each(c.Keys(), func(k interface{}) {
-			n.Set(k, c.At(k))
+			n.Store(k, c.At(k))
 		})
 		return n
 	}
@@ -67,12 +67,12 @@ func SwapElements(c Container, left, right interface{}) {
 		l := left.(int)
 		r := right.(int)
 		temp := c.At(l)
-		c.Set(l, c.At(r))
-		c.Set(r, temp)
+		c.Store(l, c.At(r))
+		c.Store(r, temp)
 	case Mapping:
 		temp := c.At(left)
-		c.Set(left, c.At(right))
-		c.Set(right, temp)
+		c.Store(left, c.At(right))
+		c.Store(right, temp)
 	}
 }
 
@@ -101,7 +101,7 @@ func Collect(c Container, f func(x interface{}) interface{}) (s Sequence) {
 	s = &Slice{ reflect.MakeSlice(c.Type(), c.Len(), c.Len()) }
 	i := 0
 	Each(c, func(x interface{}) {
-		s.Set(i, f(x))
+		s.Store(i, f(x))
 		i++
 	})
 	return
@@ -206,25 +206,25 @@ func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Con
 		case l == r:
 			s = left.New(l, l)
 			for i := 0; i < l; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
+				s.Store(i, f(left.At(i), right.At(i)))
 			}
 
 		case l > r:
 			s = left.New(l, l)
 			for i := 0; i < r; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
+				s.Store(i, f(left.At(i), right.At(i)))
 			}
 			for i := r; i < l; i++ {
-				s.Set(i, f(left.At(i), s.At(i)))
+				s.Store(i, f(left.At(i), s.At(i)))
 			}
 
 		case l < r:
 			s = left.New(r, r)
 			for i := 0; i < l; i++ {
-				s.Set(i, f(left.At(i), right.At(i)))
+				s.Store(i, f(left.At(i), right.At(i)))
 			}
 			for i := l; i < r; i++ {
-				s.Set(i, f(s.At(i), right.At(i)))
+				s.Store(i, f(s.At(i), right.At(i)))
 			}
 		}
 		c = s
@@ -233,11 +233,11 @@ func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Con
 		if right, ok := right.(Mapping); ok {
 			m := left.New()
 			Each(left.Keys(), func(k interface{}) {
-				m.Set(k, f(left.At(k), right.At(k)))
+				m.Store(k, f(left.At(k), right.At(k)))
 			})
 			Each(right.Keys(), func(k interface{}) {
 				if m.At(k) == nil {
-					m.Set(k, f(left.At(k), right.At(k)))
+					m.Store(k, f(left.At(k), right.At(k)))
 				}
 			})
 			c = m

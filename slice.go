@@ -26,11 +26,11 @@ func (s *Slice) Overwrite(offset int, source interface{}) {
 	case Slice:			if offset == 0 {
 							reflect.Copy(s.Value, source.Value)
 						} else {
-							reflect.Copy(s.Value.Slice(offset, s.Len()), source.Value)
+							reflect.Copy(s.Slice(offset, s.Len()), source.Value)
 						}
 	default:			switch v := reflect.NewValue(source); v.Kind() {
 						case reflect.Slice:		s.Overwrite(offset, NewSlice(source))
-						default:				s.Set(offset, v.Interface())
+						default:				s.Store(offset, v.Interface())
 						}
 	}
 }
@@ -77,7 +77,7 @@ func (s *Slice) At(i int) interface{} {
 	return s.Index(i).Interface()
 }
 
-func (s *Slice) Set(i int, value interface{}) {
+func (s *Slice) Store(i int, value interface{}) {
 	s.Index(i).Set(reflect.NewValue(value))
 }
 
