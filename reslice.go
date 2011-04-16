@@ -4,18 +4,17 @@ import "reflect"
 import "unsafe"
 
 func SliceHeader(i interface{}) (Header *reflect.SliceHeader, ElementSize, ElementAlignment int) {
-	value := reflect.NewValue(i)
-	switch value := value.(type) {
-	case *reflect.SliceValue:		Header = (*reflect.SliceHeader)(unsafe.Pointer(value.UnsafeAddr()))
-									ElementType := value.Type().(*reflect.SliceType).Elem()
-									ElementSize = int(ElementType.Size())
-									ElementAlignment = ElementType.Align()
+	switch value := reflect.NewValue(i); value.Kind() {
+	case reflect.Slice:			Header = (*reflect.SliceHeader)(unsafe.Pointer(value.UnsafeAddr()))
+								ElementType := value.Type().Elem()
+								ElementSize = int(ElementType.Size())
+								ElementAlignment = ElementType.Align()
 
-	case nil:						panic(i)
+	case reflect.Invalid:		panic(i)
 
-	case *reflect.InterfaceValue:	Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
+	case reflect.Interface:		Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
 
-	case *reflect.PtrValue:			Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
+	case reflect.Ptr:			Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
 	}
 	return
 }

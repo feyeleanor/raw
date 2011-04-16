@@ -3,7 +3,7 @@ package raw
 import "reflect"
 
 type Map struct {
-	*reflect.MapValue
+	reflect.Value
 }
 
 func NewMap(i interface{}) *Map {
@@ -11,23 +11,23 @@ func NewMap(i interface{}) *Map {
 }
 
 func (m *Map) New() Mapping {
-	return &Map{ reflect.MakeMap(m.Type().(*reflect.MapType)) }
+	return &Map{ reflect.MakeMap(m.Type()) }
 }
 
 // Returns the runtime type of the keys referencing values in the Map.
 func (m *Map) KeyType() reflect.Type {
-	return m.Type().(*reflect.MapType).Key()
+	return m.Type().Key()
 }
 
 // Returns the runtime type of the elements contained within the Map.
 func (m *Map) ElementType() reflect.Type {
-	return m.Type().(*reflect.MapType).Elem()
+	return m.Type().Elem()
 }
 
 func (m *Map) At(k interface{}) (v interface{}) {
 	switch k := k.(type) {
 	case reflect.Value:
-		if x := m.Elem(k); x != nil {
+		if x := m.MapIndex(k); x.IsValid() {
 			v = x.Interface()
 		}
 	default:
@@ -38,22 +38,22 @@ func (m *Map) At(k interface{}) (v interface{}) {
 
 func (m *Map) Set(k, value interface{}) {
 	switch k := k.(type) {
-	case reflect.Value:		m.SetElem(k, reflect.NewValue(value))
-	default:				m.SetElem(reflect.NewValue(k), reflect.NewValue(value))
+	case reflect.Value:		m.SetMapIndex(k, reflect.NewValue(value))
+	default:				m.SetMapIndex(reflect.NewValue(k), reflect.NewValue(value))
 	}
 }
 
 // Copies a value from one location in the Map to another.
 func (m *Map) CopyElement(destination, source interface{}) {
-	m.SetElem(reflect.NewValue(destination), reflect.NewValue(source))
+	m.SetMapIndex(reflect.NewValue(destination), reflect.NewValue(source))
 }
 
 func (m *Map) Clear(i interface{}) {
-	m.SetElem(reflect.NewValue(i), reflect.MakeZero(m.ElementType()))
+	m.SetMapIndex(reflect.NewValue(i), reflect.Zero(m.ElementType()))
 }
 
 func (m *Map) Keys() Sequence {
-	return NewSequence(m.MapValue.Keys())
+	return NewSequence(m.Value.MapKeys())
 }
 
 func (m *Map) Each(f func(v interface{})) int {

@@ -25,7 +25,7 @@ func TestChannelElementType(t *testing.T) {
 
 func TestChannelDirection(t *testing.T) {
 	b, c := initChannelTest()
-	d := reflect.NewValue(b).(*reflect.ChanValue).Type().(*reflect.ChanType).Dir()
+	d := reflect.NewValue(b).Type().ChanDir()
 	switch {
 	case d != c.Direction():		t.Fatalf("Channel claims element type %v when should be %v", c.Direction(), d)
 	case !c.Receiver():				t.Fatalf("Channel should report as a receiver not %v", c.Direction())

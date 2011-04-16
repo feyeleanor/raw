@@ -45,25 +45,23 @@ func ByteSlice(i interface{}) []byte {
 	*/
 	var header *reflect.SliceHeader
 
-	value := reflect.NewValue(i)
-	switch value := value.(type) {
-	case nil:						return []byte{}
-	case reflect.Type:				panic(i)
-	case *reflect.MapValue:			panic(i)
-	case *reflect.ChanValue:		panic(i)
-	case *reflect.InterfaceValue:	return ByteSlice(value.Elem())
+	switch value := reflect.NewValue(i); value.Kind() {
+	case reflect.Invalid:			return []byte{}
+	case reflect.Map:				panic(i)
+	case reflect.Chan:				panic(i)
+	case reflect.Interface:			return ByteSlice(value.Elem())
 
-	case *reflect.PtrValue:			if value := value.Elem(); value == nil {
-										return ByteSlice(nil)
-									} else {
+	case reflect.Ptr:				if value := value.Elem(); value.IsValid() {
 										size := int(value.Type().Size())
 										header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
+									} else {
+										return ByteSlice(nil)
 									}
 
-	case *reflect.SliceValue:		h, s, _ := SliceHeader(i)
+	case reflect.Slice:				h, s, _ := SliceHeader(i)
 									header = Scale(h, s, 1)
 
-	case *reflect.StringValue:		s := value.Get()
+	case reflect.String:			s := value.String()
 									stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
 									header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
 

@@ -283,8 +283,8 @@ func ValidateNumericByteSlice(t *testing.T, value interface{}) {
 	var numtype	reflect.Type
 
 	v := reflect.NewValue(value)
-	if x, ok := v.(*reflect.PtrValue); ok {
-		v = x.Elem()
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
 	}
 	size = int(v.Type().Size())
 	addr = v.UnsafeAddr()

@@ -12,7 +12,7 @@ func WaitFor(f func()) {
 }
 
 type Channel struct {
-	*reflect.ChanValue
+	reflect.Value
 }
 
 func NewChannel(i interface{}) *Channel {
@@ -21,11 +21,11 @@ func NewChannel(i interface{}) *Channel {
 
 // Returns the runtime type of the elements travelling along the Channel.
 func (c *Channel) ElementType() reflect.Type {
-	return c.Type().(*reflect.ChanType).Elem()
+	return c.Type().Elem()
 }
 
 func (c *Channel) Direction() reflect.ChanDir {
-	return c.Type().(*reflect.ChanType).Dir()
+	return c.Type().ChanDir()
 }
 
 func (c *Channel) Receiver() bool {
@@ -41,23 +41,23 @@ func (c *Channel) Bidirectional() bool {
 }
 
 func (c *Channel) Recv() (x interface{}, open bool) {
-	v, open := c.ChanValue.Recv()
+	v, open := c.Value.Recv()
 	x = v.Interface()
 	return
 }
 
 func (c *Channel) TryRecv() (x interface{}, open bool) {
-	v, open := c.ChanValue.TryRecv()
+	v, open := c.Value.TryRecv()
 	x = v.Interface()
 	return
 }
 
 func (c *Channel) Send(x interface{}) {
-	c.ChanValue.Send(reflect.NewValue(x))
+	c.Value.Send(reflect.NewValue(x))
 }
 
 func (c *Channel) TrySend(x interface{}) {
-	c.ChanValue.TrySend(reflect.NewValue(x))
+	c.Value.TrySend(reflect.NewValue(x))
 }
 
 func (c *Channel) Each(f func(x interface{})) (n int) {

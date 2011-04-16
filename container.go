@@ -13,13 +13,13 @@ type Enumerable interface {
 }
 
 func NewContainer(i interface{}) (c Container) {
-	switch v := reflect.NewValue(i).(type) {
-	case *reflect.SliceValue:		c = &Slice{ SliceValue: v }
-	case *reflect.MapValue:			c = &Map{ v }
-	case *reflect.ChanValue:		c = &Channel{ v }
-	case *reflect.InterfaceValue:	c = NewContainer(v.Elem())
-	case *reflect.PtrValue:			c = NewContainer(v.Elem())
-	default:						panic(i)
+	switch v := reflect.NewValue(i); v.Kind() {
+	case reflect.Slice:			c = &Slice{ Value: v }
+	case reflect.Map:			c = &Map{ v }
+	case reflect.Chan:			c = &Channel{ v }
+	case reflect.Interface:		c = NewContainer(v.Elem())
+	case reflect.Ptr:			c = NewContainer(v.Elem())
+	default:					panic(i)
 	}
 	return
 }
@@ -58,7 +58,7 @@ func Copy(c Container) Container {
 }
 
 func MakeBlank(c Container) interface{} {
-	return reflect.MakeZero(c.ElementType()).Interface()
+	return reflect.Zero(c.ElementType()).Interface()
 }
 
 func SwapElements(c Container, left, right interface{}) {
@@ -98,7 +98,7 @@ func Cycle(c Container, count int, f func(x interface{})) (i int) {
 }
 
 func Collect(c Container, f func(x interface{}) interface{}) (s Sequence) {
-	s = &Slice{ reflect.MakeSlice(c.Type().(*reflect.SliceType), c.Len(), c.Len()) }
+	s = &Slice{ reflect.MakeSlice(c.Type(), c.Len(), c.Len()) }
 	i := 0
 	Each(c, func(x interface{}) {
 		s.Set(i, f(x))
