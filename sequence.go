@@ -19,10 +19,6 @@ type Deque interface {
 	Prepend(i interface{})
 }
 
-func NewSequence(i interface{}) Sequence {
-	return NewContainer(i).(Sequence)
-}
-
 func First(s Sequence, i int) Sequence {
 	return s.Section(0, i)
 }

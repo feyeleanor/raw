@@ -12,18 +12,6 @@ type Enumerable interface {
 	Each(func(x interface{})) int
 }
 
-func NewContainer(i interface{}) (c Container) {
-	switch v := reflect.NewValue(i); v.Kind() {
-	case reflect.Slice:			c = &Slice{ Value: v }
-	case reflect.Map:			c = &Map{ v }
-	case reflect.Chan:			c = &Channel{ v }
-	case reflect.Interface:		c = NewContainer(v.Elem())
-	case reflect.Ptr:			c = NewContainer(v.Elem())
-	default:					panic(i)
-	}
-	return
-}
-
 func Compatible(l, r Container) (b bool) {
 	switch l := l.(type) {
 	case Sequence:

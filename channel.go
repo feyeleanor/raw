@@ -15,8 +15,13 @@ type Channel struct {
 	reflect.Value
 }
 
-func NewChannel(i interface{}) *Channel {
-	return NewContainer(i).(*Channel)
+func NewChannel(i interface{}) (c *Channel) {
+	if v := reflect.NewValue(i); v.Kind() == reflect.Chan {
+		c = &Channel{ v }
+	} else {
+		c = NewChannel(v.Elem())
+	}
+	return
 }
 
 // Returns the runtime type of the elements travelling along the Channel.

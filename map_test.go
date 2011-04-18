@@ -9,6 +9,26 @@ func initMapTest() (b map[int] int, m *Map) {
 	return
 }
 
+func TestNewMap(t *testing.T) {
+	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
+
+	m := NewMap(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 })
+	switch {
+	case m == nil:				t.Fatal("Make map returned a nil value")
+	case m.Len() != 10:			t.Fatalf("Map length should be %v not %v", 10, m.Len())
+	case m.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, "map", 0, m.At(0))
+	case m.At(1) != 1:			t.Fatalf(SHOULD_CONTAIN, "map", 1, m.At(1))
+	case m.At(2) != 2:			t.Fatalf(SHOULD_CONTAIN, "map", 2, m.At(2))
+	case m.At(3) != 3:			t.Fatalf(SHOULD_CONTAIN, "map", 3, m.At(3))
+	case m.At(4) != 4:			t.Fatalf(SHOULD_CONTAIN, "map", 4, m.At(4))
+	case m.At(5) != 5:			t.Fatalf(SHOULD_CONTAIN, "map", 5, m.At(5))
+	case m.At(6) != 6:			t.Fatalf(SHOULD_CONTAIN, "map", 6, m.At(6))
+	case m.At(7) != 7:			t.Fatalf(SHOULD_CONTAIN, "map", 7, m.At(7))
+	case m.At(8) != 8:			t.Fatalf(SHOULD_CONTAIN, "map", 8, m.At(8))
+	case m.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, "map", 9, m.At(9))
+	}
+}
+
 func TestMapNew(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }

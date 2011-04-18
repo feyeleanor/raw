@@ -11,10 +11,6 @@ type Mapping interface {
 	Keys() Sequence
 }
 
-func NewMapping(i interface{}) Mapping {
-	return NewContainer(i).(Mapping)
-}
-
 func Merge(d, s Mapping) {
 	if d.KeyType() == s.KeyType() && d.ElementType() == s.ElementType() {
 		Each(s.Keys(), func(k interface{}) {

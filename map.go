@@ -6,8 +6,13 @@ type Map struct {
 	reflect.Value
 }
 
-func NewMap(i interface{}) *Map {
-	return NewContainer(i).(*Map)
+func NewMap(i interface{}) (m *Map) {
+	if v := reflect.NewValue(i); v.Kind() == reflect.Map {
+		m = &Map{ v }
+	} else {
+ 		m = NewMap(v.Elem())
+	}
+	return
 }
 
 func (m *Map) New() Mapping {
@@ -53,7 +58,7 @@ func (m *Map) Clear(i interface{}) {
 }
 
 func (m *Map) Keys() Sequence {
-	return NewSequence(m.Value.MapKeys())
+	return NewSlice(m.Value.MapKeys())
 }
 
 func (m *Map) Each(f func(v interface{})) int {

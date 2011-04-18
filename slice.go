@@ -8,8 +8,13 @@ type Slice struct {
 	reflect.Value
 }
 
-func NewSlice(i interface{}) *Slice {
-	return NewContainer(i).(*Slice)
+func NewSlice(i interface{}) (s *Slice) {
+	if v := reflect.NewValue(i); v.Kind() == reflect.Slice {
+		s = &Slice{ v }
+	} else {
+		s = NewSlice(v.Elem())
+	}
+	return
 }
 
 func (s *Slice) New(length, capacity int) Sequence {

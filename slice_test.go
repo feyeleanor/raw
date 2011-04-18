@@ -14,6 +14,26 @@ func initSliceTest() (b []int, s *Slice) {
 	return
 }
 
+func TestNewSlice(t *testing.T) {
+	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
+
+	s := NewSlice([]int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+	switch {
+	case s == nil:				t.Fatal("Make slice returned a nil value")
+	case s.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, s.Len())
+	case s.At(0) != 0:			t.Fatalf(SHOULD_CONTAIN, "slice", 0, s.At(0))
+	case s.At(1) != 1:			t.Fatalf(SHOULD_CONTAIN, "slice", 1, s.At(1))
+	case s.At(2) != 2:			t.Fatalf(SHOULD_CONTAIN, "slice", 2, s.At(2))
+	case s.At(3) != 3:			t.Fatalf(SHOULD_CONTAIN, "slice", 3, s.At(3))
+	case s.At(4) != 4:			t.Fatalf(SHOULD_CONTAIN, "slice", 4, s.At(4))
+	case s.At(5) != 5:			t.Fatalf(SHOULD_CONTAIN, "slice", 5, s.At(5))
+	case s.At(6) != 6:			t.Fatalf(SHOULD_CONTAIN, "slice", 6, s.At(6))
+	case s.At(7) != 7:			t.Fatalf(SHOULD_CONTAIN, "slice", 7, s.At(7))
+	case s.At(8) != 8:			t.Fatalf(SHOULD_CONTAIN, "slice", 8, s.At(8))
+	case s.At(9) != 9:			t.Fatalf(SHOULD_CONTAIN, "slice", 9, s.At(9))
+	}
+}
+
 func TestSliceNew(t *testing.T) {
 	t.Fatal(NO_TESTS)
 }
