@@ -16,17 +16,12 @@ type Channel struct {
 }
 
 func NewChannel(i interface{}) (c *Channel) {
-	if v := reflect.NewValue(i); v.Kind() == reflect.Chan {
+	if v := reflect.ValueOf(i); v.Kind() == reflect.Chan {
 		c = &Channel{ v }
 	} else {
 		c = NewChannel(v.Elem())
 	}
 	return
-}
-
-// Returns the runtime type of the elements travelling along the Channel.
-func (c *Channel) ElementType() reflect.Type {
-	return c.Type().Elem()
 }
 
 func (c *Channel) Direction() reflect.ChanDir {
@@ -58,11 +53,11 @@ func (c *Channel) TryRecv() (x interface{}, open bool) {
 }
 
 func (c *Channel) Send(x interface{}) {
-	c.Value.Send(reflect.NewValue(x))
+	c.Value.Send(reflect.ValueOf(x))
 }
 
 func (c *Channel) TrySend(x interface{}) {
-	c.Value.TrySend(reflect.NewValue(x))
+	c.Value.TrySend(reflect.ValueOf(x))
 }
 
 func (c *Channel) Each(f func(x interface{})) (n int) {

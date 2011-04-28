@@ -2,16 +2,16 @@ package raw
 
 import "testing"
 
-func initMapTest() (b map[int] int, m *Map) {
-	b = map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
-	m = NewMap(b)
+func initIntMapTest() (b map[int]interface{}, m IntMap) {
+	b = map[int]interface{}{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
+	m = IntMap(b)
 	return
 }
 
-func TestNewMap(t *testing.T) {
+func TestNewIntMap(t *testing.T) {
 	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
 
-	m := NewMap(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 })
+	m := IntMap{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 }
 	switch {
 	case m == nil:				t.Fatal("Make map returned a nil value")
 	case m.Len() != 10:			t.Fatalf("Map length should be %v not %v", 10, m.Len())
@@ -28,12 +28,12 @@ func TestNewMap(t *testing.T) {
 	}
 }
 
-func TestMapNew(t *testing.T) {
+func TestIntMapNew(t *testing.T) {
 	t.Log(NO_TESTS)
 }
 
-func TestMapCopyElement(t *testing.T) {
-	b, m := initMapTest()
+func TestIntMapCopyElement(t *testing.T) {
+	b, m := initIntMapTest()
 	m.CopyElement(1, 3)
 	switch {
 	case b[1] != b[3]:			t.Fatalf("Elements b[1] and b[3] should match but are %v and %v", b[1], b[3])
@@ -42,8 +42,8 @@ func TestMapCopyElement(t *testing.T) {
 	}
 }
 
-func TestMapEach(t *testing.T) {
-	_, m := initMapTest()
+func TestIntMapEach(t *testing.T) {
+	_, m := initIntMapTest()
 	c := 0
 	m.Each(func(v interface{}) {
 		c += v.(int)
@@ -53,10 +53,10 @@ func TestMapEach(t *testing.T) {
 	}
 }
 
-func TestMapCollect(t *testing.T) {
+func TestIntMapCollect(t *testing.T) {
 	INCORRECT_VALUE := "r[%v] == %v"
 
-	b, m := initMapTest()
+	b, m := initIntMapTest()
 	r := m.Collect(func(i interface{}) interface{} {
 		return i.(int) * 2
 	})
@@ -86,8 +86,8 @@ func TestMapCollect(t *testing.T) {
 	}
 }
 
-func TestMapReduce(t *testing.T) {
-	_, m := initMapTest()
+func TestIntMapReduce(t *testing.T) {
+	_, m := initIntMapTest()
 	r := m.Reduce(0, func(seed, v interface{}) interface{} {
 		return seed.(int) + v.(int)
 	})
@@ -97,8 +97,8 @@ func TestMapReduce(t *testing.T) {
 	}
 }
 
-func TestMapFeed(t *testing.T) {
-	b, m := initMapTest()
+func TestIntMapFeed(t *testing.T) {
+	b, m := initIntMapTest()
 	c := make(chan interface{})
 	m.Feed(c, func(k, v interface{}) (r interface{}) {
 		return k.(int) * v.(int)
@@ -112,8 +112,8 @@ func TestMapFeed(t *testing.T) {
 	}
 }
 
-func TestMapPipe(t *testing.T) {
-	b, m := initMapTest()
+func TestIntMapPipe(t *testing.T) {
+	b, m := initIntMapTest()
 	c := m.Pipe(func(k, v interface{}) (r interface{}) {
 		return k.(int) * v.(int)
 	})

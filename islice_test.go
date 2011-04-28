@@ -2,21 +2,16 @@ package raw
 
 import "testing"
 
-const(
-	NO_TESTS				string = "Tests yet to be implemented"
-	FURTHER_TESTS_NEEDED	string = "Add further test filters"
-)
-
-func initSliceTest() (b []int, s *Slice) {
-	b = []int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	s = NewSlice(b)
+func initISliceTest() (b []interface{}, s ISlice) {
+	b = []interface{}{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	s = ISlice(b)
 	return
 }
 
-func TestNewSlice(t *testing.T) {
+func TestNewISlice(t *testing.T) {
 	SHOULD_CONTAIN := "%v[%v] should contain %v but contains %v"
 
-	s := NewSlice([]int{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+	s := ISlice([]interface{}{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
 	switch {
 	case s == nil:				t.Fatal("Make slice returned a nil value")
 	case s.Len() != 10:			t.Fatalf("Slice length should be %v not %v", 10, s.Len())
@@ -33,15 +28,15 @@ func TestNewSlice(t *testing.T) {
 	}
 }
 
-func TestSliceNew(t *testing.T) {
+func TestISliceNew(t *testing.T) {
 	t.Log(NO_TESTS)
 }
 
-func TestSliceBlit(t *testing.T) {
+func TestISliceBlit(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 
-	_, s := initSliceTest()
-	c := Copy(s).(*Slice)
+	_, s := initISliceTest()
+	c := Copy(s).(ISlice)
 	c.Blit(0, 5, 5)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
@@ -59,11 +54,11 @@ func TestSliceBlit(t *testing.T) {
 }
 }
 
-func TestSliceOverwrite(t *testing.T) {
+func TestISliceOverwrite(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and c[%v] should match but are %v and %v"
 
-	_, s := initSliceTest()
-	c := NewSlice(make([]int, 10, 10))
+	_, s := initISliceTest()
+	c := ISlice(make([]interface{}, 10, 10))
 	c.Overwrite(0, s)
 	switch {
 	case c.Len() != s.Len():	t.Fatalf("Slice length should be %v not %v", s.Len(), c.Len())
@@ -81,12 +76,12 @@ func TestSliceOverwrite(t *testing.T) {
 	}
 }
 
-func TestSliceAppend(t *testing.T) {
+func TestISliceAppend(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 	HAS_VALUE := "s[%v] should be %v rather than %v"
 
 	t.Log("Append b[] to s")
-	b, s := initSliceTest()
+	b, s := initISliceTest()
 	s.Append(b)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -104,7 +99,7 @@ func TestSliceAppend(t *testing.T) {
 	}
 
 	t.Log("Append s to s")
-	b, s = initSliceTest()
+	b, s = initISliceTest()
 	s.Append(s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -122,8 +117,8 @@ func TestSliceAppend(t *testing.T) {
 	}
 
 	t.Log("Append *s to s")
-	b, s = initSliceTest()
-	s.Append(*s)
+	b, s = initISliceTest()
+	s.Append(&s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
 	case s.Cap() != cap(b) * 2:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * 2, s.Cap())
@@ -140,7 +135,7 @@ func TestSliceAppend(t *testing.T) {
 	}
 
 	t.Log("Append 100 to s")
-	b, s = initSliceTest()
+	b, s = initISliceTest()
 	s.Append(100)
 	switch {
 	case s.Cap() <= cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
@@ -159,12 +154,12 @@ func TestSliceAppend(t *testing.T) {
 	}
 }
 
-func TestSlicePrepend(t *testing.T) {
+func TestISlicePrepend(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 	HAS_VALUE := "s[%v] should be %v rather than %v"
 
 	t.Log("Prepend b[] to s")
-	b, s := initSliceTest()
+	b, s := initISliceTest()
 	s.Prepend(b)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -182,7 +177,7 @@ func TestSlicePrepend(t *testing.T) {
 	}
 
 	t.Log("Prepend s to s")
-	b, s = initSliceTest()
+	b, s = initISliceTest()
 	s.Prepend(s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
@@ -200,8 +195,8 @@ func TestSlicePrepend(t *testing.T) {
 	}
 
 	t.Log("Prepend *s to s")
-	b, s = initSliceTest()
-	s.Prepend(*s)
+	b, s = initISliceTest()
+	s.Prepend(&s)
 	switch {
 	case s.Len() != len(b) * 2:	t.Fatalf("Slice length should be %v not %v", len(b) * 2, s.Len())
 	case s.Cap() != cap(b) * 2:	t.Fatalf("Slice capacity should be %v not %v", cap(b) * 2, s.Cap())
@@ -218,7 +213,7 @@ func TestSlicePrepend(t *testing.T) {
 	}
 
 	t.Log("Prepend 100 to s")
-	b, s = initSliceTest()
+	b, s = initISliceTest()
 	s.Prepend(100)
 	switch {
 	case s.Cap() <= cap(b):		t.Fatalf("Slice capacity should be greater than %v", cap(b))
@@ -237,10 +232,10 @@ func TestSlicePrepend(t *testing.T) {
 	}
 }
 
-func TestSliceRepeat(t *testing.T) {
+func TestISliceRepeat(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and s[%v] should match but are %v and %v"
 
-	b, s := initSliceTest()
+	b, s := initISliceTest()
 	c := 3
 	s = s.Repeat(c)
 	switch {
@@ -255,11 +250,11 @@ func TestSliceRepeat(t *testing.T) {
 	}
 }
 
-func TestSliceSection(t *testing.T) {
+func TestISliceSection(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and r[%v] should match but are %v and %v"
 	HAS_VALUE := "s[%v] should be %v rather than %v"
 
-	_, s := initSliceTest()
+	_, s := initISliceTest()
 	r := s.Section(0, 10)
 	r.Store(9, -1)
 	switch {
@@ -278,8 +273,8 @@ func TestSliceSection(t *testing.T) {
 	}
 }
 
-func TestSliceReallocate(t *testing.T) {
-	b, s := initSliceTest()
+func TestISliceReallocate(t *testing.T) {
+	b, s := initISliceTest()
 	switch s.Reallocate(20); {
 	case b == nil:				t.Fatal("Reallocate() created a nil value for original slice")
 	case s == nil:				t.Fatal("Reallocate() created a nil value for Slice")
@@ -299,8 +294,8 @@ func TestSliceReallocate(t *testing.T) {
 	}
 }
 
-func TestSliceFeed(t *testing.T) {
-	b, s := initSliceTest()
+func TestISliceFeed(t *testing.T) {
+	b, s := initISliceTest()
 	c := make(chan interface{})
 	i := 0
 	s.Feed(c, func(x interface{}) (r interface{}) {
@@ -309,25 +304,25 @@ func TestSliceFeed(t *testing.T) {
 		return
 	})
 	n := []int{}
-	for x := range c {
-		n = append(n, x.(int))
-	}
+	for x := range c { n = append(n, x.(int)) }
+	r := []int{}
+	for _, x := range b { r = append(r, x.(int) * x.(int)) }
 	switch {
-	case n[0] != b[0] * b[0]:		t.Fatalf("%v: expected %v but got %v", 0, b[0] * b[0], n[0])
-	case n[1] != b[1] * b[1]:		t.Fatalf("%v: expected %v but got %v", 1, b[1] * b[1], n[1])
-	case n[2] != b[2] * b[2]:		t.Fatalf("%v: expected %v but got %v", 2, b[2] * b[2], n[2])
-	case n[3] != b[3] * b[3]:		t.Fatalf("%v: expected %v but got %v", 3, b[3] * b[3], n[3])
-	case n[4] != b[4] * b[4]:		t.Fatalf("%v: expected %v but got %v", 4, b[4] * b[4], n[4])
-	case n[5] != b[5] * b[5]:		t.Fatalf("%v: expected %v but got %v", 5, b[5] * b[5], n[5])
-	case n[6] != b[6] * b[6]:		t.Fatalf("%v: expected %v but got %v", 6, b[6] * b[6], n[6])
-	case n[7] != b[7] * b[7]:		t.Fatalf("%v: expected %v but got %v", 7, b[7] * b[7], n[7])
-	case n[8] != b[8] * b[8]:		t.Fatalf("%v: expected %v but got %v", 8, b[8] * b[8], n[8])
-	case n[9] != b[9] * b[9]:		t.Fatalf("%v: expected %v but got %v", 9, b[9] * b[9], n[9])
+	case n[0] != r[0]:		t.Fatalf("%v: expected %v but got %v", 0, r[0], n[0])
+	case n[1] != r[1]:		t.Fatalf("%v: expected %v but got %v", 1, r[1], n[1])
+	case n[2] != r[2]:		t.Fatalf("%v: expected %v but got %v", 2, r[2], n[2])
+	case n[3] != r[3]:		t.Fatalf("%v: expected %v but got %v", 3, r[3], n[3])
+	case n[4] != r[4]:		t.Fatalf("%v: expected %v but got %v", 4, r[4], n[4])
+	case n[5] != r[5]:		t.Fatalf("%v: expected %v but got %v", 5, r[5], n[5])
+	case n[6] != r[6]:		t.Fatalf("%v: expected %v but got %v", 6, r[6], n[6])
+	case n[7] != r[7]:		t.Fatalf("%v: expected %v but got %v", 7, r[7], n[7])
+	case n[8] != r[8]:		t.Fatalf("%v: expected %v but got %v", 8, r[8], n[8])
+	case n[9] != r[9]:		t.Fatalf("%v: expected %v but got %v", 9, r[9], n[9])
 	}
 }
 
-func TestSlicePipe(t *testing.T) {
-	b, s := initSliceTest()
+func TestISlicePipe(t *testing.T) {
+	b, s := initISliceTest()
 	i := 0
 	c := s.Pipe(func(x interface{}) (r interface{}) {
 		r = i * x.(int)
@@ -335,19 +330,19 @@ func TestSlicePipe(t *testing.T) {
 		return 
 	})
 	n := []int{}
-	for x := range c {
-		n = append(n, x.(int))
-	}
+	for x := range c { n = append(n, x.(int)) }
+	r := []int{}
+	for _, x := range b { r = append(r, x.(int) * x.(int)) }
 	switch {
-	case n[0] != b[0] * b[0]:		t.Fatalf("%v: expected %v but got %v", 0, b[0] * b[0], n[0])
-	case n[1] != b[1] * b[1]:		t.Fatalf("%v: expected %v but got %v", 1, b[1] * b[1], n[1])
-	case n[2] != b[2] * b[2]:		t.Fatalf("%v: expected %v but got %v", 2, b[2] * b[2], n[2])
-	case n[3] != b[3] * b[3]:		t.Fatalf("%v: expected %v but got %v", 3, b[3] * b[3], n[3])
-	case n[4] != b[4] * b[4]:		t.Fatalf("%v: expected %v but got %v", 4, b[4] * b[4], n[4])
-	case n[5] != b[5] * b[5]:		t.Fatalf("%v: expected %v but got %v", 5, b[5] * b[5], n[5])
-	case n[6] != b[6] * b[6]:		t.Fatalf("%v: expected %v but got %v", 6, b[6] * b[6], n[6])
-	case n[7] != b[7] * b[7]:		t.Fatalf("%v: expected %v but got %v", 7, b[7] * b[7], n[7])
-	case n[8] != b[8] * b[8]:		t.Fatalf("%v: expected %v but got %v", 8, b[8] * b[8], n[8])
-	case n[9] != b[9] * b[9]:		t.Fatalf("%v: expected %v but got %v", 9, b[9] * b[9], n[9])
+	case n[0] != r[0]:		t.Fatalf("%v: expected %v but got %v", 0, r[0], n[0])
+	case n[1] != r[1]:		t.Fatalf("%v: expected %v but got %v", 1, r[1], n[1])
+	case n[2] != r[2]:		t.Fatalf("%v: expected %v but got %v", 2, r[2], n[2])
+	case n[3] != r[3]:		t.Fatalf("%v: expected %v but got %v", 3, r[3], n[3])
+	case n[4] != r[4]:		t.Fatalf("%v: expected %v but got %v", 4, r[4], n[4])
+	case n[5] != r[5]:		t.Fatalf("%v: expected %v but got %v", 5, r[5], n[5])
+	case n[6] != r[6]:		t.Fatalf("%v: expected %v but got %v", 6, r[6], n[6])
+	case n[7] != r[7]:		t.Fatalf("%v: expected %v but got %v", 7, r[7], n[7])
+	case n[8] != r[8]:		t.Fatalf("%v: expected %v but got %v", 8, r[8], n[8])
+	case n[9] != r[9]:		t.Fatalf("%v: expected %v but got %v", 9, r[9], n[9])
 	}
 }

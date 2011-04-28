@@ -12,6 +12,8 @@ GOFILES=\
 	map.go\
 	channel.go\
 	reslice.go\
-	runtime.go
+	runtime.go\
+	intmap.go\
+	islice.go
 
 include $(GOROOT)/src/Make.pkg

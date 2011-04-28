@@ -3,18 +3,27 @@ package raw
 import "reflect"
 import "unsafe"
 
+func sliceHeaderFromValue(v reflect.Value) (s *reflect.SliceHeader) {
+	switch v.Kind() {
+	case reflect.Slice:						if !v.CanAddr() {
+												x := reflect.New(v.Type()).Elem()
+												x.Set(v)
+												v = x
+											}
+											s = (*reflect.SliceHeader)(unsafe.Pointer(v.UnsafeAddr()))
+	case reflect.Ptr, reflect.Interface:	s = sliceHeaderFromValue(v.Elem())
+	}
+	return
+}
+
 func SliceHeader(i interface{}) (Header *reflect.SliceHeader, ElementSize, ElementAlignment int) {
-	switch value := reflect.NewValue(i); value.Kind() {
-	case reflect.Slice:			Header = (*reflect.SliceHeader)(unsafe.Pointer(value.UnsafeAddr()))
-								ElementType := value.Type().Elem()
-								ElementSize = int(ElementType.Size())
-								ElementAlignment = ElementType.Align()
-
-	case reflect.Invalid:		panic(i)
-
-	case reflect.Interface:		Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
-
-	case reflect.Ptr:			Header, ElementSize, ElementAlignment = SliceHeader(value.Elem())
+	value := reflect.ValueOf(i)
+	if Header = sliceHeaderFromValue(value); Header != nil {
+		ElementType := value.Type().Elem()
+		ElementSize = int(ElementType.Size())
+		ElementAlignment = ElementType.Align()
+	} else {
+		panic(i)
 	}
 	return
 }

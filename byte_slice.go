@@ -11,8 +11,8 @@ var _BYTE_SLICE reflect.Type
 var _STRING		reflect.Type
 
 func init() {
-	_BYTE_SLICE = reflect.Typeof([]byte(nil))
-	_STRING = reflect.Typeof("")
+	_BYTE_SLICE = reflect.TypeOf([]byte(nil))
+	_STRING = reflect.TypeOf("")
 }
 
 /*
@@ -45,7 +45,7 @@ func ByteSlice(i interface{}) []byte {
 	*/
 	var header *reflect.SliceHeader
 
-	switch value := reflect.NewValue(i); value.Kind() {
+	switch value := reflect.ValueOf(i); value.Kind() {
 	case reflect.Invalid:			return []byte{}
 	case reflect.Map:				panic(i)
 	case reflect.Chan:				panic(i)

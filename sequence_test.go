@@ -32,14 +32,14 @@ func TestQueue(t *testing.T) {
 	}
 	r.(Deque).Append(20)
 	switch {
-	case r.Len() != 10:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
+	case r.Len() != 10:			t.Fatalf(SHOULD_HAVE_LENGTH, 10, r.Len())
 	case s.At(1) != r.At(0):	t.Fatalf(SHOULD_MATCH, 1, 0, s.At(1), r.At(0))
 	case r.At(9) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(9))
 	}
 	x, r = PopFirst(r)
 	switch {
 	case x != 1:				t.Fatalf(HAS_VALUE, 1, x)
-	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 8, r.Len())
+	case r.Len() != 9:			t.Fatalf(SHOULD_HAVE_LENGTH, 9, r.Len())
 	case s.At(2) != r.At(0):	t.Fatalf(SHOULD_MATCH, 2, 0, s.At(2), r.At(0))
 	case r.At(8) != 20:			t.Fatalf(HAS_VALUE, 20, r.At(8))
 	}

@@ -8,13 +8,21 @@ type Slice struct {
 	reflect.Value
 }
 
-func NewSlice(i interface{}) (s *Slice) {
-	if v := reflect.NewValue(i); v.Kind() == reflect.Slice {
-		s = &Slice{ v }
-	} else {
-		s = NewSlice(v.Elem())
+func newSliceFromValue(v reflect.Value) (s *Slice) {
+	switch v.Kind() {
+	case reflect.Slice:						if !v.CanAddr() {
+												x := reflect.New(v.Type()).Elem()
+												x.Set(v)
+												v = x
+											}
+											s = &Slice{ v }
+	case reflect.Ptr, reflect.Interface:	s = newSliceFromValue(v.Elem())
 	}
 	return
+}
+
+func NewSlice(i interface{}) (s *Slice) {
+	return newSliceFromValue(reflect.ValueOf(i))
 }
 
 func (s *Slice) New(length, capacity int) Sequence {
@@ -25,6 +33,19 @@ func (s *Slice) Blit(destination, source, count int) {
 	reflect.Copy(s.Slice(destination, destination + count), s.Slice(source, source + count))
 }
 
+func (s *Slice) setValue(v reflect.Value) {
+	if !s.CanAddr() {
+		x := reflect.New(s.Type()).Elem()
+		x.Set(s.Value)
+		s.Value = x
+	}
+	s.Value = v
+}
+
+func (s *Slice) Set(i interface{}) {
+	s.setValue(reflect.ValueOf(i))
+}
+
 func (s *Slice) Overwrite(offset int, source interface{}) {
 	switch source := source.(type) {
 	case *Slice:		s.Overwrite(offset, *source)
@@ -33,7 +54,7 @@ func (s *Slice) Overwrite(offset int, source interface{}) {
 						} else {
 							reflect.Copy(s.Slice(offset, s.Len()), source.Value)
 						}
-	default:			switch v := reflect.NewValue(source); v.Kind() {
+	default:			switch v := reflect.ValueOf(source); v.Kind() {
 						case reflect.Slice:		s.Overwrite(offset, NewSlice(source))
 						default:				s.Store(offset, v.Interface())
 						}
@@ -42,11 +63,11 @@ func (s *Slice) Overwrite(offset int, source interface{}) {
 
 func (s *Slice) Append(i interface{}) {
 	switch v := i.(type) {
-	case *Slice:		s.Value.Set(reflect.AppendSlice(s.Value, v.Value))
-	case Slice:			s.Value.Set(reflect.AppendSlice(s.Value, v.Value))
-	default:			switch v := reflect.NewValue(i); v.Kind() {
-						case reflect.Slice:		s.Value.Set(reflect.AppendSlice(s.Value, v))
-						default:				s.Value.Set(reflect.Append(s.Value, v))
+	case *Slice:		s.Append(*v)
+	case Slice:			s.setValue(reflect.AppendSlice(s.Value, v.Value))
+	default:			switch v := reflect.ValueOf(i); v.Kind() {
+						case reflect.Slice:		s.setValue(reflect.AppendSlice(s.Value, v))
+						default:				s.setValue(reflect.Append(s.Value, v))
 						}
 	}
 }
@@ -57,25 +78,20 @@ func (s *Slice) Prepend(i interface{}) {
 	case Slice:			n := s.New(s.Len() + v.Len(), s.Len() + v.Len()).(*Slice)
 						n.Overwrite(0, v)
 						n.Overwrite(v.Len(), s)
-						s.Value.Set(n.Value)
-	default:			switch v := reflect.NewValue(i); v.Kind() {
+						s.setValue(n.Value)
+	default:			switch v := reflect.ValueOf(i); v.Kind() {
 						case reflect.Slice:
 							n := s.New(s.Len() + v.Len(), v.Len() + s.Len()).(*Slice)
 							n.Overwrite(0, NewSlice(i))
 							n.Overwrite(v.Len(), s)
-							s.Value.Set(n.Value)
+							s.setValue(n.Value)
 						default:
 							n := s.New(s.Len() + 1, s.Len() + 1).(*Slice)
 							n.Overwrite(0, i)
 							n.Overwrite(1, s)
-							s.Value.Set(n.Value)
+							s.setValue(n.Value)
 						}
 	}
-}
-
-// Returns the runtime type of the elements contained within the Slice.
-func (s *Slice) ElementType() reflect.Type {
-	return s.Type().Elem()
 }
 
 func (s *Slice) At(i int) interface{} {
@@ -83,7 +99,7 @@ func (s *Slice) At(i int) interface{} {
 }
 
 func (s *Slice) Store(i int, value interface{}) {
-	s.Index(i).Set(reflect.NewValue(value))
+	s.Index(i).Set(reflect.ValueOf(value))
 }
 
 func (s *Slice) Repeat(count int) *Slice {

@@ -2,10 +2,6 @@ package raw
 
 import "testing"
 
-func TestCompatible(t *testing.T) {
-	t.Fatal(NO_TESTS)
-}
-
 func TestCopy(t *testing.T) {
 	SHOULD_MATCH := "Slice elements s[%v] and copy[%v] should match but are %v and %v"
 
@@ -131,13 +127,13 @@ func TestCollect(t *testing.T) {
 	}
 }
 
-func TestInject(t *testing.T) {
+func TestReduce(t *testing.T) {
 	_, s := initSliceTest()
-	r := Inject(s, 0, func(memo, x interface{}) interface{} {
+	r := Reduce(s, 0, func(memo, x interface{}) interface{} {
 		return memo.(int) + x.(int)
 	})
 	switch {
-	case r == nil:				t.Fatal("Inject() returned a nil value")
+	case r == nil:				t.Fatal("Reduce() returned a nil value")
 	case r != 45:				t.Fatalf("r should be 45 but is %v", r)
 	}
 }

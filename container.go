@@ -4,27 +4,10 @@ import "reflect"
 
 type Container interface {
 	Len() int
-	Type() reflect.Type
-	ElementType() reflect.Type
 }
 
 type Enumerable interface {
 	Each(func(x interface{})) int
-}
-
-func Compatible(l, r Container) (b bool) {
-	switch l := l.(type) {
-	case Sequence:
-		if r, ok := r.(Sequence); ok {
-			b = l.ElementType() == r.ElementType()
-		}
-
-	case Mapping:
-		if r, ok := r.(Mapping); ok {
-			b = l.KeyType() == r.KeyType() && l.ElementType() == r.ElementType()
-		}
-	}
-	return
 }
 
 func Copy(c Container) Container {
@@ -46,7 +29,7 @@ func Copy(c Container) Container {
 }
 
 func MakeBlank(c Container) interface{} {
-	return reflect.Zero(c.ElementType()).Interface()
+	return reflect.Zero(c.(Typed).Type().Elem()).Interface()
 }
 
 func SwapElements(c Container, left, right interface{}) {
@@ -86,7 +69,7 @@ func Cycle(c Container, count int, f func(x interface{})) (i int) {
 }
 
 func Collect(c Container, f func(x interface{}) interface{}) (s Sequence) {
-	s = &Slice{ reflect.MakeSlice(c.Type(), c.Len(), c.Len()) }
+	s = &Slice{ reflect.MakeSlice(c.(Typed).Type(), c.Len(), c.Len()) }
 	i := 0
 	Each(c, func(x interface{}) {
 		s.Store(i, f(x))
@@ -95,7 +78,7 @@ func Collect(c Container, f func(x interface{}) interface{}) (s Sequence) {
 	return
 }
 
-func Inject(c Container, seed interface{}, f func(memo, x interface{}) interface{}) (r interface{}) {
+func Reduce(c Container, seed interface{}, f func(memo, x interface{}) interface{}) (r interface{}) {
 	r = seed
 	Each(c, func(x interface{}) {
 		r = f(r, x)
@@ -184,7 +167,6 @@ func Most(c Container, f func(x interface{}) bool) bool {
 func Combine(left, right Container, f func(x, y interface{}) interface{}) (c Container) {
 	defer Catch()
 
-	if !Compatible(left, right) { Throw() }
 	switch left := left.(type) {
 	case Sequence:
 		right := right.(Sequence)

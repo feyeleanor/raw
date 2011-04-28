@@ -4,7 +4,6 @@ type Sequence interface {
 	Container
 	New(length, capacity int) Sequence
 	Cap() int
-	SetLen(l int)
 	At(i int) interface{}
 	Store(i int, x interface{})
 	Section(start, end int) Sequence
