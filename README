@@ -10,7 +10,7 @@ Just to reiterate: MISUSE WILL RESULT IN MEMORY CORRUPTION.
 
 RAW is dual-licensed.
 
-The library can be included in your project as "Random Access Woe" under a standard BSD license.
+The library can be included in your project as "Random Access Woe" under the BSD-derived license in LICENSE.
 
 "Read it And Weep" is the closed-source variant of the library. It is in all particulars identical to the open-source
 version but requires a commercial usage license and in the process hides your shame for abusing Go in this manner.
