@@ -4,10 +4,6 @@ import "reflect"
 
 type IntMap map[int]interface{}
 
-func (i IntMap) New() Mapping {
-	return make(IntMap)
-}
-
 func (i IntMap) Len() int {
 	return len(i)
 }
@@ -28,7 +24,7 @@ func (i IntMap) CopyElement(destination, source interface{}) {
 	i[destination.(int)] = i[source.(int)]
 }
 
-func (i IntMap) Keys() Sequence {
+func (i IntMap) Keys() interface{} {
 	return NewSlice(NewMap(i).MapKeys())
 }
 
@@ -41,7 +37,7 @@ func (i IntMap) Each(f func(v interface{})) (count int) {
 }
 
 func (i IntMap) Collect(f func(x interface{}) interface{}) (r IntMap) {
-	r = i.New().(IntMap)
+	r = make(IntMap)
 	for k, v := range i {
 		r[k] = f(v).(int)
 	}

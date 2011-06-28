@@ -28,10 +28,6 @@ func TestNewMap(t *testing.T) {
 	}
 }
 
-func TestMapNew(t *testing.T) {
-	t.Log(NO_TESTS)
-}
-
 func TestMapCopyElement(t *testing.T) {
 	b, m := initMapTest()
 	m.CopyElement(1, 3)
@@ -61,7 +57,6 @@ func TestMapCollect(t *testing.T) {
 		return i.(int) * 2
 	})
 	switch {
-	case r == nil:				t.Fatal("Collect() returned a nil value")
 	case r.Len() != len(b):		t.Fatalf("capacity should be %v but is %v", len(b), r.Len())
 	case m.At(0) != 0:			t.Fatalf(INCORRECT_VALUE, 0, m.At(0))
 	case m.At(1) != 1:			t.Fatalf(INCORRECT_VALUE, 1, m.At(1))

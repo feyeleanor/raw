@@ -46,32 +46,29 @@ func ByteSlice(i interface{}) []byte {
 	var header *reflect.SliceHeader
 
 	switch value := reflect.ValueOf(i); value.Kind() {
-	case reflect.Invalid:			return []byte{}
-	case reflect.Map:				panic(i)
-	case reflect.Chan:				panic(i)
-	case reflect.Interface:			return ByteSlice(value.Elem())
+	case reflect.Slice:						h, s, _ := SliceHeader(i)
+											header = Scale(h, s, 1)
 
-	case reflect.Ptr:				if value := value.Elem(); value.IsValid() {
-										size := int(value.Type().Size())
-										header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
-									} else {
-										return ByteSlice(nil)
-									}
+	case reflect.String:					s := value.String()
+											stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+											header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
 
-	case reflect.Slice:				h, s, _ := SliceHeader(i)
-									header = Scale(h, s, 1)
+	case reflect.Interface, reflect.Ptr:	header = valueHeader(value.Elem())
 
-	case reflect.String:			s := value.String()
-									stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
-									header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
-
-	default:						//	For every other type the value gives us an address for the data
-									//	Given this and the size of the underlying allocated memory we can
-									//	then create a []byte sliceheader and return a valid slice
-									size := int(value.Type().Size())
-									header = &reflect.SliceHeader{ value.UnsafeAddr(), size, size }
+	default:								//	For every other type the value gives us an address for the data
+											//	Given this and the size of the underlying allocated memory we can
+											//	then create a []byte sliceheader and return a valid slice
+											header = valueHeader(value)
 	}
 	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(header)).([]byte)
+}
+
+func valueHeader(v reflect.Value) (h *reflect.SliceHeader) {
+	if v.IsValid() {
+		size := int(v.Type().Size())
+		h = &reflect.SliceHeader{ v.UnsafeAddr(), size, size }
+	}
+	return
 }
 
 func DataAddress(b []byte) (p unsafe.Pointer) {

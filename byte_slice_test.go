@@ -41,11 +41,7 @@ func TestByteSliceWithByteSlice(t *testing.T) {
 func TestByteSliceWithMap(t *testing.T) {
 	m := make(map[int]int)
 	defer func() {
-		if x := recover(); x != nil {
-			if x != m {
-				t.Fatalf("panic threw wrong type: %v instead of %v", x, m)
-			}
-		} else {
+		if x := recover(); x == nil {
 			t.Fatalf("should have raised a panic")
 		}
 	}()
@@ -55,11 +51,7 @@ func TestByteSliceWithMap(t *testing.T) {
 func TestByteSliceWithChannel(t *testing.T) {
 	c := make(chan int)
 	defer func() {
-		if x := recover(); x != nil {
-			if x != c {
-				t.Fatalf("panic threw wrong type: %v instead of %v", x, c)
-			}
-		} else {
+		if x := recover(); x == nil {
 			t.Fatalf("should have raised a panic")
 		}
 	}()

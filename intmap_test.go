@@ -28,10 +28,6 @@ func TestNewIntMap(t *testing.T) {
 	}
 }
 
-func TestIntMapNew(t *testing.T) {
-	t.Log(NO_TESTS)
-}
-
 func TestIntMapCopyElement(t *testing.T) {
 	b, m := initIntMapTest()
 	m.CopyElement(1, 3)

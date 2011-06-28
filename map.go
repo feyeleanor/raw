@@ -15,10 +15,6 @@ func NewMap(i interface{}) (m *Map) {
 	return
 }
 
-func (m *Map) New() Mapping {
-	return &Map{ reflect.MakeMap(m.Type()) }
-}
-
 func (m *Map) At(k interface{}) (v interface{}) {
 	switch k := k.(type) {
 	case reflect.Value:
@@ -44,7 +40,7 @@ func (m *Map) CopyElement(destination, source interface{}) {
 	m.SetMapIndex(reflect.ValueOf(destination), reflect.ValueOf(source))
 }
 
-func (m *Map) Keys() Sequence {
+func (m *Map) Keys() interface{} {
 	return NewSlice(m.MapKeys())
 }
 
@@ -58,10 +54,9 @@ func (m *Map) Each(f func(v interface{})) (count int) {
 }
 
 //	Create a new Map with identical keys to the existing Map but with values transformed according to a function.
-func (m *Map) Collect(f func(x interface{}) interface{}) (r *Map) {
-	r = m.New().(*Map)
-	keys := m.MapKeys()
-	for _, k := range keys {
+func (m Map) Collect(f func(x interface{}) interface{}) (r Map) {
+	r.Value = reflect.MakeMap(m.Type())
+	for _, k := range m.MapKeys() {
 		r.SetMapIndex(k, reflect.ValueOf(f(m.MapIndex(k).Interface())))
 	}
 	return

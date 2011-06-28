@@ -4,8 +4,6 @@ import "testing"
 
 //func BenchmarkNewIntMap(b *testing.B) {}
 
-//func BenchmarkIntMapNew(b *testing.B) {}
-
 func BenchmarkIntMapAt(b *testing.B) {
 	v := IntMap{ 0: 0 }
 	for i := 0; i < b.N; i++ {

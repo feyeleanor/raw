@@ -4,12 +4,6 @@ import "testing"
 
 //func BenchmarkNewSlice(b *testing.B) {}
 
-//func BenchmarkSliceNew(b *testing.B) {}
-
-//func BenchmarkSliceBlit(b *testing.B) {}
-
-//func BenchmarkSliceOverwrite(b *testing.B) {}
-
 func BenchmarkSliceAppend1x1(b *testing.B) {
 	v := NewSlice([]int{ 0: 0 })
 	for i := 0; i < b.N; i++ {
@@ -52,8 +46,6 @@ func BenchmarkSliceAppend1x1000(b *testing.B) {
 		NewSlice([]int{ 0: 0 }).Append(v)
 	}
 }
-
-//func BenchmarkSlicePrepend(b *testing.B) {}
 
 func BenchmarkSliceAt(b *testing.B) {
 	v := NewSlice([]int{ 0 })
@@ -192,10 +184,6 @@ func BenchmarkSliceRepeat100x1000(b *testing.B) {
 		_ = v.Repeat(1000)
 	}
 }
-
-//func BenchmarkSliceSection(b *testing.B) {}
-
-//func BenchmarkSliceReallocate(b *testing.B) {}
 
 //func BenchmarkSliceFeed(b *testing.B) {}
 

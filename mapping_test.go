@@ -23,29 +23,3 @@ func TestMerge(t *testing.T) {
 	case m.At(19) != n.At(19):	t.Fatalf(SHOULD_MATCH, 19, 19, m.At(19), n.At(19))
 	}
 }
-
-func TestDelete(t *testing.T) {
-	SHOULD_MATCH := "Map element m[%v] should be %v but is %v"
-
-	m := NewMap(map[int]int{ 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9 })
-	Delete(m, 2)
-	Delete(m, 5)
-
-	switch keys := m.Keys(); {
-	case m.Len() == 8:		t.Fatalf("Map length should be %v not %v", 8, m.Len())
-	case m.At(0) != 0:		t.Fatalf(SHOULD_MATCH, 0, 0, m.At(0))
-	case m.At(1) != 1:		t.Fatalf(SHOULD_MATCH, 1, 1, m.At(1))
-	case m.At(2) != 0:		t.Fatalf(SHOULD_MATCH, 2, 0, m.At(2))
-	case m.At(3) != 3:		t.Fatalf(SHOULD_MATCH, 3, 3, m.At(3))
-	case m.At(4) != 4:		t.Fatalf(SHOULD_MATCH, 4, 4, m.At(4))
-	case m.At(5) != 0:		t.Fatalf(SHOULD_MATCH, 5, 0, m.At(5))
-	case m.At(6) != 6:		t.Fatalf(SHOULD_MATCH, 6, 6, m.At(6))
-	case m.At(7) != 7:		t.Fatalf(SHOULD_MATCH, 7, 7, m.At(7))
-	case m.At(8) != 8:		t.Fatalf(SHOULD_MATCH, 8, 8, m.At(8))
-	case m.At(9) != 9:		t.Fatalf(SHOULD_MATCH, 9, 9, m.At(9))
-	case keys.Len() == 8:	t.Fatalf("Map keys length should be %v not %v", 8, keys.Len())
-	default:				if x := 0; Any(keys, func(x interface{}) bool { return x == 2 || x == 4 }) {
-								t.Fatalf("Should not contain key %v", x)
-							}
-	}
-}
