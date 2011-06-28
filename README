@@ -28,9 +28,6 @@ certain system programming tasks can be very useful. In particular it facilitate
 language runtimes and any number of related tricks such as polymorphic variables, mixed-content arrays and binary
 data marshalling.
 
-RAW also currently includes a wrapper for a reflected aggregation type representing Channels. This will soon be
-moving to a more appropriate package.
-
 Documentation is currently sparse but will improve over time. I have tried to keep nomenclature clear to assist with
 figuring our how the library should be used and there are also extensive tests which demonstrate all of the library
 types and their methods in use.

@@ -3,9 +3,8 @@ include $(GOROOT)/src/Make.inc
 TARG=raw
 
 GOFILES=\
+	runtime.go\
 	byte_slice.go\
-	channel.go\
-	reslice.go\
-	runtime.go
+	reslice.go
 
 include $(GOROOT)/src/Make.pkg
