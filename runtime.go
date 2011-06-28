@@ -4,14 +4,25 @@ import "fmt"
 import "reflect"
 import "unsafe"
 
+
 func Throw() {
 	panic(nil)
 }
 
-func Catch() {
-	if x := recover(); x != nil {
-		panic(x)
-	}
+func Catch(f func()) {
+	defer func() {
+		if x := recover(); x != nil {
+			panic(x)
+		}
+	}()
+	f()
+}
+
+func CatchAll(f func()) {
+	defer func() {
+		recover()
+	}()
+	f()
 }
 
 type Typed interface {
