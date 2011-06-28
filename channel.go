@@ -2,6 +2,8 @@ package raw
 
 import "reflect"
 
+var StandardChannelBuffer	int		= 16
+
 func WaitFor(f func()) {
 	done := make(chan bool)
 	go func() {

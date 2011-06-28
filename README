@@ -22,16 +22,14 @@ Further details of commercial license costs are available from the author on req
 RAW is a high-level interface to Go's unsafe and reflection packages, designed to ease both generic programming and
 low-level memory access.
 
-RAW allows any type with identifiable contiguous memory allocation can be converted to a byte slice which can then
+RAW allows any type with identifiable contiguous memory allocation to be converted to a byte slice which can then
 be manipulated using many of the standard IO interfaces provided by the core library. This is very unsafe but for
-certain system programming tasks can be desirable. In particular is facilitates the sharing of memory buffers with
+certain system programming tasks can be very useful. In particular it facilitates the sharing of memory buffers with
 language runtimes and any number of related tricks such as polymorphic variables, mixed-content arrays and binary
 data marshalling.
 
-RAW also includes wrappers for the reflected aggregation types representing Slices, Maps and Channels. By defining a
-series of interfaces which abstract their component behaviours along with concrete implementations based upon the
-reflection values it becomes possible to interchange user defined and reflected types in code without needing the
-usual boilerplate.
+RAW also currently includes a wrapper for a reflected aggregation type representing Channels. This will soon be
+moving to a more appropriate package.
 
 Documentation is currently sparse but will improve over time. I have tried to keep nomenclature clear to assist with
 figuring our how the library should be used and there are also extensive tests which demonstrate all of the library

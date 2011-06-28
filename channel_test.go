@@ -3,6 +3,11 @@ package raw
 import "reflect"
 import "testing"
 
+const(
+	NO_TESTS				string = "Tests yet to be implemented"
+	FURTHER_TESTS_NEEDED	string = "Add further test filters"
+)
+
 func initChannelTest() (b chan int, c *Channel) {
 	b = make(chan int, 16)
 	go func() {
@@ -54,18 +59,6 @@ func TestChannelDirection(t *testing.T) {
 	}
 }
 
-func TestChannelEach(t *testing.T) {
-	_, c := initChannelTest()
-	sum := 0
-	count := c.Each(func(i interface{}) {
-		sum += i.(int)
-	})
-	switch {
-	case count != 10:				t.Fatalf("Item count should be 10 and not %v", count)
-	case sum != 45:					t.Fatalf("Sum should be 45 and not %v", sum)
-	}
-}
-
 func TestChannelFirst(t *testing.T) {
 	b, c := initChannelTest()
 	s := []int{}
@@ -77,59 +70,3 @@ func TestChannelFirst(t *testing.T) {
 	case c.Len() != len(b):			t.Fatalf("Channel length should be %v not %v", len(b), c.Len())
 	}
 }
-
-/*
-func TestChannelFeed(t *testing.T) {
-	_, c := initChannelTest()
-	o := make(chan interface{})
-	i := 0
-	c.Feed(o, func(x interface{}) (r interface{}) {
-		r = i * x.(int)
-		i++
-		return
-	})
-	n := []int{}
-	MakeChannel(o).First(10, func(x interface{}) {
-		n = append(n, x.(int))
-	})
-	close(o)
-	switch {
-	case n[0] != 0:					t.Fatalf("%v: expected %v but got %v", 0, 0, n[0])
-	case n[1] != 1:					t.Fatalf("%v: expected %v but got %v", 1, 1, n[1])
-	case n[2] != 4:					t.Fatalf("%v: expected %v but got %v", 2, 4, n[2])
-	case n[3] != 9:					t.Fatalf("%v: expected %v but got %v", 3, 9, n[3])
-	case n[4] != 16:				t.Fatalf("%v: expected %v but got %v", 4, 16, n[4])
-	case n[5] != 25:				t.Fatalf("%v: expected %v but got %v", 5, 25, n[5])
-	case n[6] != 36:				t.Fatalf("%v: expected %v but got %v", 6, 36, n[6])
-	case n[7] != 49:				t.Fatalf("%v: expected %v but got %v", 7, 49, n[7])
-	case n[8] != 64:				t.Fatalf("%v: expected %v but got %v", 8, 64, n[8])
-	case n[9] != 81:				t.Fatalf("%v: expected %v but got %v", 9, 81, n[9])
-	}
-}
-
-func TestChannelPipe(t *testing.T) {
-	_, c := initChannelTest()
-	i := 0
-	o := c.Pipe(func(x interface{}) (r interface{}) {
-		r = i * x.(int)
-		i++
-		return 
-	})
-	n := []int{}
-	for x := range o {
-		n = append(n, x.(int))
-	}
-	switch {
-	case n[0] != 0:					t.Fatalf("%v: expected %v but got %v", 0, 0, n[0])
-	case n[1] != 1:					t.Fatalf("%v: expected %v but got %v", 1, 1, n[1])
-	case n[2] != 4:					t.Fatalf("%v: expected %v but got %v", 2, 4, n[2])
-	case n[3] != 9:					t.Fatalf("%v: expected %v but got %v", 3, 9, n[3])
-	case n[4] != 16:				t.Fatalf("%v: expected %v but got %v", 4, 16, n[4])
-	case n[5] != 25:				t.Fatalf("%v: expected %v but got %v", 5, 25, n[5])
-	case n[6] != 36:				t.Fatalf("%v: expected %v but got %v", 6, 36, n[6])
-	case n[7] != 49:				t.Fatalf("%v: expected %v but got %v", 7, 49, n[7])
-	case n[8] != 64:				t.Fatalf("%v: expected %v but got %v", 8, 64, n[8])
-	case n[9] != 81:				t.Fatalf("%v: expected %v but got %v", 9, 81, n[9])
-	}
-}
-*/
