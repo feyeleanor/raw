@@ -55,12 +55,12 @@ func TestSliceHeaderUintptr(t *testing.T) {
 
 func TestSliceHeaderInterface(t *testing.T) {
 	t.Log("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
-/*	slice := []interface{}{ 0, 1, 2, 3, 4, 5 }
-	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
-	if m := MatchHeaders(INTERFACE, slice, header); m != nil {
-		t.Fatal(m)
-	}
-*/}
+//	slice := []interface{}{ 0, 1, 2, 3, 4, 5 }
+//	header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+//	if m := MatchHeaders(INTERFACE, slice, header); m != nil {
+//		t.Fatal(m)
+//	}
+}
 
 func TestSliceHeaderBool(t *testing.T) {
 	slice := []bool{ true, false, true, false, false, true }

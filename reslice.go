@@ -21,7 +21,7 @@ func SliceHeader(i interface{}) (Header *reflect.SliceHeader, ElementSize, Eleme
 	if Header = sliceHeaderFromValue(value); Header != nil {
 		ElementType := value.Type().Elem()
 		ElementSize = int(ElementType.Size())
-		ElementAlignment = ElementType.Align()
+		ElementAlignment = int(ElementType.Align())
 	} else {
 		panic(i)
 	}

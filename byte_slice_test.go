@@ -104,7 +104,7 @@ func TestByteSliceWithStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	buf := ByteSlice(&point)
 
-	size := unsafe.Sizeof(point)
+	size := int(unsafe.Sizeof(point))
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -124,7 +124,7 @@ func TestByteSliceWithStructPointer(t *testing.T) {
 	point := &Point{ 3, 4, 5 }
 	buf := ByteSlice(point)
 
-	size := unsafe.Sizeof(*point)
+	size := int(unsafe.Sizeof(*point))
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -150,7 +150,7 @@ func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	tag := &TaggedPoint{ point, "this is a tag" }
 	buf := ByteSlice(tag)
 
-	size := unsafe.Sizeof(*tag)
+	size := int(unsafe.Sizeof(*tag))
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
@@ -177,7 +177,7 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 	tag := &TaggedPointReference{ &point, "this is a tag" }
 	buf := ByteSlice(tag)
 
-	size := unsafe.Sizeof(*tag)
+	size := int(unsafe.Sizeof(*tag))
 	if len(buf) != size {
 		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
 	}
