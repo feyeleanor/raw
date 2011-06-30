@@ -4,6 +4,15 @@ import "fmt"
 import "reflect"
 import "unsafe"
 
+func MakeAddressable(value reflect.Value) reflect.Value {
+	if !value.CanAddr() {
+		ptr := reflect.New(value.Type()).Elem()
+		ptr.Set(value)
+		value = ptr
+	}
+	return value
+}
+
 type Typed interface {
 	Type() reflect.Type
 }

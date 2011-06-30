@@ -2,6 +2,10 @@ package raw
 
 import "testing"
 
+func TestMakeAddressable(t *testing.T) {
+	t.Fatal()
+}
+
 func TestCompatible(t *testing.T) {
 	ConfirmCompatible := func(l, r interface{}) {
 		switch {
