@@ -2,9 +2,9 @@ package raw
 
 import "testing"
 
-func TestMakeAddressable(t *testing.T) {
-	t.Fatal()
-}
+func TestConcreteValue(t *testing.T) {t.Fatal() }
+func TestMakeAddressable(t *testing.T) { t.Fatal() }
+func TestAssign(t *testing.T) { t.Fatal() }
 
 func TestCompatible(t *testing.T) {
 	ConfirmCompatible := func(l, r interface{}) {

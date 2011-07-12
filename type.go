@@ -4,6 +4,11 @@ import "fmt"
 import "reflect"
 import "unsafe"
 
+func ConcreteValue(value interface{}) (r reflect.Value) {
+	for r = reflect.ValueOf(value); r.Kind() == reflect.Ptr; r = reflect.Indirect(r) {}
+	return
+}
+
 func MakeAddressable(value reflect.Value) reflect.Value {
 	if !value.CanAddr() {
 		ptr := reflect.New(value.Type()).Elem()
@@ -11,6 +16,11 @@ func MakeAddressable(value reflect.Value) reflect.Value {
 		value = ptr
 	}
 	return value
+}
+
+func Assign(location, value reflect.Value) {
+	location = MakeAddressable(location)
+	location.Set(value)
 }
 
 type Typed interface {
