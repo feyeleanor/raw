@@ -1,7 +1,6 @@
 package raw
 
 import "fmt"
-import "os"
 import "reflect"
 import "testing"
 import "unsafe"
@@ -12,11 +11,11 @@ type HeaderMismatch struct{
 	x, y, z			interface{}
 }
 
-func (h HeaderMismatch) String() string {
+func (h HeaderMismatch) Error() string {
 	return fmt.Sprintf(h.message, h.x, h.y, h.z)
 }
 
-func MatchHeaders(b BasicType, slice interface{}, header reflect.SliceHeader) (e os.Error) {
+func MatchHeaders(b BasicType, slice interface{}, header reflect.SliceHeader) (e error) {
 	h, s, al := SliceHeader(slice)
 	switch {
 	case s != b.size:			e = HeaderMismatch{ "%v: slice element size should be %v not %v", b.name, b.size, s }
