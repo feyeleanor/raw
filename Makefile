@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=raw
+TARG=github.com/tones111/raw
 
 GOFILES=\
 	type.go\
