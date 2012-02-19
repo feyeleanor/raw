@@ -1,8 +1,10 @@
 package raw
 
-import "fmt"
-import "reflect"
-import "unsafe"
+import (
+	"fmt"
+	"reflect"
+	"unsafe"
+)
 
 func ConcreteValue(value interface{}) (r reflect.Value) {
 	for r = reflect.ValueOf(value); r.Kind() == reflect.Ptr; r = reflect.Indirect(r) {}

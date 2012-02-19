@@ -1,7 +1,9 @@
 package raw
 
-import "reflect"
-import "unsafe"
+import (
+	"reflect"
+	"unsafe"
+)
 
 func sliceHeaderFromValue(v reflect.Value) (s *reflect.SliceHeader) {
 	switch v.Kind() {
@@ -38,10 +40,10 @@ func Scale(oldHeader *reflect.SliceHeader, oldElementSize, newElementSize int) (
 	return
 }
 
-func Reslice(slice, sliceType interface{}, elementSize int) interface{} {
+func Reslice(slice interface{}, sliceType reflect.Type, elementSize int) interface{} {
 	b := ByteSlice(slice)
 	h := Scale(&reflect.SliceHeader{ uintptr(DataAddress(b)), len(b), cap(b) }, 1, elementSize)
-	return unsafe.Unreflect(sliceType, unsafe.Pointer(h))
+	return reflect.NewAt(sliceType, unsafe.Pointer(h)).Elem().Interface()
 }
 
 func PointerSlice(i interface{}) []unsafe.Pointer {

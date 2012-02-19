@@ -4,8 +4,11 @@ package raw
 //	THE PACKAGE SHOULD BE INSTALLABLE VIA GOINSTALL
 //	AND NEEDS EXTENSIVE TESTS!!!!
 
-import "reflect"
-import "unsafe"
+import (
+	"reflect"
+	"unsafe"
+)
+
 
 var _BYTE_SLICE reflect.Type
 var _STRING		reflect.Type
@@ -60,7 +63,12 @@ func ByteSlice(i interface{}) []byte {
 											//	then create a []byte sliceheader and return a valid slice
 											header = valueHeader(value)
 	}
-	return unsafe.Unreflect(_BYTE_SLICE, unsafe.Pointer(header)).([]byte)
+
+	bs := reflect.NewAt(_BYTE_SLICE, unsafe.Pointer(header))
+	if !bs.Elem().IsValid() {
+		return []byte{}
+	}
+	return bs.Elem().Interface().([]byte)
 }
 
 func valueHeader(v reflect.Value) (h *reflect.SliceHeader) {

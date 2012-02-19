@@ -1,8 +1,11 @@
 package raw
 
-import "reflect"
-import "testing"
-import "unsafe"
+import (
+	"reflect"
+	"testing"
+	"unsafe"
+)
+
 
 func TestByteSliceWithNil(t *testing.T) {
 	b := ByteSlice(nil)

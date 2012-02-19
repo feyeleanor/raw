@@ -1,9 +1,11 @@
 package raw
 
-import "fmt"
-import "reflect"
-import "testing"
-import "unsafe"
+import (
+	"fmt"
+	"reflect"
+	"testing"
+	"unsafe"
+)
 
 
 type HeaderMismatch struct{
