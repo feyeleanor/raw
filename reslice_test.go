@@ -209,10 +209,15 @@ func TestResliceNil(t *testing.T) {
 func TestReslice(t *testing.T) {
 	b := []byte{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }
 	h, _, _ := SliceHeader(b)
-	h, _, _ = SliceHeader(Reslice(h, INT32.slice_type, INT32.size))
 	switch {
-	case h.Len != len(b) / 4:	t.Fatalf("SliceHeader reslice length should be %v not %v", h.Len, len(b) / 4)
-	case h.Cap != cap(b) / 4:	t.Fatalf("SliceHeader reslice capacity should be %v not %v", h.Cap, cap(b) / 4)
+	case h.Len != len(b):	t.Fatalf("1. SliceHeader reslice length should be %v not %v", h.Len, len(b))
+	case h.Cap != cap(b):	t.Fatalf("1. SliceHeader reslice capacity should be %v not %v", h.Cap, cap(b))
+	}
+
+	s := Reslice(b, INT32.slice_type, INT32.size).([]int32)
+	switch {
+	case len(s) != len(b) / 4:	t.Fatalf("2. SliceHeader reslice length should be %v not %v", len(b) / 4, len(s))
+	case cap(s) != cap(b) / 4:	t.Fatalf("2. SliceHeader reslice capacity should be %v not %v", cap(b) / 4, cap(s))
 	}
 }
 
