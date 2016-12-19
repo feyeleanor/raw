@@ -21,10 +21,7 @@ func FailOnBadBufferSize(f Fatal, good_length, good_capacity bool) {
 
 func FailOnHeaderMismatch(f Fatal, slice unsafe.Pointer, buf []byte) {
 	sliceheader := *(*reflect.SliceHeader)(slice)
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		f.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnAddressMismatch(f, unsafe.Pointer(sliceheader.Data), buf)
 }
 
 func FailOnAddressMismatch(f Fatal, slice unsafe.Pointer, buf []byte) {
