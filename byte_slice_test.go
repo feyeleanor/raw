@@ -97,6 +97,26 @@ func TestByteSliceWithString(t *testing.T) {
 	}
 }
 
+func TestByteSliceWithEmptyStructValue(t *testing.T) {
+	s := struct {}{}
+	buf := ByteSlice(&s)
+
+	size := int(unsafe.Sizeof(struct {}{}))
+	if len(buf) != size {
+		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
+	}
+
+	if cap(buf) != size {
+		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
+	}
+
+	base_address := uintptr(unsafe.Pointer(&s))
+	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	if base_address != bufheader.Data {
+		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
+	}
+}
+
 type Point struct {
 	x			int32
 	y			int32
