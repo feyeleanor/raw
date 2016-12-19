@@ -9,8 +9,8 @@ import (
 
 
 type HeaderMismatch struct{
-	message			string
-	x, y, z			interface{}
+	message	string
+	x, y, z	interface{}
 }
 
 func (h HeaderMismatch) Error() string {
@@ -20,11 +20,16 @@ func (h HeaderMismatch) Error() string {
 func MatchHeaders(b reflect.Type, slice interface{}, header reflect.SliceHeader) (e error) {
 	h, s, al := SliceHeader(slice)
 	switch {
-	case s != int(b.Size()):			e = HeaderMismatch{ "%v: slice element size should be %v not %v", b.Name(), b.Size(), s }
-	case al != b.Align():		e = HeaderMismatch{ "%v: slice element alignment should be %v not %v", b.Name(), b.Align(), al }
-	case h.Data != header.Data:	e = HeaderMismatch{ "%v: slice headers should point to the same memory: %v - %v", b.Name(), h.Data, header.Data }
-	case h.Len != header.Len:	e = HeaderMismatch{ "%v: slice header lengths should be the same: %v - %v", b.Name(), h.Len, header.Len }
-	case h.Cap != header.Cap:	e = HeaderMismatch{ "%v: slice header capacities should be the same: %v - %v", b.Name(), h.Cap, header.Cap }
+	case s != int(b.Size()):
+		e = HeaderMismatch{ "%v: slice element size should be %v not %v", b.Name(), b.Size(), s }
+	case al != b.Align():
+		e = HeaderMismatch{ "%v: slice element alignment should be %v not %v", b.Name(), b.Align(), al }
+	case h.Data != header.Data:
+		e = HeaderMismatch{ "%v: slice headers should point to the same memory: %v - %v", b.Name(), h.Data, header.Data }
+	case h.Len != header.Len:
+		e = HeaderMismatch{ "%v: slice header lengths should be the same: %v - %v", b.Name(), h.Len, header.Len }
+	case h.Cap != header.Cap:
+		e = HeaderMismatch{ "%v: slice header capacities should be the same: %v - %v", b.Name(), h.Cap, header.Cap }
 	}
 	return
 }

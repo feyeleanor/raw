@@ -7,13 +7,15 @@ import (
 
 func sliceHeaderFromValue(v reflect.Value) (s *reflect.SliceHeader) {
 	switch v.Kind() {
-	case reflect.Slice:						if !v.CanAddr() {
-												x := reflect.New(v.Type()).Elem()
-												x.Set(v)
-												v = x
-											}
-											s = (*reflect.SliceHeader)(unsafe.Pointer(v.UnsafeAddr()))
-	case reflect.Ptr, reflect.Interface:	s = sliceHeaderFromValue(v.Elem())
+	case reflect.Slice:
+		if !v.CanAddr() {
+			x := reflect.New(v.Type()).Elem()
+			x.Set(v)
+			v = x
+		}
+		s = (*reflect.SliceHeader)(unsafe.Pointer(v.UnsafeAddr()))
+	case reflect.Ptr, reflect.Interface:
+		s = sliceHeaderFromValue(v.Elem())
 	}
 	return
 }

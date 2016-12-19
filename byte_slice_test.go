@@ -13,12 +13,7 @@ func TestByteSliceWithNil(t *testing.T) {
 		len(buf) == 0,
 		cap(buf) == cap(b),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&b), buf)
 }
 
 func TestByteSliceWithByteSlice(t *testing.T) {
@@ -28,32 +23,15 @@ func TestByteSliceWithByteSlice(t *testing.T) {
 		len(buf) == len(b),
 		cap(buf) == cap(b),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&b), buf)
 }
 
 func TestByteSliceWithMap(t *testing.T) {
-	m := make(map[int]int)
-	defer func() {
-		if x := recover(); x == nil {
-			t.Fatalf("should have raised a panic")
-		}
-	}()
-	ByteSlice(m)
+	FailIfNotCopyable(t, make(map[int] int))
 }
 
 func TestByteSliceWithChannel(t *testing.T) {
-	c := make(chan int)
-	defer func() {
-		if x := recover(); x == nil {
-			t.Fatalf("should have raised a panic")
-		}
-	}()
-	ByteSlice(c)
+	FailIfNotCopyable(t, make(chan int))
 }
 
 func TestByteSliceWithInterface(t *testing.T) {
@@ -66,12 +44,7 @@ func TestByteSliceWithInterface(t *testing.T) {
 		len(buf) == len(b),
 		cap(buf) == cap(b),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&b), buf)
 */}
 
 func TestByteSliceWithString(t *testing.T) {
@@ -81,12 +54,7 @@ func TestByteSliceWithString(t *testing.T) {
 		len(buf) == len(s),
 		cap(buf) == len(s),
 	)
-
-	stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if stringheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", stringheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&s), buf)
 }
 
 func TestByteSliceWithEmptyStructValue(t *testing.T) {
@@ -98,19 +66,10 @@ func TestByteSliceWithEmptyStructValue(t *testing.T) {
 		len(buf) == size,
 		cap(buf) == size,
 	)
-
-	base_address := uintptr(unsafe.Pointer(&s))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if base_address != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
-	}
+	FailOnAddressMismatch(t, unsafe.Pointer(&s), buf)
 }
 
-type Point struct {
-	x			int32
-	y			int32
-	z			int32
-}
+type Point struct { x, y, z int32 }
 
 func TestByteSliceWithStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
@@ -121,12 +80,7 @@ func TestByteSliceWithStructValue(t *testing.T) {
 		len(buf) == size,
 		cap(buf) == size,
 	)
-
-	base_address := uintptr(unsafe.Pointer(&point))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if base_address != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
-	}
+	FailOnAddressMismatch(t, unsafe.Pointer(&point), buf)
 }
 
 func TestByteSliceWithStructPointer(t *testing.T) {
@@ -138,18 +92,10 @@ func TestByteSliceWithStructPointer(t *testing.T) {
 		len(buf) == size,
 		cap(buf) == size,
 	)
-
-	base_address := uintptr(unsafe.Pointer(point))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if base_address != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
-	}
+	FailOnAddressMismatch(t, unsafe.Pointer(point), buf)
 }
 
-type TaggedPoint struct {
-	Point
-	tag			string
-}
+type TaggedPoint struct { Point; tag string }
 
 func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
@@ -161,19 +107,11 @@ func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 		len(buf) == size,
 		cap(buf) == size,
 	)
-
-	base_address := uintptr(unsafe.Pointer(tag))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if base_address != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
-	}
+	FailOnAddressMismatch(t, unsafe.Pointer(tag), buf)
 }
 
 
-type TaggedPointReference struct {
-	*Point
-	tag			string
-}
+type TaggedPointReference struct { *Point; tag string }
 
 func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 	point := Point{ 3, 4, 5 }
@@ -185,12 +123,7 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 		len(buf) == size,
 		cap(buf) == size,
 	)
-
-	base_address := uintptr(unsafe.Pointer(tag))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if base_address != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", base_address, bufheader.Data)
-	}
+	FailOnAddressMismatch(t, unsafe.Pointer(tag), buf)
 }
 
 func TestByteSliceWithInt32Slice(t *testing.T) {
@@ -202,12 +135,7 @@ func TestByteSliceWithInt32Slice(t *testing.T) {
 		len(buf) == is * len(i),
 		cap(buf) == is * cap(i),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&i), buf)
 }
 
 func TestByteSliceWithInt64Slice(t *testing.T) {
@@ -219,16 +147,11 @@ func TestByteSliceWithInt64Slice(t *testing.T) {
 		len(buf) == is * len(i),
 		cap(buf) == is * cap(i),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&i), buf)
 }
 
 func TestByteSliceWithFloat32Slice(t *testing.T) {
-	f := make([]float32, 10, 10)
+	f := make([]float32, 10, 20)
 	buf := ByteSlice(f)
 	fs := int(reflect.TypeOf(f).Elem().Size())
 
@@ -236,16 +159,11 @@ func TestByteSliceWithFloat32Slice(t *testing.T) {
 		len(buf) == fs * len(f),
 		cap(buf) == fs * cap(f),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&f), buf)
 }
 
 func TestByteSliceWithFloat64Slice(t *testing.T) {
-	f := make([]float64, 10, 10)
+	f := make([]float64, 10, 20)
 	buf := ByteSlice(f)
 	fs := int(reflect.TypeOf(f).Elem().Size())
 
@@ -253,37 +171,7 @@ func TestByteSliceWithFloat64Slice(t *testing.T) {
 		len(buf) == fs * len(f),
 		cap(buf) == fs * cap(f),
 	)
-
-	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if sliceheader.Data != bufheader.Data {
-		t.Fatalf("slice addresses don't match: %v != %v", sliceheader.Data, bufheader.Data)
-	}
-}
-
-func ValidateNumericByteSlice(t *testing.T, value interface{}) {
-	var size	int
-	var addr	uintptr
-	var numtype	reflect.Type
-
-	v := reflect.ValueOf(value)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-	size = int(v.Type().Size())
-	addr = v.UnsafeAddr()
-	numtype = v.Type()
-	buf := ByteSlice(value)
-
-	FailOnBadBufferSize(t,
-		len(buf) == size,
-		cap(buf) == size,
-	)
-
-	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	if addr != bufheader.Data {
-		t.Fatalf("%v: addresses don't match: %v != %v", numtype, addr, bufheader.Data)
-	}
+	FailOnHeaderMismatch(t, unsafe.Pointer(&f), buf)
 }
 
 func TestByteSliceWithNumbers(t *testing.T) {

@@ -31,6 +31,7 @@ func ByteSlice(i interface{}) []byte {
 	/*
 		A byteslice is by definition its own buffer.
 		Any type which implements the Buffer interface will generate its result using that method.
+		For nil values we return a buffer to a zero-capacity byte slice.
 	*/
 	switch b := i.(type) {
 	case []byte:					return b
@@ -39,29 +40,29 @@ func ByteSlice(i interface{}) []byte {
 	}
 
 	/*
-		For nil values we return a buffer to a zero-capacity byte slice.
 		There are cerain types which cannot be cast as a buffer and instead raise a panic.
 		In the rare case of the interface itself containing another interface we recursively query.
-		When given a pointer we use its target address and the size of the type it points to construct a SliceHeader.
+		When given a pointer we use its target address and the size of the type it points to to construct a SliceHeader.
 		For SliceValues we can do a simple conversion of the SliceHeader to a byteslice.
 		For StringValues we treat them as a fixed capacity byte slice.
 	*/
 	var header *reflect.SliceHeader
 
 	switch value := reflect.ValueOf(i); value.Kind() {
-	case reflect.Slice:						h, s, _ := SliceHeader(i)
-											header = Scale(h, uintptr(s), 1)
-
-	case reflect.String:					s := value.String()
-											stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
-											header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
-
-	case reflect.Interface, reflect.Ptr:	header = valueHeader(value.Elem())
-
-	default:								//	For every other type the value gives us an address for the data
-											//	Given this and the size of the underlying allocated memory we can
-											//	then create a []byte sliceheader and return a valid slice
-											header = valueHeader(value)
+	case reflect.Slice:
+		h, s, _ := SliceHeader(i)
+		header = Scale(h, uintptr(s), 1)
+	case reflect.String:
+		s := value.String()
+		stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
+		header = &reflect.SliceHeader{ stringheader.Data, stringheader.Len, stringheader.Len }
+	case reflect.Interface, reflect.Ptr:
+		header = valueHeader(value.Elem())
+	default:
+		//	For every other type the value gives us an address for the data
+		//	Given this and the size of the underlying allocated memory we can
+		//	then create a []byte sliceheader and return a valid slice
+		header = valueHeader(value)
 	}
 
 	bs := reflect.NewAt(_BYTE_SLICE, unsafe.Pointer(header))
