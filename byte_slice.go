@@ -50,7 +50,7 @@ func ByteSlice(i interface{}) []byte {
 
 	switch value := reflect.ValueOf(i); value.Kind() {
 	case reflect.Slice:						h, s, _ := SliceHeader(i)
-											header = Scale(h, s, 1)
+											header = Scale(h, uintptr(s), 1)
 
 	case reflect.String:					s := value.String()
 											stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))

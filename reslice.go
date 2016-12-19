@@ -30,7 +30,7 @@ func SliceHeader(i interface{}) (Header *reflect.SliceHeader, ElementSize, Eleme
 	return
 }
 
-func Scale(oldHeader *reflect.SliceHeader, oldElementSize, newElementSize int) (h *reflect.SliceHeader) {
+func Scale(oldHeader *reflect.SliceHeader, oldElementSize, newElementSize uintptr) (h *reflect.SliceHeader) {
 	if oldHeader != nil {
 		s := float64(oldElementSize) / float64(newElementSize)
 		h = &reflect.SliceHeader{ Data: oldHeader.Data }
@@ -40,47 +40,47 @@ func Scale(oldHeader *reflect.SliceHeader, oldElementSize, newElementSize int) (
 	return
 }
 
-func Reslice(slice interface{}, sliceType reflect.Type, elementSize int) interface{} {
+func Reslice(slice interface{}, sliceType reflect.Type) interface{} {
 	b := ByteSlice(slice)
-	h := Scale(&reflect.SliceHeader{ uintptr(DataAddress(b)), len(b), cap(b) }, 1, elementSize)
+	h := Scale(&reflect.SliceHeader{ uintptr(DataAddress(b)), len(b), cap(b) }, 1, sliceType.Elem().Size())
 	return reflect.NewAt(sliceType, unsafe.Pointer(h)).Elem().Interface()
 }
 
 func PointerSlice(i interface{}) []unsafe.Pointer {
-	return Reslice(i, POINTER.slice_type, POINTER.size).([]unsafe.Pointer)
+	return Reslice(i, reflect.SliceOf(POINTER)).([]unsafe.Pointer)
 }
 
 func UintptrSlice(i interface{}) []uintptr {
-	return Reslice(i, UINTPTR.slice_type, UINTPTR.size).([]uintptr)
+	return Reslice(i, reflect.SliceOf(UINTPTR)).([]uintptr)
 }
 
 func InterfaceSlice(i interface{}) []interface{} {
-	return Reslice(i, INTERFACE.slice_type, INTERFACE.size).([]interface{})
+	return Reslice(i, reflect.SliceOf(INTERFACE)).([]interface{})
 }
 
 func BoolSlice(i interface{}) []bool {
-	return Reslice(i, BOOLEAN.slice_type, BOOLEAN.size).([]bool)
+	return Reslice(i, reflect.SliceOf(BOOLEAN)).([]bool)
 }
 
 func IntSlice(i interface{}) []int {
 	if i, ok := i.([]uint); ok {
 		return *(*[]int)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, INT.slice_type, INT.size).([]int)
+	return Reslice(i, reflect.SliceOf(INT)).([]int)
 }
 
 func Int8Slice(i interface{}) []int8 {
 	if i, ok := i.([]uint8); ok {
 		return *(*[]int8)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, INT8.slice_type, INT8.size).([]int8)
+	return Reslice(i, reflect.SliceOf(INT8)).([]int8)
 }
 
 func Int16Slice(i interface{}) []int16 {
 	if i, ok := i.([]uint16); ok {
 		return *(*[]int16)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, INT16.slice_type, INT16.size).([]int16)
+	return Reslice(i, reflect.SliceOf(INT16)).([]int16)
 }
 
 func Int32Slice(i interface{}) []int32 {
@@ -90,7 +90,7 @@ func Int32Slice(i interface{}) []int32 {
 	case []float32:
 		return *(*[]int32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, INT32.slice_type, INT32.size).([]int32)
+	return Reslice(i, reflect.SliceOf(INT32)).([]int32)
 }
 
 func Int64Slice(i interface{}) []int64 {
@@ -100,28 +100,28 @@ func Int64Slice(i interface{}) []int64 {
 	case []float64:
 		return *(*[]int64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, INT64.slice_type, INT64.size).([]int64)
+	return Reslice(i, reflect.SliceOf(INT64)).([]int64)
 }
 
 func UintSlice(i interface{}) []uint {
 	if i, ok := i.([]int); ok {
 		return *(*[]uint)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, UINT.slice_type, UINT.size).([]uint)
+	return Reslice(i, reflect.SliceOf(UINT)).([]uint)
 }
 
 func Uint8Slice(i interface{}) []uint8 {
 	if i, ok := i.([]int8); ok {
 		return *(*[]uint8)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, UINT8.slice_type, UINT8.size).([]uint8)
+	return Reslice(i, reflect.SliceOf(UINT8)).([]uint8)
 }
 
 func Uint16Slice(i interface{}) []uint16 {
 	if i, ok := i.([]int16); ok {
 		return *(*[]uint16)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, UINT16.slice_type, UINT16.size).([]uint16)
+	return Reslice(i, reflect.SliceOf(UINT16)).([]uint16)
 }
 
 func Uint32Slice(i interface{}) []uint32 {
@@ -131,7 +131,7 @@ func Uint32Slice(i interface{}) []uint32 {
 	case []float32:
 		return *(*[]uint32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, UINT32.slice_type, UINT32.size).([]uint32)
+	return Reslice(i, reflect.SliceOf(UINT32)).([]uint32)
 }
 
 func Uint64Slice(i interface{}) []uint64 {
@@ -141,7 +141,7 @@ func Uint64Slice(i interface{}) []uint64 {
 	case []float64:
 		return *(*[]uint64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, UINT64.slice_type, UINT64.size).([]uint64)
+	return Reslice(i, reflect.SliceOf(UINT64)).([]uint64)
 }
 
 func Float32Slice(i interface{}) []float32 {
@@ -151,7 +151,7 @@ func Float32Slice(i interface{}) []float32 {
 	case []uint32:
 		return *(*[]float32)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, FLOAT32.slice_type, FLOAT32.size).([]float32)
+	return Reslice(i, reflect.SliceOf(FLOAT32)).([]float32)
 }
 
 func Float64Slice(i interface{}) []float64 {
@@ -163,7 +163,7 @@ func Float64Slice(i interface{}) []float64 {
 	case []complex64:
 		return *(*[]float64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, FLOAT64.slice_type, FLOAT64.size).([]float64)
+	return Reslice(i, reflect.SliceOf(FLOAT64)).([]float64)
 }
 
 func Complex64Slice(i interface{}) []complex64 {
@@ -175,9 +175,9 @@ func Complex64Slice(i interface{}) []complex64 {
 	case []float64:
 		return *(*[]complex64)(unsafe.Pointer(&i))
 	}
-	return Reslice(i, COMPLEX64.slice_type, COMPLEX64.size).([]complex64)
+	return Reslice(i, reflect.SliceOf(COMPLEX64)).([]complex64)
 }
 
 func Complex128Slice(i interface{}) []complex128 {
-	return Reslice(i, COMPLEX128.slice_type, COMPLEX128.size).([]complex128)
+	return Reslice(i, reflect.SliceOf(COMPLEX128)).([]complex128)
 }

@@ -1,100 +1,50 @@
 package raw
 
 import (
-	"fmt"
 	"reflect"
 	"unsafe"
 )
 
-func ConcreteValue(value interface{}) (r reflect.Value) {
+//	Repeatedly uses *reflect.Indirect* to step through a series of *reflect.Ptr* values
+//	and arrive at the concrete value they point to.
+//
+func DereferenceAll(value interface{}) (r reflect.Value) {
 	for r = reflect.ValueOf(value); r.Kind() == reflect.Ptr; r = reflect.Indirect(r) {}
 	return
 }
 
-func MakeAddressable(value reflect.Value) reflect.Value {
-	if !value.CanAddr() {
+//	Uses reflect.Set to create a copy of an existing value.
+//	This will only work if the value being copied is *settable* according to the language specification.
+//	A struct{} type with unexported fields is never *settable* via reflection.
+//	If the value cannot be copied then nil is returned.
+//
+func Duplicate(value reflect.Value) (r interface{}) {
+	if value.CanSet() {
 		ptr := reflect.New(value.Type()).Elem()
 		ptr.Set(value)
-		value = ptr
-	}
-	return value
-}
-
-func Assign(location, value reflect.Value) {
-	location = MakeAddressable(location)
-	location.Set(value)
-}
-
-type Typed interface {
-	Type() reflect.Type
-}
-
-func Type(v interface{}) (r reflect.Type) {
-	switch v := v.(type) {
-	case Typed:				r = v.Type()
-	default:				r = reflect.TypeOf(v)
+		r = ptr.Interface()
 	}
 	return
-}
-
-func Compatible(l, r interface{}) (b bool) {
-	CatchAll(func() {
-		l, r := Type(l), Type(r)
-		switch {
-		case l.Kind() == reflect.Chan && r.Kind() == reflect.Chan:		b = l.Elem() == r.Elem() && l.ChanDir() == r.ChanDir()
-		case l.Kind() == reflect.Chan, r.Kind() == reflect.Chan:		b = l.Elem() == r.Elem()
-		case l.Kind() == reflect.Map && r.Kind() == reflect.Map:		b = l.Elem() == r.Elem() && l.Key() == r.Key()
-		case l.Kind() == reflect.Map:									b = l.Key() == Type(INT) && l.Elem() == r.Elem()
-		case r.Kind() == reflect.Map:									b = r.Key() == Type(INT) && l.Elem() == r.Elem()
-		default:														b = l.Elem() == r.Elem()
-		}
-	})
-	return
-}
-
-func RegisterType(name string, v, s interface{}) (r BasicType) {
-	r.name = name
-	r._type = reflect.TypeOf(v)
-	r.size = int(r._type.Size())
-	r.alignment = int(r._type.Align())
-	r.slice_type = reflect.TypeOf(s)
-	return
-}
-
-type BasicType struct {
-	_type			reflect.Type
-	name			string
-	size			int
-	alignment		int
-	slice_type		reflect.Type
-}
-
-func (b BasicType) Type() reflect.Type {
-	return b._type
-}
-
-func (b BasicType) String() string {
-	return fmt.Sprintf("%v: %v bytes aligned at %v byte", b.name, b.size, b.alignment)
 }
 
 var _a interface{} = 0
 
-var POINTER		= RegisterType("unsafe.Pointer", unsafe.Pointer(&_a), []unsafe.Pointer{})
-var UINTPTR		= RegisterType("uintptr", uintptr(0), []uintptr{})
-var INTERFACE	= RegisterType("interface{}", _a, []interface{}{})
-var BOOLEAN		= RegisterType("bool", true, []bool{})
-var BYTE		= RegisterType("byte", byte(0), []byte{})
-var INT			= RegisterType("int", int(0), []int{})
-var INT8		= RegisterType("int8", int8(0), []int8{})
-var INT16		= RegisterType("int16", int16(0), []int16{})
-var INT32		= RegisterType("int32", int32(0), []int32{})
-var INT64		= RegisterType("int64", int64(0), []int64{})
-var UINT		= RegisterType("uint", uint(0), []uint{})
-var UINT8		= RegisterType("uint8", uint8(0), []uint8{})
-var UINT16		= RegisterType("uint16", uint16(0), []uint16{})
-var UINT32		= RegisterType("uint32", uint32(0), []uint32{})
-var UINT64		= RegisterType("uint64", uint64(0), []uint64{})
-var FLOAT32		= RegisterType("float32", float32(0.0), []float32{})
-var FLOAT64		= RegisterType("float64", float64(0.0), []float64{})
-var COMPLEX64	= RegisterType("complex64", complex64(0), []complex64{})
-var COMPLEX128	= RegisterType("complex128", complex128(0), []complex128{})
+var POINTER		= reflect.TypeOf(unsafe.Pointer(&_a))
+var UINTPTR		= reflect.TypeOf(uintptr(0))
+var INTERFACE	= reflect.TypeOf(_a)
+var BOOLEAN		= reflect.TypeOf(true)
+var BYTE		= reflect.TypeOf(byte(0))
+var INT			= reflect.TypeOf(int(0))
+var INT8		= reflect.TypeOf(int8(0))
+var INT16		= reflect.TypeOf(int16(0))
+var INT32		= reflect.TypeOf(int32(0))
+var INT64		= reflect.TypeOf(int64(0))
+var UINT		= reflect.TypeOf(uint(0))
+var UINT8		= reflect.TypeOf(uint8(0))
+var UINT16		= reflect.TypeOf(uint16(0))
+var UINT32		= reflect.TypeOf(uint32(0))
+var UINT64		= reflect.TypeOf(uint64(0))
+var FLOAT32		= reflect.TypeOf(float32(0.0))
+var FLOAT64		= reflect.TypeOf(float64(0.0))
+var COMPLEX64	= reflect.TypeOf(complex64(0))
+var COMPLEX128	= reflect.TypeOf(complex128(0))

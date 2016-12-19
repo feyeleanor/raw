@@ -6,16 +6,13 @@ import (
 	"unsafe"
 )
 
-
 func TestByteSliceWithNil(t *testing.T) {
 	b := ByteSlice(nil)
 	buf := ByteSlice(b)
-	if len(buf) != 0 {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), 0)
-	}
-	if cap(buf) != cap(b) {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), 0)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == 0,
+		cap(buf) == cap(b),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -27,12 +24,10 @@ func TestByteSliceWithNil(t *testing.T) {
 func TestByteSliceWithByteSlice(t *testing.T) {
 	b := make([]byte, 10, 10)
 	buf := ByteSlice(b)
-	if len(buf) != len(b) {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(b))
-	}
-	if cap(buf) != cap(b) {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(b))
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == len(b),
+		cap(buf) == cap(b),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -63,15 +58,14 @@ func TestByteSliceWithChannel(t *testing.T) {
 
 func TestByteSliceWithInterface(t *testing.T) {
 	t.Log("Awaiting bug fix for incorrect reporting of interface{} value size with unsafe.Sizeof()")
-/*	var i interface{} = make([]byte, INTERFACE.size, INTERFACE.size)
+/*	var i interface{} = make([]byte, INTERFACE.Size(), INTERFACE.Size())
 	b := i.([]byte)
 	buf := ByteSlice(i)
-	if len(buf) != len(b) {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(b))
-	}
-	if cap(buf) != cap(b) {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), cap(b))
-	}
+
+	FailOnBadBufferSize(t,
+		len(buf) == len(b),
+		cap(buf) == cap(b),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&b))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -83,12 +77,10 @@ func TestByteSliceWithInterface(t *testing.T) {
 func TestByteSliceWithString(t *testing.T) {
 	s := "hello"
 	buf := ByteSlice(s)
-	if len(buf) != len(s) {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), len(s))
-	}
-	if cap(buf) != len(s) {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), len(s))
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == len(s),
+		cap(buf) == len(s),
+	)
 
 	stringheader := *(*reflect.StringHeader)(unsafe.Pointer(&s))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -100,15 +92,12 @@ func TestByteSliceWithString(t *testing.T) {
 func TestByteSliceWithEmptyStructValue(t *testing.T) {
 	s := struct {}{}
 	buf := ByteSlice(&s)
-
 	size := int(unsafe.Sizeof(struct {}{}))
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	base_address := uintptr(unsafe.Pointer(&s))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -126,15 +115,12 @@ type Point struct {
 func TestByteSliceWithStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	buf := ByteSlice(&point)
-
 	size := int(unsafe.Sizeof(point))
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	base_address := uintptr(unsafe.Pointer(&point))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -146,15 +132,12 @@ func TestByteSliceWithStructValue(t *testing.T) {
 func TestByteSliceWithStructPointer(t *testing.T) {
 	point := &Point{ 3, 4, 5 }
 	buf := ByteSlice(point)
-
 	size := int(unsafe.Sizeof(*point))
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	base_address := uintptr(unsafe.Pointer(point))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -172,15 +155,12 @@ func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	tag := &TaggedPoint{ point, "this is a tag" }
 	buf := ByteSlice(tag)
-
 	size := int(unsafe.Sizeof(*tag))
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	base_address := uintptr(unsafe.Pointer(tag))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -199,15 +179,12 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 	point := Point{ 3, 4, 5 }
 	tag := &TaggedPointReference{ &point, "this is a tag" }
 	buf := ByteSlice(tag)
-
 	size := int(unsafe.Sizeof(*tag))
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	base_address := uintptr(unsafe.Pointer(tag))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -217,16 +194,14 @@ func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
 }
 
 func TestByteSliceWithInt32Slice(t *testing.T) {
-	i := make([]int32, 10, 10)
+	i := make([]int32, 10, 20)
 	buf := ByteSlice(i)
-	size := len(i) * INT32.size
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
+	is := int(reflect.TypeOf(i).Elem().Size())
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == is * len(i),
+		cap(buf) == is * cap(i),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -236,16 +211,14 @@ func TestByteSliceWithInt32Slice(t *testing.T) {
 }
 
 func TestByteSliceWithInt64Slice(t *testing.T) {
-	i := make([]int64, 10, 10)
+	i := make([]int64, 10, 20)
 	buf := ByteSlice(i)
-	size := len(i) * INT64.size
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
+	is := int(reflect.TypeOf(i).Elem().Size())
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == is * len(i),
+		cap(buf) == is * cap(i),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&i))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -257,14 +230,12 @@ func TestByteSliceWithInt64Slice(t *testing.T) {
 func TestByteSliceWithFloat32Slice(t *testing.T) {
 	f := make([]float32, 10, 10)
 	buf := ByteSlice(f)
-	size := len(f) * FLOAT32.size
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
+	fs := int(reflect.TypeOf(f).Elem().Size())
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == fs * len(f),
+		cap(buf) == fs * cap(f),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -276,14 +247,12 @@ func TestByteSliceWithFloat32Slice(t *testing.T) {
 func TestByteSliceWithFloat64Slice(t *testing.T) {
 	f := make([]float64, 10, 10)
 	buf := ByteSlice(f)
-	size := len(f) * FLOAT64.size
-	if len(buf) != size {
-		t.Fatalf("byte buffer lengths differ: %v != %v", len(buf), size)
-	}
+	fs := int(reflect.TypeOf(f).Elem().Size())
 
-	if cap(buf) != size {
-		t.Fatalf("byte buffer capacities differ: %v != %v", cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == fs * len(f),
+		cap(buf) == fs * cap(f),
+	)
 
 	sliceheader := *(*reflect.SliceHeader)(unsafe.Pointer(&f))
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
@@ -304,15 +273,12 @@ func ValidateNumericByteSlice(t *testing.T, value interface{}) {
 	size = int(v.Type().Size())
 	addr = v.UnsafeAddr()
 	numtype = v.Type()
-
 	buf := ByteSlice(value)
-	if len(buf) != size {
-		t.Fatalf("%v: byte buffer lengths differ: %v != %v", numtype, len(buf), size)
-	}
 
-	if cap(buf) != size {
-		t.Fatalf("%v: byte buffer capacities differ: %v != %v", numtype, cap(buf), size)
-	}
+	FailOnBadBufferSize(t,
+		len(buf) == size,
+		cap(buf) == size,
+	)
 
 	bufheader := *(*reflect.SliceHeader)(unsafe.Pointer(&buf))
 	if addr != bufheader.Data {
