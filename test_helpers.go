@@ -14,6 +14,10 @@ type point struct { x, y, z int32 }
 type taggedPoint struct { point; tag string }
 type taggedPointReference struct { *point; tag string }
 
+func NewPoint(x, y, z int32) *point {
+	return &point{ x, y, z }
+}
+
 func FailOnBadBufferSize(f Fatal, good_length, good_capacity bool) {
 	switch {
 	case !good_length:
