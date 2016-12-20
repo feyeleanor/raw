@@ -10,6 +10,10 @@ type Fatal interface {
 	Fatalf(string, ...interface{})
 }
 
+type point struct { x, y, z int32 }
+type taggedPoint struct { point; tag string }
+type taggedPointReference struct { *point; tag string }
+
 func FailOnBadBufferSize(f Fatal, good_length, good_capacity bool) {
 	switch {
 	case !good_length:

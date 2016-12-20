@@ -69,10 +69,8 @@ func TestByteSliceWithEmptyStructValue(t *testing.T) {
 	FailOnAddressMismatch(t, unsafe.Pointer(&s), buf)
 }
 
-type Point struct { x, y, z int32 }
-
 func TestByteSliceWithStructValue(t *testing.T) {
-	point := Point{ 3, 4, 5 }
+	point := point{ 3, 4, 5 }
 	buf := ByteSlice(&point)
 	size := int(unsafe.Sizeof(point))
 
@@ -84,7 +82,7 @@ func TestByteSliceWithStructValue(t *testing.T) {
 }
 
 func TestByteSliceWithStructPointer(t *testing.T) {
-	point := &Point{ 3, 4, 5 }
+	point := &point{ 3, 4, 5 }
 	buf := ByteSlice(point)
 	size := int(unsafe.Sizeof(*point))
 
@@ -95,11 +93,9 @@ func TestByteSliceWithStructPointer(t *testing.T) {
 	FailOnAddressMismatch(t, unsafe.Pointer(point), buf)
 }
 
-type TaggedPoint struct { Point; tag string }
-
 func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
-	point := Point{ 3, 4, 5 }
-	tag := &TaggedPoint{ point, "this is a tag" }
+	point := point{ 3, 4, 5 }
+	tag := &taggedPoint{ point, "this is a tag" }
 	buf := ByteSlice(tag)
 	size := int(unsafe.Sizeof(*tag))
 
@@ -110,12 +106,9 @@ func TestByteSliceWithEmbeddedStructValue(t *testing.T) {
 	FailOnAddressMismatch(t, unsafe.Pointer(tag), buf)
 }
 
-
-type TaggedPointReference struct { *Point; tag string }
-
 func TestByteSliceWithEmbeddedStructPointer(t *testing.T) {
-	point := Point{ 3, 4, 5 }
-	tag := &TaggedPointReference{ &point, "this is a tag" }
+	point := point{ 3, 4, 5 }
+	tag := &taggedPointReference{ &point, "this is a tag" }
 	buf := ByteSlice(tag)
 	size := int(unsafe.Sizeof(*tag))
 
@@ -207,10 +200,12 @@ func TestByteSliceWithNumbers(t *testing.T) {
 }
 
 func TestByteSliceWithNumbersInSlice(t *testing.T) {
-	values := []interface{}{	int(0), int8(0), int16(0), int32(0), int64(0),
-								uint(0), uint8(0), uint16(0), uint32(0), uint64(0),
-								float32(0.0), float64(0.0),
-								complex64(0), complex128(0) }
+	values := []interface{}{
+		int(0), int8(0), int16(0), int32(0), int64(0),
+		uint(0), uint8(0), uint16(0), uint32(0), uint64(0),
+		float32(0.0), float64(0.0),
+		complex64(0), complex128(0),
+	}
 	for i, _ := range values {
 		ValidateNumericByteSlice(t, &values[i])
 	}
