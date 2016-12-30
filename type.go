@@ -8,23 +8,39 @@ import (
 //	Repeatedly uses *reflect.Indirect* to step through a series of *reflect.Ptr* values
 //	and arrive at the concrete value they point to.
 //
-func DereferenceAll(value interface{}) (r reflect.Value) {
-	for r = reflect.ValueOf(value); r.Kind() == reflect.Ptr; r = reflect.Indirect(r) {}
+func DereferenceAll(v interface{}) interface{} {
+	var r reflect.Value
+	for r = reflect.ValueOf(v); r.Kind() == reflect.Ptr; r = reflect.Indirect(r) {}
+	return r.Interface()
+}
+
+//	Uses reflect.Set to create a *shallow* copy of an existing value.
+//
+func shallowCopy(v reflect.Value) (r reflect.Value) {
+	r = reflect.New(v.Type())
+	r.Elem().Set(v)
 	return
 }
 
-//	Uses reflect.Set to create a copy of an existing value.
-//	This will only work if the value being copied is *settable* according to the language specification.
-//	A struct{} type with unexported fields is never *settable* via reflection.
-//	If the value cannot be copied then nil is returned.
+//	Uses reflection to create a *shallow* copy of an existing value.
+//	This will only work if the Type of value being copied is *settable* according to the language specification.
 //
-func Duplicate(value reflect.Value) (r interface{}) {
-	if value.CanSet() {
-		ptr := reflect.New(value.Type()).Elem()
-		ptr.Set(value)
-		r = ptr.Interface()
+func ShallowCopy(v interface{}) (r interface{}) {
+	var rv reflect.Value
+	switch v := v.(type) {
+	case reflect.Value:
+		rv = shallowCopy(v)
+	default:
+		rv = shallowCopy(reflect.ValueOf(v))
 	}
-	return
+	return rv.Interface()
+}
+
+func MakeAddressable(v reflect.Value) reflect.Value {
+	if !v.CanAddr() {
+		v = shallowCopy(v)
+	}
+	return v
 }
 
 var _a interface{} = 0
